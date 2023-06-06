@@ -53,15 +53,14 @@ To get started with the project, follow these steps:
 
 4. Analyze the data: Utilize the data stored in the database for further analysis, insights, and identifying betting opportunities.
 
-## Future Goals
+## Roadmap
 
-Our future goals for Shaddy Powder include:
-
-- Developing advanced statistical models and algorithms to identify high-value betting opportunities.
-- Integrating machine learning techniques to improve betting predictions and accuracy.
-- Building a user-friendly web interface or application to provide real-time match analysis and betting recommendations.
-- Expanding our coverage to include additional sports and leagues.
-- Collaborating with betting experts and analysts to enhance our betting strategies and insights.
+Our future plan for Shaddy Powder includes the following milestones:
+1. Developing the backend architecture for the web application.
+2. Implementing data processing and analysis algorithms to generate betting tips and predictions.
+3. Designing an intuitive user interface for easy navigation and accessing betting insights.
+4. Incorporating real-time match updates and live betting features to provide the latest information to users.
+5. Enhancing the application with additional sports data analysis capabilities beyond football.
 
 ## Contributing
 
