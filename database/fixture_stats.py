@@ -183,6 +183,3 @@ def load_fixture_stats(season_year):
 
 load_fixture_stats(2022)
 
-# fetch_fixture_stats(867954)
-
-# get_completed_fixtures(2022)
