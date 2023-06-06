@@ -120,7 +120,7 @@ def get_completed_fixtures(season_year):
         FROM fixtures 
         WHERE season_year = %s
         AND elapsed >= 90
-        AND fixture_date >= CURRENT_DATE - 7
+        AND fixture_date >= CURRENT_DATE - 2
         # AND fixture_id NOT IN (SELECT fixture_id FROM fixtures_stats)
         AND (home_team_id IN (SELECT home_team_id FROM fixtures WHERE league_id IN (39, 135, 140, 61, 188))
             OR
