@@ -39,10 +39,14 @@ query = """
         MAX(season_year) AS season_year
     FROM fixture_player_stats fps
     LEFT JOIN fixtures f on fps.fixture_id = f.fixture_id
-    WHERE league_id IN (39, 135)
+    WHERE
+    1 = 1
+    # AND league_id IN (40, 140, 188, 61, 78)
     AND player_id NOT IN (SELECT player_id FROM players)
+    AND player_id <> 0
     # AND player_id IN (15908, 17365)
     GROUP BY 1
+    LIMIT 1400
 """
 
 # Execute the query
@@ -78,7 +82,7 @@ for player_id, season_year in player_data:
     # Insert player information into the database
     insert_player_info(cursor, player_id, name, first_name, last_name, nationality, age, height, weight, photo)
     
-    time.sleep(0.5)
+    time.sleep(0.3)
 
 # Commit the changes and close the connection
 conn.commit()

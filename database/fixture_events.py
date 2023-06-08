@@ -38,7 +38,7 @@ query = """
     FROM fixtures f
     WHERE
         1 = 1
-        AND f.season_year = 2022
+        AND f.season_year = 2021
         # AND f.league_id = 39
         AND NOT EXISTS (
             SELECT 1
