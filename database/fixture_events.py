@@ -28,77 +28,58 @@ def insert_fixture_events(cur, event_id, fixture_id, team_id, player_id, type, d
     """
     cur.execute(sql, (event_id, fixture_id, team_id, player_id, type, detail, comments, minute, extra_minute, result, assist_id))
 
-# Connect to MySQL database
-conn = mysql.connector.connect(**db_config)
-cursor = conn.cursor()
+def load_fixture_events(query):
+    # Connect to MySQL database
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor()
 
-# Query to get fixture details
-query = """
-    SELECT DISTINCT f.fixture_id
-    FROM fixtures f
-    WHERE
-        1 = 1
-        AND f.season_year = 2021
-        # AND f.league_id = 39
-        AND NOT EXISTS (
-            SELECT 1
-            FROM fixture_events fe
-            WHERE f.fixture_id = fe.fixture_id
-        )
-        AND f.fixture_id IN (
-            SELECT fixture_id
-            FROM fixtures_stats
-        )
-"""
+    # Execute the query
+    cursor.execute(query)
+    fixtures = cursor.fetchall()
 
-# Execute the query
-cursor.execute(query)
-fixtures = cursor.fetchall()
+    # Iterate over fixtures
+    for fixture in fixtures:
+        fixture_id = fixture[0]
+        params = {"fixture": fixture_id}
 
-# Iterate over fixtures
-for fixture in fixtures:
-    fixture_id = fixture[0]
-    params = {"fixture": fixture_id}
-    
-    # Fetch fixture event data
-    response = requests.get(EVENTS_URL, headers={"X-RapidAPI-Key": rapid_api_key}, params=params)
-    event_data = response.json()
-    
-    try:
-        event_data = event_data['response']
-    except KeyError:
-        event_data = []
+        # Fetch fixture event data
+        response = requests.get(EVENTS_URL, headers={"X-RapidAPI-Key": rapid_api_key}, params=params)
+        event_data = response.json()
 
-    # Store fixture events in the database
-    for index, event in enumerate(event_data, start=1):
-        # fixture_id = event['fixture_id']
-        sequential_number = index
-    
-        # Generate the event ID by combining the fixture ID and sequential number
-        event_id = f"{fixture_id}{sequential_number}" # Generate a unique event_id using UUID
-        team_id = event['team']['id']
-        type = event['type']
-        detail = event['detail']
-        comments = event['comments']
-        
-        player_id = None
-        assist_id = None
-        
-        if 'player' in event:
-            player_id = event['player']['id']
-        
-        if 'assist' in event:
-            assist_id = event['assist']['id']
-        
-        minute = event['time']['elapsed']
-        extra_minute = event['time'].get('extra', None)
-        result = None
-        
-        # Insert fixture event
-        insert_fixture_events(cursor, event_id, fixture_id, team_id, player_id, type, detail, comments, minute, extra_minute, result, assist_id)
+        try:
+            event_data = event_data['response']
+        except KeyError:
+            event_data = []
 
- 
-# Commit the changes and close the connection
-conn.commit()
-cursor.close()
-conn.close()
+        # Store fixture events in the database
+        for index, event in enumerate(event_data, start=1):
+            # fixture_id = event['fixture_id']
+            sequential_number = index
+
+            # Generate the event ID by combining the fixture ID and sequential number
+            event_id = f"{fixture_id}{sequential_number}" # Generate a unique event_id using UUID
+            team_id = event['team']['id']
+            type = event['type']
+            detail = event['detail']
+            comments = event['comments']
+
+            player_id = None
+            assist_id = None
+
+            if 'player' in event:
+                player_id = event['player']['id']
+
+            if 'assist' in event:
+                assist_id = event['assist']['id']
+
+            minute = event['time']['elapsed']
+            extra_minute = event['time'].get('extra', None)
+            result = None
+
+            # Insert fixture event
+            insert_fixture_events(cursor, event_id, fixture_id, team_id, player_id, type, detail, comments, minute, extra_minute, result, assist_id)
+
+    # Commit the changes and close the connection
+    conn.commit()
+    cursor.close()
+    conn.close()

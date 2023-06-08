@@ -3,6 +3,7 @@ import os
 import mysql.connector
 import requests
 import time
+import subprocess
 
 # Add the parent directory to the system path
 parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -109,34 +110,25 @@ def insert_fixture_stats(fixture_id, team_id, team_name, against_team_id, agains
     cursor.close()
     conn.close()
 
-
-def get_completed_fixtures(season_year):
+def get_completed_fixtures(query):
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor()
 
-    query = '''
-        SELECT
-            DISTINCT fixture_id
-        FROM fixtures 
-        WHERE season_year = %s
-        AND elapsed >= 90
-        AND fixture_date >= CURRENT_DATE - 2
-        # AND fixture_id NOT IN (SELECT fixture_id FROM fixtures_stats)
-        AND (home_team_id IN (SELECT home_team_id FROM fixtures WHERE league_id IN (39, 135, 140, 61, 188))
-            OR
-             away_team_id IN (SELECT away_team_id FROM fixtures WHERE league_id IN (39, 135, 140, 61, 188))
-            )
-    '''
+    cursor.execute(query)
 
-    cursor.execute(query, (season_year,))
-    completed_fixtures_list = [row[0] for row in cursor.fetchall()]
+    # completed_fixtures = cursor.fetchall()
+    completed_fixtures = [row[0] for row in cursor.fetchall()]
 
     cursor.close()
     conn.close()
 
-    return completed_fixtures_list
+    return completed_fixtures
+
 
 def fetch_fixture_stats(fixture_id):
+    
+    # print(fixture_id)
+    
     fixture_string = {"fixture": str(fixture_id)}
     fixt_response = requests.get(FIXTURE_STATS_URL, headers=headers, params=fixture_string)
 
@@ -174,12 +166,18 @@ def fetch_fixture_stats(fixture_id):
             # print("No fixture stats found for fixture ID:", fixture_id)
 
         time.sleep(0.5)
+        
 
-def load_fixture_stats(season_year):
-    completed_fixtures = get_completed_fixtures(season_year)
+def load_fixture_stats(query):
+    completed_fixtures = get_completed_fixtures(query)
 
     for fixture_id in completed_fixtures:
         fetch_fixture_stats(fixture_id)
+        # print(fixture_id)
 
-load_fixture_stats(2022)
 
+# print(season_year)
+
+# print(query)
+
+# load_fixture_stats(season_year, query)

@@ -28,63 +28,44 @@ def insert_player_info(cur, player_id, name, first_name, last_name, nationality,
     """
     cur.execute(sql, (player_id, name, first_name, last_name, nationality, age, height, weight, photo))
 
-# Connect to MySQL database
-conn = mysql.connector.connect(**db_config)
-cursor = conn.cursor()
+def load_player_info(query):
+    # Connect to MySQL database
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor()
 
-# Query to get player IDs and season years
-query = """
-    SELECT
-        player_id,
-        MAX(season_year) AS season_year
-    FROM fixture_player_stats fps
-    LEFT JOIN fixtures f on fps.fixture_id = f.fixture_id
-    WHERE
-    1 = 1
-    # AND league_id IN (40, 140, 188, 61, 78)
-    AND player_id NOT IN (SELECT player_id FROM players)
-    AND player_id <> 0
-    # AND player_id IN (15908, 17365)
-    GROUP BY 1
-    LIMIT 1400
-"""
+    # Execute the query
+    cursor.execute(query)
+    player_data = cursor.fetchall()
 
-# Execute the query
-cursor.execute(query)
-player_data = cursor.fetchall()
+    # Iterate over player data
+    for player_id, season_year in player_data:
+        params = {"id": player_id, "season": season_year}
 
+        # Fetch player information
+        response = requests.get(PLAYER_INFO_URL, headers={"X-RapidAPI-Key": rapid_api_key}, params=params)
+        player_info = response.json()
 
-# Iterate over player data
-for player_id, season_year in player_data:
-    params = {"id": player_id, "season": season_year}
+        try:
+            player_info = player_info['response'][0]
+        except (KeyError, IndexError):
+            continue
 
-    # Fetch player information
-    response = requests.get(PLAYER_INFO_URL, headers={"X-RapidAPI-Key": rapid_api_key}, params=params)
-    player_info = response.json()
-    
-    # print(player_info)
-    
-    try:
-        player_info = player_info['response'][0]
-    except (KeyError, IndexError):
-        continue
-    
-    # Extract player details
-    name = player_info['player']['name']
-    first_name = player_info['player'].get('firstname', '')
-    last_name = player_info['player'].get('lastname', '')
-    nationality = player_info['player'].get('nationality', '')
-    age = player_info['player'].get('age', '')
-    height = player_info['player'].get('height', '')
-    weight = player_info['player'].get('weight', '')
-    photo = player_info['player'].get('photo', '')
-    
-    # Insert player information into the database
-    insert_player_info(cursor, player_id, name, first_name, last_name, nationality, age, height, weight, photo)
-    
-    time.sleep(0.3)
+        # Extract player details
+        name = player_info['player']['name']
+        first_name = player_info['player'].get('firstname', '')
+        last_name = player_info['player'].get('lastname', '')
+        nationality = player_info['player'].get('nationality', '')
+        age = player_info['player'].get('age', '')
+        height = player_info['player'].get('height', '')
+        weight = player_info['player'].get('weight', '')
+        photo = player_info['player'].get('photo', '')
 
-# Commit the changes and close the connection
-conn.commit()
-cursor.close()
-conn.close()
+        # Insert player information into the database
+        insert_player_info(cursor, player_id, name, first_name, last_name, nationality, age, height, weight, photo)
+
+        time.sleep(0.3)
+        
+    # Commit the changes and close the connection
+    conn.commit()
+    cursor.close()
+    conn.close()

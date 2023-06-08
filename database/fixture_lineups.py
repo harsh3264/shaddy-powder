@@ -19,7 +19,7 @@ db_config = {
     'database': 'base_data_apis'
 }
 
-def insert_fixture_info(cur, fixture_id, team_id, is_home,coach_id, coach_name, photo, formation):
+def insert_fixture_info(cur, fixture_id, team_id, is_home, coach_id, coach_name, photo, formation):
     sql = """
         INSERT INTO fixture_coach (fixture_id, team_id, is_home, coach_id, coach_name, photo, formation)
         VALUES (%s, %s, %s, %s, %s, %s, %s)
@@ -35,94 +35,66 @@ def insert_player_info(cur, fixture_id, team_id, player_id, player_number, playe
     """
     cur.execute(sql, (fixture_id, team_id, player_id, player_number, player_pos, grid, is_substitute))
 
-# Connect to MySQL database
-conn = mysql.connector.connect(**db_config)
-cursor = conn.cursor()
+def load_fixture_lineups(query):
+    # Connect to MySQL database
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor()
 
-# Query to get fixture details
-query = """
-    SELECT DISTINCT f.fixture_id
-    FROM fixtures f
-    WHERE
-        1 = 1
-        AND f.season_year = 2021
-        # AND f.league_id = 39
-        AND NOT EXISTS (
-            SELECT 1
-            FROM fixture_lineups fl
-            WHERE f.fixture_id = fl.fixture_id
-        )
-        AND f.fixture_id IN (
-            SELECT fixture_id
-            FROM fixtures_stats
-        )
-"""
+    # Execute the query
+    cursor.execute(query)
+    fixtures = cursor.fetchall()
 
-# Execute the query
-cursor.execute(query)
-fixtures = cursor.fetchall()
+    # Iterate over fixtures
+    for fixture in fixtures:
+        fixture_id = fixture[0]
+        params = {"fixture": fixture_id}
 
-# Iterate over fixtures
-for fixture in fixtures:
-    fixture_id = fixture[0]
-    params = {"fixture": fixture_id}
-    
-    # Fetch lineup data
-    response = requests.get(LINEUP_URL, headers={"X-RapidAPI-Key": rapid_api_key}, params=params)
-    lineup_data = response.json()
-    
-    # print(lineup_data)
+        # Fetch lineup data
+        response = requests.get(LINEUP_URL, headers={"X-RapidAPI-Key": rapid_api_key}, params=params)
+        lineup_data = response.json()
 
-    try:
-        lineup_data = lineup_data['response']
-    except KeyError:
-        lineup_data = []
-    
-    # print(fixture_id)
-    
-    # Store fixture info in the database
-    for i, lineup in enumerate(lineup_data):
-        team_id = lineup['team']['id']
-        is_home = True if i == 0 else False  # First lineup object is home, others are away
-        coach_id = lineup['coach']['id']
-        coach_id = lineup['coach']['id']
-        coach_name = lineup['coach']['name']
-        coach = lineup.get('coach', {})
-        photo = coach.get('photo', None)  
-        formation = lineup['formation']
-        
-        # Insert fixture info
-        insert_fixture_info(cursor, fixture_id, team_id, is_home, coach_id, coach_name, photo, formation)
-        
-        # print(lineup['startXI'])
-        
-        # Insert player info
-        for player in lineup['startXI']:
-            player_id = player['player']['id']
-            # print(player_id)
-            player_number = player['player']['number']
-            player_pos = player['player']['pos']
-            grid = player['player']['grid']
-            is_substitute = 0
-            
-            insert_player_info(cursor, fixture_id, team_id, player_id, player_number, player_pos, grid, is_substitute)
-        
-        # print(lineup['substitutes'])
-        
-        # Insert substitute info
-        for substitute in lineup['substitutes']:
-            if substitute['player'] and substitute['player']['id'] is not None:
-                player_id = substitute['player']['id']
-            else:
-                player_id = 0
-            player_number = substitute['player']['number']
-            player_pos = substitute['player']['pos']
-            grid = None
-            is_substitute = 1
-            
-            insert_player_info(cursor, fixture_id, team_id, player_id, player_number, player_pos, grid, is_substitute)
+        try:
+            lineup_data = lineup_data['response']
+        except KeyError:
+            lineup_data = []
 
-# Commit the changes and close the connection
-conn.commit()
-cursor.close()
-conn.close()
+        # Store fixture info in the database
+        for i, lineup in enumerate(lineup_data):
+            team_id = lineup['team']['id']
+            is_home = True if i == 0 else False  # First lineup object is home, others are away
+            coach_id = lineup['coach']['id']
+            coach_name = lineup['coach']['name']
+            coach = lineup.get('coach', {})
+            photo = coach.get('photo', None)
+            formation = lineup['formation']
+
+            # Insert fixture info
+            insert_fixture_info(cursor, fixture_id, team_id, is_home, coach_id, coach_name, photo, formation)
+
+            # Insert player info
+            for player in lineup['startXI']:
+                player_id = player['player']['id']
+                player_number = player['player']['number']
+                player_pos = player['player']['pos']
+                grid = player['player']['grid']
+                is_substitute = 0
+
+                insert_player_info(cursor, fixture_id, team_id, player_id, player_number, player_pos, grid, is_substitute)
+
+            # Insert substitute info
+            for substitute in lineup['substitutes']:
+                if substitute['player'] and substitute['player']['id'] is not None:
+                    player_id = substitute['player']['id']
+                else:
+                    player_id = 0
+                player_number = substitute['player']['number']
+                player_pos = substitute['player']['pos']
+                grid = None
+                is_substitute = 1
+
+                insert_player_info(cursor, fixture_id, team_id, player_id, player_number, player_pos, grid, is_substitute)
+
+    # Commit the changes and close the connection
+    conn.commit()
+    cursor.close()
+    conn.close()

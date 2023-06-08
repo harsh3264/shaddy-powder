@@ -72,58 +72,34 @@ def insert_fixture_player_stats(cursor, fixture_id, player_stats):
 
             cursor.execute(sql, params)
 
-# Connect to MySQL database
-conn = mysql.connector.connect(**db_config)
-cursor = conn.cursor()
+def load_fixture_player_stats(query):
+    # Connect to MySQL database
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor()
 
-# Query to get fixture IDs without player stats
-query = """
-    SELECT DISTINCT f.fixture_id
-    FROM fixtures f
-    WHERE 
-        1 = 1
-        AND f.season_year = 2022
-        # AND f.league_id = 39
-        AND NOT EXISTS (
-            SELECT 1
-            FROM fixture_player_stats fps
-            WHERE f.fixture_id = fps.fixture_id
-        )
-        AND EXISTS (
-            SELECT 1
-            FROM fixture_lineups fl
-            WHERE f.fixture_id = fl.fixture_id
-        )
-"""
+    # Execute the query
+    cursor.execute(query)
+    fixtures = cursor.fetchall()
 
-# Execute the query
-cursor.execute(query)
-fixtures = cursor.fetchall()
+    # Iterate over fixtures
+    for fixture in fixtures:
+        fixture_id = fixture[0]
 
+        params = {"fixture": fixture_id}
 
-# Iterate over fixtures
-for fixture in fixtures:
-    fixture_id = fixture[0]
-    
-    params = {"fixture": fixture_id}
-    
-    # Fetch player stats data
-    response = requests.get(PLAYERS_URL, headers={"X-RapidAPI-Key": rapid_api_key}, params=params)
-    player_stats_data = response.json()
-    
-    # print(player_stats_data)
-    
-    try:
-        player_stats_data = player_stats_data['response']
-    except KeyError:
-        player_stats_data = []
-        
-    # print(player_stats_data)
-    
-    # Insert player stats for the fixture
-    insert_fixture_player_stats(cursor, fixture_id, player_stats_data)
+        # Fetch player stats data
+        response = requests.get(PLAYERS_URL, headers={"X-RapidAPI-Key": rapid_api_key}, params=params)
+        player_stats_data = response.json()
 
-# Commit the changes and close the connection
-conn.commit()
-cursor.close()
-conn.close()
+        try:
+            player_stats_data = player_stats_data['response']
+        except KeyError:
+            player_stats_data = []
+
+        # Insert player stats for the fixture
+        insert_fixture_player_stats(cursor, fixture_id, player_stats_data)
+
+    # Commit the changes and close the connection
+    conn.commit()
+    cursor.close()
+    conn.close()
