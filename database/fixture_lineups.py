@@ -73,7 +73,11 @@ def load_fixture_lineups(query):
 
             # Insert player info
             for player in lineup['startXI']:
-                player_id = player['player']['id']
+                if player['player'] and player['player']['id'] is not None:
+                    player_id = player['player']['id']
+                else:
+                    player_id = 0
+                # player_id = player['player']['id']
                 player_number = player['player']['number']
                 player_pos = player['player']['pos']
                 grid = player['player']['grid']

@@ -32,9 +32,13 @@ def calculate_probability():
 
     # Get unique teams from the data
     teams = data['team_name'].unique()
+    
+    # print(teams)
 
     # Define the columns (metrics) for which you want to generate thresholds
     columns = data.columns[6:]  # Assuming the metric columns start from column number 6
+    
+    # print(columns)
 
     # Create a results table to store the probabilities
     results_table = pd.DataFrame(columns=['team_name', 'metric', 'scenario', 'threshold', 'probability'])

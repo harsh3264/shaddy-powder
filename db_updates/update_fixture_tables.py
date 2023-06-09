@@ -20,12 +20,13 @@ query = '''
    SELECT
         DISTINCT fixture_id
     FROM fixtures
-    WHERE season_year = 2021
+    WHERE
+    1 = 1
+    # AND season_year >= 2018
     AND elapsed >= 90
     # AND fixture_date >= CURRENT_DATE - 2
     AND fixture_id NOT IN (SELECT fixture_id FROM fixture_player_stats)
-    AND league_id = 88
-    # LIMIT 3
+    AND (home_team_id IN (50, 505) OR away_team_id IN (50, 505))
 '''
 
 def update_player_info():
@@ -37,7 +38,7 @@ def update_player_info():
         LEFT JOIN fixtures f on fps.fixture_id = f.fixture_id
         WHERE
             1 = 1
-            AND league_id IN (88)
+            # AND league_id IN (88)
             AND player_id NOT IN (SELECT player_id FROM players)
             AND player_id IN (SELECT player_id FROM fixture_player_stats)
             AND player_id <> 0
@@ -46,11 +47,8 @@ def update_player_info():
     load_player_info(players_query)
     
 
-# Create an empty list to store the fixture IDs
-fixture_ids = []
-
 # Call the function to update fixture stats and store the fixture IDs
-# load_fixture_stats(query)
+load_fixture_stats(query)
 
 # Call the function to update fixture events and pass the fixture IDs
 load_fixture_events(query)
@@ -62,4 +60,4 @@ load_fixture_lineups(query)
 load_fixture_player_stats(query)
 
 # Call the function to update player info 
-update_player_info()
+# update_player_info()
