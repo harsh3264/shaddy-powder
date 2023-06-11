@@ -22,11 +22,11 @@ query = '''
     FROM fixtures
     WHERE
     1 = 1
-    # AND season_year >= 2018
+    AND season_year >= 2020
     AND elapsed >= 90
+    AND league_id IN (5)
     # AND fixture_date >= CURRENT_DATE - 2
     AND fixture_id NOT IN (SELECT fixture_id FROM fixture_player_stats)
-    # AND (home_team_id IN (50, 505) OR away_team_id IN (50, 505))
 '''
 
 def update_player_info():
@@ -43,7 +43,8 @@ def update_player_info():
             AND player_id IN (SELECT player_id FROM fixture_player_stats)
             AND player_id <> 0
         GROUP BY 1
-        LIMIT 500
+        # ORDER BY 2 DESC
+        # LIMIT 500
     """
     load_player_info(players_query)
     
@@ -61,4 +62,4 @@ load_fixture_lineups(query)
 load_fixture_player_stats(query)
 
 # Call the function to update player info 
-update_player_info()
+# update_player_info()
