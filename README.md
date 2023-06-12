@@ -19,13 +19,13 @@ We utilize the following data sources for our analysis:
 
 - Rapid APIs: We make use of Rapid APIs, specifically the API-Football service, to fetch real-time sports data, including fixture details, player information, and fixture events. Our subscription includes the paid version with 7500 API calls per day.
 
-## Python Scripts
+## Database
 
-We have implemented several Python scripts for different functionalities:
+We have set up a MySQL database using Amazon RDS within our AWS account. The database configuration details are as follows:
 
-- `fetch_fixture_events.py`: Fetches fixture events from Rapid APIs and stores them in the database.
-- `fetch_players_info.py`: Retrieves player information from Rapid APIs based on player IDs and season years.
-- `update_league_standings.py`: Updates the league standings table with the latest data from the API.
+- Database Engine: MySQL (RDS)
+- AWS Account: Shaddy Powder
+- AWS Cloud9: We are utilizing AWS Cloud9 as our development environment for backend design and implementation.
 
 ## Database Tables
 
@@ -40,28 +40,23 @@ We have designed the following tables to store our data:
 - `fixture_events`: Stores detailed information about events that occur during fixtures.
 - `players`: Stores player information, including player IDs, names, nationality, age, height, weight, and photos.
 - `league_standings`: Stores league standings for each season and league.
+- `players_sidelined`: Stores information about players who are sidelined or injured.
 
-## Getting Started
+## Project Management Steps
 
-To get started with the project, follow these steps:
+To achieve our goal of having the project up and running, we are following the following steps:
 
-1. Set up the database: Execute the necessary SQL scripts in the `database` folder to create the required tables and configure the database connection.
+1. Backend Creation: Develop the backend architecture for the application, including the database building and setup. (Timeline: Started on 4th June, to be completed by 20th June)
 
-2. Configure API credentials: Obtain the necessary API credentials from Rapid APIs and update the corresponding variables in the Python scripts.
+2. Analysis and Data Modeling: Perform in-depth analysis of sports data, develop data models, and design algorithms for generating betting tips and predictions. (Timeline: 21st June - 30th June)
 
-3. Run the Python scripts: Execute the Python scripts in the `python_api` and `db_updates` folders to fetch data from the APIs, update the database tables, and perform necessary data synchronization.
+3. UI Design: Create an intuitive and visually appealing user interface for the web application, incorporating data visualizations and easy navigation. (Timeline: 1st July - 10th July)
 
-4. Analyze the data: Utilize the data stored in the database for further analysis, insights, and identifying betting opportunities.
+4. Integration and Testing: Integrate the backend with the UI, perform thorough testing to ensure the functionality and accuracy of the application. (Timeline: 11th July - 14th July)
 
-## Roadmap
+5. Deployment: Deploy the application to a suitable hosting environment and make it accessible to users. (Timeline: 15th July)
 
-Our future plan for Shaddy Powder includes the following milestones:
-
-1. Developing the backend architecture for the web application.
-2. Implementing data processing and analysis algorithms to generate betting tips and predictions.
-3. Designing an intuitive user interface for easy navigation and accessing betting insights.
-4. Incorporating real-time match updates and live betting features to provide the latest information to users.
-5. Enhancing the application with additional sports data analysis capabilities beyond football.
+Please note that these timelines are approximate and subject to change based on project requirements and progress.
 
 ## Contributing
 
@@ -73,4 +68,4 @@ This project is licensed under the [MIT License](LICENSE).
 
 ## Disclaimer
 
-Please note that betting and gambling involve financial risk,
+Please note that betting and gambling involve financial risk, and it's important to gamble responsibly. Shaddy Powder does not guarantee the accuracy of the provided data, predictions, or betting recommendations. Users should make informed decisions and exercise caution while engaging in any form of betting or gambling. Users must be 18 years of age or older to use this application.
