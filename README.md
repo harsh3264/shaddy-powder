@@ -1,11 +1,8 @@
 # Shaddy Powder
 
-Shaddy Powder is a project focused on building a data-driven application for analyzing sports data, with a specific focus on football matches. 
-Our goal is to identify data-driven betting opportunities in ongoing and upcoming matches, providing valuable insights for informed betting decisions. 
-We aim to enhance the betting experience by leveraging data analytics and statistical analysis. 
+Shaddy Powder is a project focused on building a data-driven application for analyzing sports data, with a specific focus on football matches. Our goal is to identify data-driven betting opportunities in ongoing and upcoming matches, providing valuable insights for informed betting decisions. We aim to enhance the betting experience by leveraging data analytics and statistical analysis.
 
 "Betting but better!" (18+ Gamble Responsibly)
-
 
 ## Project Structure
 
@@ -14,6 +11,7 @@ The project is organized into the following folders:
 - `database`: Contains scripts and configurations related to the database setup and management.
 - `python_api`: Includes Python scripts for fetching data from APIs and processing it.
 - `.retro_python_scripts`: Hidden folder containing previous versions of Python scripts and sensitive API credentials.
+- `db_updates`: Contains scripts for updating existing data tables.
 
 ## Data Sources
 
@@ -27,6 +25,7 @@ We have implemented several Python scripts for different functionalities:
 
 - `fetch_fixture_events.py`: Fetches fixture events from Rapid APIs and stores them in the database.
 - `fetch_players_info.py`: Retrieves player information from Rapid APIs based on player IDs and season years.
+- `update_league_standings.py`: Updates the league standings table with the latest data from the API.
 
 ## Database Tables
 
@@ -40,6 +39,7 @@ We have designed the following tables to store our data:
 - `fixture_player_stats`: Stores player statistics for fixtures.
 - `fixture_events`: Stores detailed information about events that occur during fixtures.
 - `players`: Stores player information, including player IDs, names, nationality, age, height, weight, and photos.
+- `league_standings`: Stores league standings for each season and league.
 
 ## Getting Started
 
@@ -49,13 +49,14 @@ To get started with the project, follow these steps:
 
 2. Configure API credentials: Obtain the necessary API credentials from Rapid APIs and update the corresponding variables in the Python scripts.
 
-3. Run the Python scripts: Execute the Python scripts in the `python_api` folder to fetch data from the APIs and store it in the database.
+3. Run the Python scripts: Execute the Python scripts in the `python_api` and `db_updates` folders to fetch data from the APIs, update the database tables, and perform necessary data synchronization.
 
 4. Analyze the data: Utilize the data stored in the database for further analysis, insights, and identifying betting opportunities.
 
 ## Roadmap
 
 Our future plan for Shaddy Powder includes the following milestones:
+
 1. Developing the backend architecture for the web application.
 2. Implementing data processing and analysis algorithms to generate betting tips and predictions.
 3. Designing an intuitive user interface for easy navigation and accessing betting insights.
@@ -72,5 +73,4 @@ This project is licensed under the [MIT License](LICENSE).
 
 ## Disclaimer
 
-Please note that betting and gambling involve financial risk, and it's important to gamble responsibly. Shaddy Powder does not guarantee the accuracy of the provided data, predictions, or betting recommendations. Users should make informed decisions and exercise caution while engaging in any form of betting or gambling. Users must be 18 years of age or older to use this application.
-
+Please note that betting and gambling involve financial risk,
