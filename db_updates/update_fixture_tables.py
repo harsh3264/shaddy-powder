@@ -22,11 +22,12 @@ query = '''
     FROM fixtures
     WHERE
     1 = 1
-    AND season_year >= 2020
+    AND season_year >= 2022
     AND elapsed >= 90
-    AND league_id IN (5)
+    AND league_id = 253
+    # AND (home_team_id IN (515, 504) OR away_team_id IN (515, 504))
     # AND fixture_date >= CURRENT_DATE - 2
-    AND fixture_id NOT IN (SELECT fixture_id FROM fixture_player_stats)
+    AND fixture_id NOT IN (SELECT fixture_id FROM fixture_lineups)
 '''
 
 def update_player_info():
@@ -50,7 +51,7 @@ def update_player_info():
     
 
 # Call the function to update fixture stats and store the fixture IDs
-load_fixture_stats(query)
+# load_fixture_stats(query)
 
 # Call the function to update fixture events and pass the fixture IDs
 load_fixture_events(query)
@@ -59,7 +60,7 @@ load_fixture_events(query)
 load_fixture_lineups(query)
 
 # Call the function to update fixture player stats and pass the fixture IDs
-load_fixture_player_stats(query)
+# load_fixture_player_stats(query)
 
 # Call the function to update player info 
 # update_player_info()
