@@ -319,3 +319,48 @@ CREATE TABLE players (
     weight INT,
     photo VARCHAR(255)
 );
+
+# DROP TABLE IF EXISTS players_sidelined
+
+CREATE TABLE players_sidelined (
+  player_id INT,
+  event_type VARCHAR(255),
+  start_date DATE,
+  end_date DATE,
+  PRIMARY KEY (player_id, event_type, start_date)
+);
+
+# DROP TABLE IF EXISTS league_standings;
+
+CREATE TABLE league_standings (
+    league_id INT,
+    season_year INT,
+    team_id INT,
+    rank_t INT,
+    points INT,
+    goals_diff INT,
+    group_name VARCHAR(255),
+    form VARCHAR(255),
+    status_t VARCHAR(255),
+    description_t VARCHAR(255),
+    played INT,
+    win INT,
+    draw INT,
+    lose INT,
+    goals_for INT,
+    goals_against INT,
+    home_played INT,
+    home_win INT,
+    home_draw INT,
+    home_lose INT,
+    home_goals_for INT,
+    home_goals_against INT,
+    away_played INT,
+    away_win INT,
+    away_draw INT,
+    away_lose INT,
+    away_goals_for INT,
+    away_goals_against INT,
+    last_update DATETIME,
+    PRIMARY KEY (league_id, season_year, team_id)
+);
