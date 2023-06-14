@@ -1,6 +1,6 @@
 # Set the RapidAPI token and endpoint URL
 
-COUNTRIES_URL = "https://api-football-v1.p.rapidapi.com/v3/countries"
+COUNTRIES_URL = "https://api-football-v1.p.rapidapi.com/v3/teams/countries"
 SEASONS_URL = "https://api-football-v1.p.rapidapi.com/v3/seasons"
 LEAGUES_URL = "https://api-football-v1.p.rapidapi.com/v3/leagues"
 TEAMS_URL = "https://api-football-v1.p.rapidapi.com/v3/teams"
@@ -16,7 +16,6 @@ LINEUP_URL = "https://api-football-v1.p.rapidapi.com/v3/fixtures/lineups"
 EVENTS_URL = "https://api-football-v1.p.rapidapi.com/v3/fixtures/events"
 ODDS_URL = "https://api-football-v1.p.rapidapi.com/v3/odds"
 PREDICTIONS_URL = "https://api-football-v1.p.rapidapi.com/v3/predictions"
-COUNTRIES_URL = "https://api-football-v1.p.rapidapi.com/v3/countries"
 BOOKMAKERS_URL = "https://api-football-v1.p.rapidapi.com/v3/bookmakers"
 HEAD2HEAD_URL = "https://api-football-v1.p.rapidapi.com/v3/fixtures/headtohead"
 TV_STATIONS_URL = "https://api-football-v1.p.rapidapi.com/v3/tvstations"

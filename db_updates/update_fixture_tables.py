@@ -17,17 +17,19 @@ from database.players import load_player_info
 
 # Modify the query dynamically
 query = '''
-   SELECT
+    SELECT
         DISTINCT fixture_id
     FROM fixtures
     WHERE
     1 = 1
-    AND season_year >= 2022
+    AND season_year >= 2020
     AND elapsed >= 90
-    AND league_id = 253
+    # AND league_id = 253
     # AND (home_team_id IN (515, 504) OR away_team_id IN (515, 504))
     # AND fixture_date >= CURRENT_DATE - 2
+    AND fixture_id IN (SELECT fixture_id FROM fixtures_stats)
     AND fixture_id NOT IN (SELECT fixture_id FROM fixture_lineups)
+    AND fixture_id IN (678995)
 '''
 
 def update_player_info():
@@ -45,7 +47,7 @@ def update_player_info():
             AND player_id <> 0
         GROUP BY 1
         # ORDER BY 2 DESC
-        # LIMIT 500
+        LIMIT 2000
     """
     load_player_info(players_query)
     
@@ -60,7 +62,7 @@ load_fixture_events(query)
 load_fixture_lineups(query)
 
 # Call the function to update fixture player stats and pass the fixture IDs
-# load_fixture_player_stats(query)
+load_fixture_player_stats(query)
 
 # Call the function to update player info 
 # update_player_info()

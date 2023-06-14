@@ -22,7 +22,7 @@ players_sidelined_query = """
     AND f.season_year = 2022
     AND player_id NOT IN (SELECT DISTINCT player_id FROM players_sidelined)
     # AND f.league_id = 135
-    LIMIT 1000
+    LIMIT 2500
 """
 
 load_players_sidelined_info(players_sidelined_query)

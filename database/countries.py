@@ -11,6 +11,8 @@ from python_api.rapid_apis import COUNTRIES_URL
 import mysql.connector
 import requests
 
+
+
 # Replace the placeholders with your MySQL database credentials
 db_config = {
     'user': db_parameters['username'],
@@ -32,12 +34,22 @@ headers = {
 response = requests.get(COUNTRIES_URL, headers=headers)
 data = response.json()["response"]
 
+print(data[0])
+
 # Prepare the SQL query
-query = "INSERT INTO countries (name, code, flag) VALUES (%s, %s, %s)"
+query = """
+    INSERT INTO countries (name, code, flag)
+    VALUES (%s, %s, %s)
+    ON DUPLICATE KEY UPDATE
+    name = VALUES(name),
+    flag = VALUES(flag)
+"""
 
 # Insert each country's data into the table
 for country in data:
     name = country.get('name', '')
+    # print(name)
+    
     code = country.get('code')
     flag = country.get('flag')
     values = (name, code, flag)
