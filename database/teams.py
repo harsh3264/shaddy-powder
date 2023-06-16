@@ -38,26 +38,30 @@ country_names = cursor.fetchall()
 
 # Prepare the SQL queries
 insert_query = '''
-INSERT INTO teams (
-    team_id, name, country, logo, founded,
-    national, venue_id, venue_name,
-    venue_address, venue_city, venue_capacity,
-    venue_surface, venue_image
-)
-VALUES (
-    %s, %s, %s, %s, %s,
-    %s, %s, %s, %s, %s,
-    %s, %s, %s
-)
-'''
-
-update_query = '''
-UPDATE teams
-SET name = %s, country = %s, logo = %s, founded = %s,
-    national = %s, venue_id = %s, venue_name = %s,
-    venue_address = %s, venue_city = %s, venue_capacity = %s,
-    venue_surface = %s, venue_image = %s
-WHERE team_id = %s
+    INSERT INTO teams (
+        team_id, name, country, logo, founded,
+        national, venue_id, venue_name,
+        venue_address, venue_city, venue_capacity,
+        venue_surface, venue_image
+    )
+    VALUES (
+        %s, %s, %s, %s, %s,
+        %s, %s, %s, %s, %s,
+        %s, %s, %s
+    )
+    ON DUPLICATE KEY UPDATE
+    name = VALUES(name),
+    country = VALUES(country),
+    logo = VALUES(logo),
+    founded = VALUES(founded),
+    national = VALUES(national),
+    venue_id = VALUES(venue_id),
+    venue_name = VALUES(venue_name),
+    venue_address = VALUES(venue_address),
+    venue_city = VALUES(venue_city),
+    venue_capacity = VALUES(venue_capacity),
+    venue_surface = VALUES(venue_surface),
+    venue_image = VALUES(venue_image)
 '''
 
 # Insert or update data for each country's teams
@@ -70,6 +74,8 @@ for country_name in country_names:
 
     # Insert or update data for each team
     for team_data in data:
+        # print(team_data)
+        
         team = team_data.get('team')
 
         team_id = team.get('id')
@@ -100,18 +106,22 @@ for country_name in country_names:
             venue_image = None
 
         values = (
-            name, country, logo, founded,
+            team_id, name, country, logo, founded,
             national, venue_id, venue_name,
             venue_address, venue_city, venue_capacity,
-            venue_surface, venue_image, team_id
+            venue_surface, venue_image
         )
+        
+        # print(values)
+        
+        cursor.execute(insert_query, values)
 
-        try:
-            # Try to execute the INSERT query
-            cursor.execute(insert_query, values)
-        except mysql.connector.errors.IntegrityError:
-            # If the INSERT fails due to duplicate entry, execute the UPDATE query
-            cursor.execute(update_query, values)
+        # try:
+        #     # Try to execute the INSERT query
+        #     cursor.execute(insert_query, values)
+        # except mysql.connector.errors.IntegrityError:
+        #     # If the INSERT fails due to duplicate entry, execute the UPDATE query
+        #     cursor.execute(update_query, values)
 
 # Commit the changes to the database
 connection.commit()
