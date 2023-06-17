@@ -95,6 +95,16 @@ def load_fixture_player_stats(query):
             player_stats_data = player_stats_data['response']
         except KeyError:
             player_stats_data = []
+            
+        if not player_stats_data:
+            # Insert a single row for the fixture ID
+            insert_query = "INSERT INTO fixture_player_stats (fixture_id) VALUES (%s)"
+            cursor.execute(insert_query, (fixture_id,))
+
+        else:
+            # Insert player stats for the fixture
+            insert_fixture_player_stats(cursor, fixture_id, player_stats_data)
+
 
         # Insert player stats for the fixture
         insert_fixture_player_stats(cursor, fixture_id, player_stats_data)

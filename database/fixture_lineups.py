@@ -47,6 +47,9 @@ def load_fixture_lineups(query):
     # Iterate over fixtures
     for fixture in fixtures:
         fixture_id = fixture[0]
+        
+        # print(fixture)
+        
         params = {"fixture": fixture_id}
 
         # Fetch lineup data
@@ -86,15 +89,18 @@ def load_fixture_lineups(query):
                 insert_player_info(cursor, fixture_id, team_id, player_id, player_number, player_pos, grid, is_substitute)
 
             # Insert substitute info
-            for substitute in lineup['substitutes']:
-                if substitute['player'] and substitute['player']['id'] is not None:
-                    player_id = substitute['player']['id']
-                else:
-                    player_id = 0
-                player_number = substitute['player']['number']
-                player_pos = substitute['player']['pos']
-                grid = None
-                is_substitute = 1
+            if lineup.get('substitutes') is not None:
+                for substitute in lineup['substitutes']:
+                    if substitute['player'] and substitute['player']['id'] is not None:
+                        player_id = substitute['player']['id']
+                    else:
+                        player_id = 0
+                    player_number = substitute['player']['number']
+                    player_pos = substitute['player']['pos']
+                    grid = None
+                    is_substitute = 1
+            else:
+                pass
 
                 insert_player_info(cursor, fixture_id, team_id, player_id, player_number, player_pos, grid, is_substitute)
 
