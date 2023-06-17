@@ -34,7 +34,7 @@ query = '''
 
 def update_player_info():
     players_query = """
-        SELECT
+    SELECT
             player_id,
             MAX(season_year) - 1 AS season_year
         FROM fixture_player_stats fps
@@ -43,26 +43,26 @@ def update_player_info():
             1 = 1
             # AND league_id IN (88)
             AND player_id NOT IN (SELECT player_id FROM players)
-            AND player_id IN (SELECT player_id FROM fixture_player_stats WHERE team_id = 1112)
+            AND player_id IN (SELECT player_id FROM fixture_player_stats)
             AND player_id <> 0
         GROUP BY 1
-        # ORDER BY 2 DESC
-        LIMIT 20
+        ORDER BY 2 DESC
+        LIMIT 250
     """
     load_player_info(players_query)
     
 
-# Call the function to update fixture stats and store the fixture IDs
-load_fixture_stats(query)
+# # Call the function to update fixture stats and store the fixture IDs
+# load_fixture_stats(query)
 
-# # Call the function to update fixture events and pass the fixture IDs
-load_fixture_events(query)
+# # # Call the function to update fixture events and pass the fixture IDs
+# load_fixture_events(query)
 
-# # Call the function to update fixture lineups and pass the fixture IDs
-load_fixture_lineups(query)
+# # # Call the function to update fixture lineups and pass the fixture IDs
+# load_fixture_lineups(query)
 
-# # Call the function to update fixture player stats and pass the fixture IDs
-load_fixture_player_stats(query)
+# # # Call the function to update fixture player stats and pass the fixture IDs
+# load_fixture_player_stats(query)
 
-# # Call the function to update player info 
-# update_player_info()
+# Call the function to update player info 
+update_player_info()
