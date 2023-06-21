@@ -63,7 +63,7 @@ def load_player_info(query):
         # Insert player information into the database
         insert_player_info(cursor, player_id, name, first_name, last_name, nationality, age, height, weight, photo)
 
-        time.sleep(0.3)
+        time.sleep(0.1)
         
     # Commit the changes and close the connection
     conn.commit()
