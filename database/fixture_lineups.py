@@ -73,36 +73,39 @@ def load_fixture_lineups(query):
 
             # Insert fixture info
             insert_fixture_info(cursor, fixture_id, team_id, is_home, coach_id, coach_name, photo, formation)
-
-            # Insert player info
-            for player in lineup['startXI']:
-                if player['player'] and player['player']['id'] is not None:
-                    player_id = player['player']['id']
-                else:
-                    player_id = 0
-                # player_id = player['player']['id']
-                player_number = player['player']['number']
-                player_pos = player['player']['pos']
-                grid = player['player']['grid']
-                is_substitute = 0
-
-                insert_player_info(cursor, fixture_id, team_id, player_id, player_number, player_pos, grid, is_substitute)
-
-            # Insert substitute info
-            if lineup.get('substitutes') is not None:
-                for substitute in lineup['substitutes']:
-                    if substitute['player'] and substitute['player']['id'] is not None:
-                        player_id = substitute['player']['id']
+            
+            if lineup.get('startXI') is not None:
+                # Insert player info
+                for player in lineup['startXI']:
+                    if player['player'] and player['player']['id'] is not None:
+                        player_id = player['player']['id']
                     else:
                         player_id = 0
-                    player_number = substitute['player']['number']
-                    player_pos = substitute['player']['pos']
-                    grid = None
-                    is_substitute = 1
+                    # player_id = player['player']['id']
+                    player_number = player['player']['number']
+                    player_pos = player['player']['pos']
+                    grid = player['player']['grid']
+                    is_substitute = 0
+    
+                    insert_player_info(cursor, fixture_id, team_id, player_id, player_number, player_pos, grid, is_substitute)
+
+                # Insert substitute info
+                if lineup.get('substitutes') is not None:
+                    for substitute in lineup['substitutes']:
+                        if substitute['player'] and substitute['player']['id'] is not None:
+                            player_id = substitute['player']['id']
+                        else:
+                            player_id = 0
+                        player_number = substitute['player']['number']
+                        player_pos = substitute['player']['pos']
+                        grid = None
+                        is_substitute = 1
+                else:
+                    pass
+    
+                    insert_player_info(cursor, fixture_id, team_id, player_id, player_number, player_pos, grid, is_substitute)
             else:
                 pass
-
-                insert_player_info(cursor, fixture_id, team_id, player_id, player_number, player_pos, grid, is_substitute)
 
     # Commit the changes and close the connection
     conn.commit()

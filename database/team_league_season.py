@@ -25,7 +25,7 @@ connection = mysql.connector.connect(**db_config)
 cursor = connection.cursor()
 
 # Fetch the distinct season_year and league_id combinations from the leagues table
-query = "SELECT DISTINCT season_year, league_id FROM leagues"
+query = "SELECT DISTINCT season_year, league_id FROM leagues WHERE season_year >= 2022"
 cursor.execute(query)
 combinations = cursor.fetchall()
 

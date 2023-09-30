@@ -40,6 +40,8 @@ def load_fixture_events(query):
     # Iterate over fixtures
     for fixture in fixtures:
         fixture_id = fixture[0]
+        # print(fixture_id)
+        
         params = {"fixture": fixture_id}
 
         # Fetch fixture event data

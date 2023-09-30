@@ -34,7 +34,7 @@ headers = {
 response = requests.get(COUNTRIES_URL, headers=headers)
 data = response.json()["response"]
 
-print(data[0])
+# print(data[0])
 
 # Prepare the SQL query
 query = """

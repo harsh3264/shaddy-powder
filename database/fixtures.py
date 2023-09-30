@@ -43,14 +43,15 @@ def upsert_fixture(cursor, fixture):
     ft_away_goals = fixture['score']['fulltime']['away'] if 'score' in fixture and 'fulltime' in fixture['score'] else None
     et_away_goals = fixture['score']['extratime']['away'] if 'score' in fixture and 'extratime' in fixture['score'] else None
     pt_away_goals = fixture['score']['penalty']['away'] if 'score' in fixture and 'penalty' in fixture['score'] else None
+    timestamp = fixture['fixture']['timestamp']
 
     # Prepare the SQL query for upsert with ON DUPLICATE KEY UPDATE clause
     upsert_query = '''
     INSERT INTO fixtures
     (fixture_id, referee, fixture_date, venue_id, status, elapsed, season_year, home_team_id, away_team_id, league_id, league_round,
-    total_home_goals, ht_home_goals, ft_home_goals, et_home_goals, pt_home_goals, total_away_goals, ht_away_goals, ft_away_goals, et_away_goals, pt_away_goals)
+    total_home_goals, ht_home_goals, ft_home_goals, et_home_goals, pt_home_goals, total_away_goals, ht_away_goals, ft_away_goals, et_away_goals, pt_away_goals, `timestamp`)
     VALUES
-    (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+    (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     ON DUPLICATE KEY UPDATE
     referee = VALUES(referee),
     fixture_date = VALUES(fixture_date),
@@ -71,7 +72,8 @@ def upsert_fixture(cursor, fixture):
     ht_away_goals = VALUES(ht_away_goals),
     ft_away_goals = VALUES(ft_away_goals),
     et_away_goals = VALUES(et_away_goals),
-    pt_away_goals = VALUES(pt_away_goals)
+    pt_away_goals = VALUES(pt_away_goals),
+    `timestamp` = VALUES(`timestamp`)
     '''
 
     # Execute the SQL query with the appropriate values for insert/update
@@ -79,7 +81,8 @@ def upsert_fixture(cursor, fixture):
         fixture_id, referee, fixture_date, venue_id, status,
         elapsed, season_year, home_team_id, away_team_id, league_id, league_round,
         total_home_goals, ht_home_goals, ft_home_goals, et_home_goals, pt_home_goals,
-        total_away_goals, ht_away_goals, ft_away_goals, et_away_goals, pt_away_goals
+        total_away_goals, ht_away_goals, ft_away_goals, et_away_goals, pt_away_goals,
+        timestamp
     )
     cursor.execute(upsert_query, values)
 
@@ -91,10 +94,12 @@ cursor = db_conn.cursor()
 query = '''
     SELECT DISTINCT league_id, season_year
     FROM leagues l
-    WHERE season_coverage_fixtures_statistics_fixtures = 1
+    WHERE 1 = 1
+    AND season_coverage_fixtures_statistics_fixtures = 1
     AND season_coverage_fixtures_statistics_players = 1
+    # AND league_id = 38
     # AND (league_id, season_year) NOT IN (SELECT DISTINCT league_id, season_year FROM fixtures)
-    AND season_year >= 2022
+    AND season_year > 2022
 '''
 cursor.execute(query)
 league_season_data = cursor.fetchall()
