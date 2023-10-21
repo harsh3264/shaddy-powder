@@ -8,14 +8,26 @@ import subprocess
 parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(parent_dir)
 
-# Construct the path to the live_fixtures.py script
-user_home = os.path.expanduser("~")  # Get the user's home directory
-project_directory = "shaddypowder"  # Your project directory
-script_directory = "database"  # The directory where live_fixtures.py is located
-script_name = "live_fixtures.py"  # The name of the script
+import os
 
-# Combine the path components to create the full path
-live_fixtures_script_path = os.path.join(user_home, project_directory, script_directory, script_name)
+# Check if the script is running on Cloud9 (you might need to adjust this check based on your specific environment)
+if "C9_PORT" in os.environ:
+    # Your Cloud9 environment
+    environment_name = "Cloud9"
+    user_home = os.path.expanduser("~")
+    project_directory = "environment/shaddypowder"
+else:
+    # Your EC2 environment
+    environment_name = "EC2"
+    user_home = os.path.expanduser("~")
+    project_directory = "shaddy-powder"  # Adjust this to the EC2 directory name
+
+# Common directory structure
+script_directory = "database"
+script_name = "live_fixtures.py"
+
+# Construct the absolute path
+live_fixtures_script_path = os.path.abspath(os.path.join(user_home, project_directory, script_directory, script_name))
 
 
 
