@@ -8,9 +8,19 @@ import subprocess
 parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(parent_dir)
 
+# Construct the path to the live_fixtures.py script
+user_home = os.path.expanduser("~")  # Get the user's home directory
+project_directory = "shaddypowder"  # Your project directory
+script_directory = "database"  # The directory where live_fixtures.py is located
+script_name = "live_fixtures.py"  # The name of the script
+
+# Combine the path components to create the full path
+live_fixtures_script_path = os.path.join(user_home, project_directory, script_directory, script_name)
+
+
 
 # Specify the relative path to 'live_fixtures.py' from the current directory
-live_fixtures_script_path = '/home/ec2-user/environment/shaddypowder/database/live_fixtures.py'
+# live_fixtures_script_path = '/home/ec2-user/environment/shaddypowder/database/live_fixtures.py'
 
 # Run the live_fixtures script using exec
 with open(live_fixtures_script_path) as f:
@@ -30,7 +40,6 @@ query = '''
     ;
 '''
     
-
 # Call the function to update fixture stats and store the fixture IDs
 load_fixture_stats(query)
 
