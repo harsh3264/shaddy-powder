@@ -15,6 +15,14 @@ from database.fixture_lineups import load_fixture_lineups
 from database.fixture_player_stats import load_fixture_player_stats
 from database.players import load_player_info
 
+# Specify the relative path to 'fixtures.py' from the current directory
+fixtures_script_path = '/home/ec2-user/environment/shaddypowder/database/fixtures.py'
+
+# Run the fixtures script using exec
+with open(fixtures_script_path) as f:
+    code = compile(f.read(), fixtures_script_path, 'exec')
+    exec(code)
+
 # Modify the query dynamically
 query = '''
 SELECT DISTINCT f.fixture_id
@@ -46,7 +54,7 @@ SELECT DISTINCT f.fixture_id
                                   FROM fixtures
                                   WHERE league_id IN (1))
                              AND season_year >= 2022)
-        OR f.league_id IN (40, 41)
+        OR f.league_id IN (40, 41, 71, 188)
         )
       AND fps.fixture_id IS NULL
     #   AND f.fixture_id IN (SELECT fixture_id FROM fixtures_stats)
@@ -70,7 +78,7 @@ def update_player_info():
             AND season_year <= YEAR(CURDATE())
         GROUP BY 1
         ORDER BY 2 DESC
-        # LIMIT 6600
+        LIMIT 2000
     """
     load_player_info(players_query)
     

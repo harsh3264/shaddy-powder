@@ -3,6 +3,10 @@ import os
 import mysql.connector
 import requests
 import datetime
+import time
+
+# Get the current timestamp in seconds
+current_timestamp = int(time.time())
 
 # Add the parent directory to the system path
 parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -17,11 +21,11 @@ db_config = {
     'user': db_parameters['username'],
     'password': db_parameters['password'],
     'host': db_parameters['host'],
-    'database': 'base_data_apis'
+    'database': 'base_data_apis'  # Use the live_updates database
 }
 
-# Function to insert or update fixture data into the "fixtures" table
-def upsert_fixture(cursor, fixture):
+# Function to insert or update fixture data into the "live_fixtures" table
+def upsert_live_fixture(cursor, fixture):
     fixture_id = fixture['fixture']['id']
     referee = fixture['fixture']['referee']
     fixture_date = fixture['fixture']['date'].split('T')[0]
@@ -47,7 +51,7 @@ def upsert_fixture(cursor, fixture):
 
     # Prepare the SQL query for upsert with ON DUPLICATE KEY UPDATE clause
     upsert_query = '''
-    INSERT INTO fixtures
+    INSERT INTO live_updates.live_fixtures
     (fixture_id, referee, fixture_date, venue_id, status, elapsed, season_year, home_team_id, away_team_id, league_id, league_round,
     total_home_goals, ht_home_goals, ft_home_goals, et_home_goals, pt_home_goals, total_away_goals, ht_away_goals, ft_away_goals, et_away_goals, pt_away_goals, `timestamp`)
     VALUES
@@ -90,22 +94,24 @@ def upsert_fixture(cursor, fixture):
 db_conn = mysql.connector.connect(**db_config)
 cursor = db_conn.cursor()
 
+# Truncate the live_fixtures table to delete all existing data
+truncate_query = "TRUNCATE TABLE live_updates.live_fixtures"
+cursor.execute(truncate_query)
+
 # Fetch the league and season data from the database
 query = '''
-    SELECT DISTINCT league_id, season_year
-    FROM leagues l
+    SELECT DISTINCT f.league_id, season_year
+    FROM fixtures f
+    INNER JOIN top_leagues tl on f.league_id = tl.league_id
     WHERE 1 = 1
-    AND (season_coverage_fixtures_statistics_fixtures = 1
-    AND season_coverage_fixtures_statistics_players = 1
-    # AND league_id = 38
-    # AND (league_id, season_year) NOT IN (SELECT DISTINCT league_id, season_year FROM fixtures)
-    AND season_year > 2022)
-    OR (league_id = 188 AND season_year > 2022)
+    # AND fixture_date = CURDATE()
+    AND timestamp > UNIX_TIMESTAMP(NOW()  - INTERVAL 120 MINUTE)
+    AND timestamp < UNIX_TIMESTAMP(NOW()  + INTERVAL 60 MINUTE);
 '''
 cursor.execute(query)
 league_season_data = cursor.fetchall()
 
-# Iterate over the league and season data
+ # Iterate over the league and season data
 for league_id, season_year in league_season_data:
     params = {"season": season_year, "league": league_id}
     
@@ -123,25 +129,25 @@ for league_id, season_year in league_season_data:
     current_date = datetime.date.today()
 
     filtered_fixtures = [fixture for fixture in fixtures if (
-        (current_date - datetime.datetime.strptime(fixture['fixture']['date'].split('T')[0], '%Y-%m-%d').date()).days <= 7 
+        (current_date - datetime.datetime.strptime(fixture['fixture']['date'].split('T')[0], '%Y-%m-%d').date()).days <= 2 
         or (current_date - datetime.datetime.strptime(fixture['fixture']['date'].split('T')[0], '%Y-%m-%d').date()).days < 0)
         ]
     
-    # Iterate over the fixtures data
-    for fixture in fixtures:
-        # Check if the fixture already exists in the "fixtures" table
-        query = "SELECT COUNT(*) FROM fixtures WHERE fixture_id = %s"
-        cursor.execute(query, (fixture['fixture']['id'],))
-        count = cursor.fetchone()[0]
-        upsert_fixture(cursor, fixture)
+    # # Iterate over the fixtures data
+    for fixture in filtered_fixtures:
+        status = fixture['fixture']['status']['short']
+        timestamp = fixture['fixture']['timestamp']
+        if (
+            status in ('2H', '1H', 'HT', 'ET') or
+            (status == 'NS' and timestamp >= current_timestamp and timestamp <= current_timestamp + 3600)
+            ):
+    #     # Check if the fixture already exists in the "fixtures" table
+    #     query = "SELECT COUNT(*) FROM fixtures WHERE fixture_id = %s"
+    #     cursor.execute(query, (fixture['fixture']['id'],))
+    #     count = cursor.fetchone()[0]
+            upsert_live_fixture(cursor, fixture)
         
-        # if count == 0:
-        #     # Insert the fixture data into the "fixtures" table
-        #     upsert_fixture(cursor, fixture)
-        # else:
-        #     # Update the fixture data in the "fixtures" table
-        #     upsert_fixture(cursor, fixture)
-
+        
 # Commit the changes and close the database connection
 db_conn.commit()
 cursor.close()

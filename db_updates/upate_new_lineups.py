@@ -21,7 +21,7 @@ query = '''
     # AND season_year >= 2022
     # AND elapsed >= 90
     # AND (home_team_id IN (3, 9, 768, 1118, 1090) OR away_team_id IN (3, 9, 768, 1118, 1090))
-    AND league_id = 3
+    AND league_id = 960
     AND fixture_date = CURRENT_DATE 
     # AND fixture_id IN (SELECT fixture_id FROM fixtures_stats)
     AND fixture_id NOT IN (SELECT fixture_id FROM fixture_lineups)
