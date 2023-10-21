@@ -15,8 +15,33 @@ from database.fixture_lineups import load_fixture_lineups
 from database.fixture_player_stats import load_fixture_player_stats
 from database.players import load_player_info
 
-# Specify the relative path to 'fixtures.py' from the current directory
-fixtures_script_path = '/home/ec2-user/environment/shaddypowder/database/fixtures.py'
+# Other necessary imports
+
+# Add the parent directory to the system path
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(parent_dir)
+
+import os
+
+# Check if the script is running on Cloud9 (you might need to adjust this check based on your specific environment)
+if "C9_PORT" in os.environ:
+    # Your Cloud9 environment
+    environment_name = "Cloud9"
+    user_home = os.path.expanduser("~")
+    project_directory = "environment/shaddypowder"
+else:
+    # Your EC2 environment
+    environment_name = "EC2"
+    user_home = os.path.expanduser("~")
+    project_directory = "shaddy-powder"  # Adjust this to the EC2 directory name
+
+# Common directory structure
+script_directory = "database"
+script_name = "fixtures.py"
+
+# Construct the absolute path
+fixtures_script_path = os.path.abspath(os.path.join(user_home, project_directory, script_directory, script_name))
+
 
 # Run the fixtures script using exec
 with open(fixtures_script_path) as f:
