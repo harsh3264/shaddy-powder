@@ -62,25 +62,9 @@ SELECT DISTINCT f.fixture_id
       AND l.season_coverage_fixtures_statistics_fixtures = 1
       AND l.season_coverage_fixtures_statistics_players = 1
       AND l.league_id NOT IN (10, 667)
+    #   AND f.league_id IN (253)
     #   AND l.league_id IN (2, 3, 39, 78, 135, 140, 61, 94, 203, 848)
-      AND (f.league_id IN (SELECT DISTINCT league_id
-                           FROM team_league_season
-                           WHERE team_id IN
-                                 (SELECT home_team_id
-                                  FROM fixtures
-                                  WHERE league_id IN (2, 3)
-                                    AND season_year = 2023)
-                             AND season_year >= 2022)
-        OR
-           f.league_id IN (SELECT DISTINCT league_id
-                           FROM team_league_season
-                           WHERE team_id IN
-                                 (SELECT home_team_id
-                                  FROM fixtures
-                                  WHERE league_id IN (1))
-                             AND season_year >= 2022)
-        OR f.league_id IN (40, 41, 71, 188)
-        )
+      AND f.league_id IN (SELECT f.league_id FROM top_leagues)
       AND fps.fixture_id IS NULL
     #   AND f.fixture_id IN (SELECT fixture_id FROM fixtures_stats)
     ORDER BY fixture_date DESC
