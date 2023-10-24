@@ -21,6 +21,33 @@ db_config = {
 # SQL statements to execute
 sql_statements = [
     '''
+    DROP TABLE IF EXISTS top_leagues
+    ;
+    ''',
+    '''
+    CREATE TABLE top_leagues AS
+    SELECT league_id,
+           COUNT(DISTINCT team_id) AS teams
+    FROM team_league_season
+    WHERE 1 = 1
+    AND ((team_id IN (SELECT home_team_id
+                     FROM fixtures
+                     WHERE league_id IN (2, 3)
+                       AND season_year = 2023)
+            OR
+         team_id IN (SELECT home_team_id
+                     FROM fixtures
+                     WHERE league_id IN (1))
+        )
+             OR
+         league_id IN (40, 41, 71, 188, 253))
+    AND season_year >= 2022
+    GROUP BY 1
+    HAVING teams > 3
+    ORDER BY 2 DESC
+    ;
+    ''',
+    '''
     DROP TABLE IF EXISTS today_fixture
     ;
     ''',
@@ -273,18 +300,27 @@ sql_statements = [
     ;
     ''',
     '''
-    CREATE TABLE player_last_5_data
-    AS
+    CREATE TABLE player_last_5_data AS
     SELECT
-    player_id,
-    GROUP_CONCAT(IF(is_substitute = 0, IFNULL(fouls_committed, 0), '') ORDER BY fixture_date DESC SEPARATOR '') AS last5_start_foul,
-    GROUP_CONCAT(CASE WHEN is_substitute = 1 THEN IFNULL(fouls_committed, 0) END ORDER BY fixture_date DESC SEPARATOR '') AS last5_sub_foul,
-    GROUP_CONCAT(CASE WHEN is_substitute = 0 THEN IFNULL(cards_yellow, 0) + IFNULL(cards_red, 0) END ORDER BY fixture_date DESC SEPARATOR '') AS last5_start_yc,
-    GROUP_CONCAT(CASE WHEN is_substitute = 1 THEN IFNULL(cards_yellow, 0) + IFNULL(cards_red, 0) END ORDER BY fixture_date DESC SEPARATOR '') AS last5_sub_yc
+        player_id,
+        GROUP_CONCAT(IF(is_substitute = 0, IFNULL(fouls_committed, 0), '') ORDER BY fixture_date DESC SEPARATOR '') AS last5_start_foul,
+        GROUP_CONCAT(CASE WHEN is_substitute = 1 THEN IFNULL(fouls_committed, 0) END ORDER BY fixture_date DESC SEPARATOR '') AS last5_sub_foul,
+        GROUP_CONCAT(CASE WHEN is_substitute = 0 THEN
+            CASE
+                WHEN IFNULL(cards_yellow, 0) + IFNULL(cards_red, 0) > 1 THEN 1
+                ELSE IFNULL(cards_yellow, 0) + IFNULL(cards_red, 0)
+            END
+        END ORDER BY fixture_date DESC SEPARATOR '') AS last5_start_yc,
+        GROUP_CONCAT(CASE WHEN is_substitute = 1 THEN
+            CASE
+                WHEN IFNULL(cards_yellow, 0) + IFNULL(cards_red, 0) > 1 THEN 1
+                ELSE IFNULL(cards_yellow, 0) + IFNULL(cards_red, 0)
+            END
+        END ORDER BY fixture_date DESC SEPARATOR '') AS last5_sub_yc
     FROM analytics.fixture_player_stats_compile
     WHERE 1 = 1
-    AND player_rnk_sub <= 5
-    GROUP BY 1
+        AND player_rnk_sub <= 5
+    GROUP BY player_id;
     ;
     ''',
     '''

@@ -53,7 +53,6 @@ query = '''
 SELECT DISTINCT f.fixture_id
     FROM fixtures f
     LEFT JOIN leagues l ON f.league_id = l.league_id AND f.season_year = l.season_year
-    # LEFT JOIN fixture_events fe ON f.fixture_id = fe.fixture_id
     LEFT JOIN fixture_player_stats fps ON f.fixture_id = fps.fixture_id
     WHERE 1 = 1
       AND f.elapsed >= 90
@@ -62,12 +61,10 @@ SELECT DISTINCT f.fixture_id
       AND l.season_coverage_fixtures_statistics_fixtures = 1
       AND l.season_coverage_fixtures_statistics_players = 1
       AND l.league_id NOT IN (10, 667)
-    #   AND f.league_id IN (253)
-    #   AND l.league_id IN (2, 3, 39, 78, 135, 140, 61, 94, 203, 848)
       AND f.league_id IN (SELECT f.league_id FROM top_leagues)
       AND fps.fixture_id IS NULL
-    #   AND f.fixture_id IN (SELECT fixture_id FROM fixtures_stats)
     ORDER BY fixture_date DESC
+    LIMIT 1000
 ;
 '''
 

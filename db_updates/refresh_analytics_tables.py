@@ -21,82 +21,91 @@ db_config = {
 # SQL statements to execute
 sql_statements = [
     '''
+    TRUNCATE analytics.fixture_stats_compile_test
+    ;
+    ''',
+    '''
+    INSERT INTO analytics.fixture_stats_compile_test
+    SELECT DISTINCT
+           fs.fixture_id,
+           l.league_id,
+           l.name,
+           f.season_year,
+           f.fixture_date,
+           fs.team_name,
+           fc.coach_name,
+           fc.formation AS formation,
+           fs.against_team_name,
+           fc2.coach_name AS against_coach_name,
+           fc2.formation AS against_formation,
+           fs.is_home,
+           CASE WHEN fs.is_home = 1 THEN f.total_home_goals ELSE f.total_away_goals END AS team_goals,
+           CASE WHEN fs.is_home = 1 THEN f.total_away_goals ELSE f.total_home_goals END AS against_team_goals,
+           'Draw' AS result,
+           0 AS btts,
+           fs.shots_on_goal,
+           fs.shots_off_goal,
+           fs.total_shots,
+           fs.blocked_shots,
+           fs.shots_inside_box,
+           fs.shots_outside_box,
+           fs.fouls,
+           0 AS tackles,
+           fs.corner_kicks,
+           fs.offsides,
+           0 AS penalty_won,
+           fs.ball_possession,
+           fs.yellow_cards,
+           fs.red_cards,
+           fs.goalkeeper_saves,
+           fs.total_passes,
+           fs.passes_accurate,
+           fs.passes_percentage,
+           fs.against_shots_on_goal,
+           fs.against_shots_off_goal,
+           fs.against_total_shots,
+           fs.against_blocked_shots,
+           fs.against_shots_inside_box,
+           fs.against_shots_outside_box,
+           fs.against_fouls,
+           0 AS against_tackles,
+           fs.against_corner_kicks,
+           fs.against_offsides,
+           0 AS against_penalty_won,
+           fs.against_ball_possession,
+           fs.yellow_cards,
+           fs.red_cards,
+           fs.goalkeeper_saves,
+           fs.total_passes,
+           fs.passes_accurate,
+           fs.passes_percentage,
+           fs.expected_goals,
+           fs.against_expected_goals,
+           fs.team_id,
+           fs.against_team_id,
+           cr.cleaned_referee_name
+    FROM base_data_apis.fixtures_stats fs
+        LEFT JOIN base_data_apis.fixtures f on fs.fixture_id = f.fixture_id
+        LEFT JOIN base_data_apis.fixture_coach fc on f.fixture_id = fc.fixture_id AND fs.team_id = fc.team_id
+        LEFT JOIN base_data_apis.fixture_coach fc2 on f.fixture_id = fc2.fixture_id AND fs.against_team_id = fc2.team_id
+        LEFT JOIN base_data_apis.leagues l on f.league_id = l.league_id
+        LEFT JOIN base_data_apis.cleaned_referees cr ON f.referee = cr.original_referee_name
+    WHERE 1 = 1
+    ;
+    ''',
+    '''
     TRUNCATE analytics.fixture_stats_compile
     ;
     ''',
     '''
     INSERT INTO analytics.fixture_stats_compile
-    SELECT
-       DISTINCT
-       fs.fixture_id,
-       l.league_id,
-       l.name,
-       f.season_year,
-       f.fixture_date,
-       fs.team_name,
-       fc.coach_name,
-       fc.formation AS formation,
-       fs.against_team_name,
-       fc2.coach_name AS against_coach_name,
-       fc2.formation AS against_formation,
-       fs.is_home,
-       CASE WHEN fs.is_home = 1 THEN f.total_home_goals ELSE f.total_away_goals END AS team_goals,
-       CASE WHEN fs.is_home = 1 THEN f.total_away_goals ELSE f.total_home_goals END AS against_team_goals,
-       'Draw' AS result,
-       0 AS btts,
-       fs.shots_on_goal,
-       fs.shots_off_goal,
-       fs.total_shots,
-       fs.blocked_shots,
-       fs.shots_inside_box,
-       fs.shots_outside_box,
-       fs.fouls,
-       0 AS tackles,
-       fs.corner_kicks,
-       fs.offsides,
-       0 AS penalty_won,
-       fs.ball_possession,
-       fs.yellow_cards,
-       fs.red_cards,
-       fs.goalkeeper_saves,
-       fs.total_passes,
-       fs.passes_accurate,
-       fs.passes_percentage,
-       fs.against_shots_on_goal,
-       fs.against_shots_off_goal,
-       fs.against_total_shots,
-       fs.against_blocked_shots,
-       fs.against_shots_inside_box,
-       fs.against_shots_outside_box,
-       fs.against_fouls,
-       0 AS against_tackles,
-       fs.against_corner_kicks,
-       fs.against_offsides,
-       0 AS against_penalty_won,
-       fs.against_ball_possession,
-       fs.against_yellow_cards,
-       fs.against_red_cards,
-       fs.against_goalkeeper_saves,
-       fs.against_total_passes,
-       fs.against_passes_accurate,
-       fs.against_passes_percentage,
-       fs.expected_goals,
-       fs.against_expected_goals,
-       fs.team_id,
-       fs.against_team_id,
-       cr.cleaned_referee_name,
-       RANK() over (partition by cr.cleaned_referee_name ORDER BY f.timestamp DESC) AS refree_r,
-       RANK() over (partition by cr.cleaned_referee_name, f.league_id ORDER BY f.timestamp DESC) AS refree_league_r,
-       RANK() over (partition by fc.team_id ORDER BY f.timestamp DESC) AS team_r,
-       RANK() over (partition by fc.team_id, f.league_id ORDER BY f.timestamp DESC) AS team_league_r
-    FROM base_data_apis.fixtures_stats fs
-    LEFT JOIN base_data_apis.fixtures f on fs.fixture_id = f.fixture_id
-    LEFT JOIN base_data_apis.fixture_coach fc on f.fixture_id = fc.fixture_id AND fs.team_id = fc.team_id
-    LEFT JOIN base_data_apis.fixture_coach fc2 on f.fixture_id = fc2.fixture_id AND fs.against_team_id = fc2.team_id
-    LEFT JOIN base_data_apis.leagues l on f.league_id = l.league_id
-    LEFT JOIN base_data_apis.cleaned_referees cr ON f.referee = cr.original_referee_name
-    WHERE
-    1 = 1
+    SELECT *,
+           ROW_NUMBER() over (partition by cleaned_refree_name ORDER BY fixture_date DESC) AS refree_r,
+           ROW_NUMBER() over (partition by cleaned_refree_name, league_id ORDER BY fixture_date DESC) AS refree_league_r,
+           ROW_NUMBER() over (partition by team_id ORDER BY fixture_date DESC) AS team_r,
+           ROW_NUMBER() over (partition by team_id, league_id ORDER BY fixture_date DESC) AS team_league_r
+    FROM analytics.fixture_stats_compile_test fsct
+    WHERE 1 = 1
     ;
     ''',
     '''
