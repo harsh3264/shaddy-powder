@@ -330,7 +330,7 @@ CREATE TABLE players_sidelined (
   PRIMARY KEY (player_id, event_type, start_date)
 );
 
-# DROP TABLE IF EXISTS league_standings;
+DROP TABLE IF EXISTS league_standings;
 
 CREATE TABLE league_standings (
     league_id INT,
@@ -363,4 +363,18 @@ CREATE TABLE league_standings (
     away_goals_against INT,
     last_update DATETIME,
     PRIMARY KEY (league_id, season_year, team_id)
+);
+
+
+DROP TABLE IF EXISTS injuries;
+
+CREATE TABLE injuries (
+  player_id INT,
+  fixture_id INT,
+  league_id INT,
+  team_id INT,
+  type VARCHAR(255),
+  reason TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (player_id, fixture_id)
 );

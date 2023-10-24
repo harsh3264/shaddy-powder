@@ -198,7 +198,9 @@ sql_statements = [
       ps.cards_red,
       elci.minute AS card_minute,
       elci.comments AS card_reason,
-      ps.team_id
+      ps.team_id,
+      row_number() over (partition by p.player_id order by f.fixture_date DESC) AS player_rnk,
+      row_number() over (partition by p.player_id, COALESCE(fl.is_substitute, 1) order by f.fixture_date DESC) AS player_rnk_sub
     FROM base_data_apis.fixture_player_stats ps
     LEFT JOIN base_data_apis.players p ON ps.player_id = p.player_id
     LEFT JOIN base_data_apis.fixtures f ON ps.fixture_id = f.fixture_id

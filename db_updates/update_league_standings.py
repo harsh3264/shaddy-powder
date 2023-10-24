@@ -12,13 +12,13 @@ sys.path.append(parent_dir)
 from database.league_standings import load_league_standings
 
 league_standings_query = """
-    SELECT DISTINCT f.league_id, f.season_year
+    SELECT f.league_id, MAX(f.season_year) AS season_year
     FROM fixtures_stats fs
     JOIN fixtures f ON fs.fixture_id = f.fixture_id
     WHERE 1 = 1
-    # AND f.season_year = 2022
-    AND f.league_id = 253
-    # LIMIT 5
+    AND league_id IN (SELECT league_id FROM today_fixture)
+    GROUP BY 1
+    ;
 """
 
 load_league_standings(league_standings_query)

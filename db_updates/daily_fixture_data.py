@@ -253,6 +253,41 @@ sql_statements = [
     ;
     ''',
     '''
+    DROP TABLE IF EXISTS player_latest_club
+    ;
+    ''',
+    '''
+    CREATE TABLE player_latest_club AS
+    SELECT * FROM
+    (SELECT player_id, team_name, team_id,
+           ROW_NUMBER() over (partition by player_id ORDER BY fixture_date DESC) AS r
+    FROM analytics.fixture_player_stats_compile
+    WHERE team_name <> nationality
+    )A
+    WHERE 1 = 1
+    AND r = 1;
+    ;
+    ''',
+    '''
+    DROP TABLE IF EXISTS player_last_5_data
+    ;
+    ''',
+    '''
+    CREATE TABLE player_last_5_data
+    AS
+    SELECT
+    player_id,
+    GROUP_CONCAT(IF(is_substitute = 0, IFNULL(fouls_committed, 0), '') ORDER BY fixture_date DESC SEPARATOR '') AS last5_start_foul,
+    GROUP_CONCAT(CASE WHEN is_substitute = 1 THEN IFNULL(fouls_committed, 0) END ORDER BY fixture_date DESC SEPARATOR '') AS last5_sub_foul,
+    GROUP_CONCAT(CASE WHEN is_substitute = 0 THEN IFNULL(cards_yellow, 0) + IFNULL(cards_red, 0) END ORDER BY fixture_date DESC SEPARATOR '') AS last5_start_yc,
+    GROUP_CONCAT(CASE WHEN is_substitute = 1 THEN IFNULL(cards_yellow, 0) + IFNULL(cards_red, 0) END ORDER BY fixture_date DESC SEPARATOR '') AS last5_sub_yc
+    FROM analytics.fixture_player_stats_compile
+    WHERE 1 = 1
+    AND player_rnk_sub <= 5
+    GROUP BY 1
+    ;
+    ''',
+    '''
     CREATE TABLE players_base_data AS
     SELECT
         fpsc.player_id,
@@ -330,9 +365,13 @@ sql_statements = [
     CREATE TABLE player_data_agg AS
     SELECT
     fixture_id,
-    player_id,
+    pbd.player_id,
     tf_team AS team_id,
     player_name,
+    last5_start_foul,
+    last5_sub_foul,
+    last5_start_yc,
+    last5_sub_yc,
     SUM(matches) AS total_matches,
     IFNULL(SUM(CASE WHEN is_substitute = 0 THEN fouled_matches END) / SUM(CASE WHEN is_substitute = 0 THEN matches END), 0) AS foul_match_pct,
     IFNULL(SUM(CASE WHEN is_substitute = 1 THEN fouled_matches END) / SUM(CASE WHEN is_substitute = 1 THEN matches END), 0) AS foul_match_sub,
@@ -343,10 +382,11 @@ sql_statements = [
     IFNULL(SUM(CASE WHEN fouls > 0 AND is_substitute = 0 AND season_year = tf_season THEN fouls END) / SUM(CASE WHEN fouls > 0 AND is_substitute = 0 AND season_year = tf_season THEN matches END), 0) AS season_avg_fouls,
     IFNULL(SUM(CASE WHEN season_year = tf_season AND is_substitute = 0 THEN TOTAL END) / SUM(CASE WHEN season_year = YEAR(CURRENT_DATE()) AND is_substitute = 0 THEN matches END), 0) AS season_avg_yc,
     IFNULL(SUM(CASE WHEN team_id = tf_team THEN TOTAL END) / SUM(CASE WHEN team_id = tf_team THEN matches END), 0) AS team_avg_yc
-    FROM players_base_data
+    FROM players_base_data pbd
+    INNER JOIN player_last_5_data pl5d
+    ON pbd.player_id = pl5d.player_id
     WHERE 1 = 1
-    # AND cleaned_referee_name = 'J. Iglesias'
-    GROUP BY 1, 2, 3, 4
+    GROUP BY 1, 2, 3, 4, 5, 6, 7, 8
     ;
     '''
 ]
@@ -357,7 +397,7 @@ cursor = db_conn.cursor()
 
 # Execute each SQL statement
 for sql in sql_statements:
-    print(sql)
+    # print(sql)
     cursor.execute(sql)
     # referee_data = cursor.fetchall()
     # print(referee_data)

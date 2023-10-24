@@ -24,7 +24,7 @@ def insert_players_sidelined_info(cur, player_id, event_type, start_date, end_da
     sql = """
         INSERT INTO players_sidelined (player_id, event_type, start_date, end_date)
         VALUES (%s, %s, %s, %s)
-        ON DUPLICATE KEY UPDATE player_id=player_id
+        ON DUPLICATE KEY UPDATE end_date = VALUES(end_date);
     """
     cur.execute(sql, (player_id, event_type, start_date, end_date))
 
@@ -69,7 +69,7 @@ def load_players_sidelined_info(query):
 
             # Insert or update player sidelined info
             insert_players_sidelined_info(cursor, player_id, event_type, start_date, end_date)
-        time.sleep(0.3)
+        time.sleep(0.1)
 
     # Commit the changes and close the connection
     conn.commit()
