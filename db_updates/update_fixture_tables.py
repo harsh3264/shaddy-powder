@@ -64,7 +64,7 @@ SELECT DISTINCT f.fixture_id
       AND f.league_id IN (SELECT f.league_id FROM top_leagues)
       AND fps.fixture_id IS NULL
     ORDER BY fixture_date DESC
-    LIMIT 1000
+    # LIMIT 2
 ;
 '''
 

@@ -25,7 +25,16 @@ def insert_fixture_events(cur, event_id, fixture_id, team_id, player_id, type, d
     sql = """
         INSERT INTO live_updates.live_fixture_events (event_id, fixture_id, team_id, player_id, type, detail, comments, minute, extra_minute, result, assist_id)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-        ON DUPLICATE KEY UPDATE event_id=event_id
+        ON DUPLICATE KEY UPDATE 
+        player_id = VALUES(player_id),
+        type = VALUES(type),
+        detail = VALUES(detail),
+        comments = VALUES(comments),
+        minute = VALUES(minute),
+        extra_minute = VALUES(extra_minute),
+        result = VALUES(result),
+        assist_id = VALUES(assist_id)
+        ;
     """
     cur.execute(sql, (event_id, fixture_id, team_id, player_id, type, detail, comments, minute, extra_minute, result, assist_id))
 

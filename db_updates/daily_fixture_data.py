@@ -286,13 +286,14 @@ sql_statements = [
     '''
     CREATE TABLE player_latest_club AS
     SELECT * FROM
-    (SELECT player_id, team_name, team_id,
+    (SELECT player_id, team_name, team_id, season_year,
            ROW_NUMBER() over (partition by player_id ORDER BY fixture_date DESC) AS r
     FROM analytics.fixture_player_stats_compile
     WHERE team_name <> nationality
     )A
     WHERE 1 = 1
-    AND r = 1;
+    AND r = 1
+    AND season_year > YEAR(current_date) - 2
     ;
     ''',
     '''

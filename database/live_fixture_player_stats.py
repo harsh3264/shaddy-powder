@@ -24,7 +24,38 @@ def insert_fixture_player_stats(cursor, fixture_id, player_stats):
     sql = """
         INSERT INTO live_updates.live_fixture_player_stats (player_id, fixture_id, team_id, minutes_played, rating, captain, offsides, shots_total, shots_on_target, goals_total, goals_conceded, assists, saves, passes_total, passes_key, passes_accuracy, tackles_total, tackles_blocks, tackles_interceptions, duels_total, duels_won, dribbles_attempts, dribbles_success, dribbles_past, fouls_drawn, fouls_committed, cards_yellow, cards_red, penalty_won, penalty_committed, penalty_scored, penalty_missed, penalty_saved)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-        ON DUPLICATE KEY UPDATE player_id=player_id
+        ON DUPLICATE KEY UPDATE 
+        minutes_played = VALUES(minutes_played),
+        rating = VALUES(rating),
+        captain = VALUES(captain),
+        offsides = VALUES(offsides),
+        shots_total = VALUES(shots_total),
+        shots_on_target = VALUES(shots_on_target),
+        goals_total = VALUES(goals_total),
+        goals_conceded = VALUES(goals_conceded),
+        assists = VALUES(assists),
+        saves = VALUES(saves),
+        passes_total = VALUES(passes_total),
+        passes_key = VALUES(passes_key),
+        passes_accuracy = VALUES(passes_accuracy),
+        tackles_total = VALUES(tackles_total),
+        tackles_blocks = VALUES(tackles_blocks),
+        tackles_interceptions = VALUES(tackles_interceptions),
+        duels_total = VALUES(duels_total),
+        duels_won = VALUES(duels_won),
+        dribbles_attempts = VALUES(dribbles_attempts),
+        dribbles_success = VALUES(dribbles_success),
+        dribbles_past = VALUES(dribbles_past),
+        fouls_drawn = VALUES(fouls_drawn),
+        fouls_committed = VALUES(fouls_committed),
+        cards_yellow = VALUES(cards_yellow),
+        cards_red = VALUES(cards_red),
+        penalty_won = VALUES(penalty_won),
+        penalty_committed = VALUES(penalty_committed),
+        penalty_scored = VALUES(penalty_scored),
+        penalty_missed = VALUES(penalty_missed),
+        penalty_saved = VALUES(penalty_saved)
+        ;
     """
 
     for stat in player_stats:
