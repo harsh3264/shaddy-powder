@@ -73,12 +73,12 @@ sql_statements = [
            fs.against_offsides,
            0 AS against_penalty_won,
            fs.against_ball_possession,
-           fs.yellow_cards,
-           fs.red_cards,
+           fs.against_yellow_cards,
+           fs.against_red_cards,
            fs.goalkeeper_saves,
-           fs.total_passes,
-           fs.passes_accurate,
-           fs.passes_percentage,
+           fs.against_total_passes,
+           fs.against_passes_accurate,
+           fs.against_passes_percentage,
            fs.expected_goals,
            fs.against_expected_goals,
            fs.team_id,
@@ -100,8 +100,8 @@ sql_statements = [
     '''
     INSERT INTO analytics.fixture_stats_compile
     SELECT *,
-           ROW_NUMBER() over (partition by cleaned_refree_name ORDER BY fixture_date DESC) AS refree_r,
-           ROW_NUMBER() over (partition by cleaned_refree_name, league_id ORDER BY fixture_date DESC) AS refree_league_r,
+           DENSE_RANK() over (partition by cleaned_referee_name ORDER BY fixture_date DESC) AS refree_r,
+           DENSE_RANK() over (partition by cleaned_referee_name, league_id ORDER BY fixture_date DESC) AS refree_league_r,
            ROW_NUMBER() over (partition by team_id ORDER BY fixture_date DESC) AS team_r,
            ROW_NUMBER() over (partition by team_id, league_id ORDER BY fixture_date DESC) AS team_league_r
     FROM analytics.fixture_stats_compile_test fsct

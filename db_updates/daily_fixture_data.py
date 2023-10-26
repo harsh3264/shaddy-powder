@@ -77,7 +77,7 @@ sql_statements = [
     JOIN top_leagues tl on f.league_id = tl.league_id
     LEFT JOIN cleaned_referees cr ON f.referee = cr.original_referee_name
     WHERE 1 = 1
-    AND fixture_date = CURDATE()
+    AND fixture_date BETWEEN CURDATE() AND CURDATE() + INTERVAL 1 DAY
     GROUP BY 1
     ORDER BY f.timestamp
     ;
@@ -415,7 +415,7 @@ sql_statements = [
     IFNULL(SUM(CASE WHEN is_substitute = 0 THEN fouls END) / SUM(CASE WHEN is_substitute = 0 THEN matches END), 0) AS avg_fouls_total,
     IFNULL(SUM(CASE WHEN is_substitute = 0 THEN TOTAL END) / SUM(CASE WHEN is_substitute = 0 THEN matches END), 0) AS avg_yc_total,
     SUM(CASE WHEN season_year = tf_season THEN matches END) AS season_matches,
-    IFNULL(SUM(CASE WHEN fouls > 0 AND is_substitute = 0 AND season_year = tf_season THEN fouled_matches END) / SUM(CASE WHEN fouls_drawn > 0 AND is_substitute = 0 AND season_year = tf_season THEN matches END), 0) AS season_foul_match_pct,
+    IFNULL(SUM(CASE WHEN fouls > 0 AND is_substitute = 0 AND season_year = tf_season THEN fouled_matches END) / SUM(CASE WHEN fouls > 0 AND is_substitute = 0 AND season_year = tf_season THEN matches END), 0) AS season_foul_match_pct,
     IFNULL(SUM(CASE WHEN fouls > 0 AND is_substitute = 0 AND season_year = tf_season THEN fouls END) / SUM(CASE WHEN fouls > 0 AND is_substitute = 0 AND season_year = tf_season THEN matches END), 0) AS season_avg_fouls,
     IFNULL(SUM(CASE WHEN season_year = tf_season AND is_substitute = 0 THEN TOTAL END) / SUM(CASE WHEN season_year = YEAR(CURRENT_DATE()) AND is_substitute = 0 THEN matches END), 0) AS season_avg_yc,
     IFNULL(SUM(CASE WHEN team_id = tf_team THEN TOTAL END) / SUM(CASE WHEN team_id = tf_team THEN matches END), 0) AS team_avg_yc
