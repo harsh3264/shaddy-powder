@@ -56,15 +56,15 @@ SELECT DISTINCT f.fixture_id
     LEFT JOIN fixture_player_stats fps ON f.fixture_id = fps.fixture_id
     WHERE 1 = 1
       AND f.elapsed >= 90
-      AND f.fixture_date >= CURRENT_DATE - 2
-    #   AND f.season_year > 2021
+    #   AND f.fixture_date >= CURRENT_DATE - 2
+      AND f.season_year > 2022
       AND l.season_coverage_fixtures_statistics_fixtures = 1
       AND l.season_coverage_fixtures_statistics_players = 1
       AND l.league_id NOT IN (10, 667)
       AND f.league_id IN (SELECT f.league_id FROM top_leagues)
+    #   AND f.league_id IN (SELECT league_id FROM today_fixture)
       AND fps.fixture_id IS NULL
     ORDER BY fixture_date DESC
-    # LIMIT 2
 ;
 '''
 

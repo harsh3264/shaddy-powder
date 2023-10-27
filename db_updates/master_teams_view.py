@@ -134,7 +134,7 @@ sql_statements = [
         SUM(IFNULL(against_yellow_cards, 0)) AS yc_against,
         COUNT(DISTINCT CASE WHEN IFNULL(against_yellow_cards, 0) > 0 THEN fpsc.fixture_id END) AS yc_against_matches
     FROM analytics.fixture_stats_compile fpsc
-    LEFT JOIN (SELECT team_id, MAX(season_year) AS max_season FROM team_league_season) tls
+    INNER JOIN (SELECT team_id, MAX(season_year) AS max_season FROM team_league_season GROUP BY 1) tls
     ON fpsc.team_id = tls.team_id
     # LEFT JOIN today_fixture tf on fpsc.team_id = tf.away_team_id
     WHERE 1 = 1
@@ -263,23 +263,77 @@ sql_statements = [
     '''
     CREATE TABLE master_teams_view AS
     SELECT
-    tda.fixture_id,
-    tda.team_id,
-    tda.season_avg_yc,
-    tda.py_season_avg_yc,
-    tl5d.last5_yc,
-    tda.league_avg_yc,
-    1 - season_yc_match_pct AS 0_card_matches,
-    1 - py_season_yc_match_pct AS 0_card_matches_py,
-    tda.season_avg_yc_against,
-    tda.py_season_avg_yc_against,
-    tl5d.last5_yc_against,
-    tda.league_avg_yc_against,
-    1 - season_yc_against_match_pct AS 0_against_card_matches,
-    1 - py_season_yc_against_match_pct AS 0_against_card_matches_py
+        tda.fixture_id,
+        tda.team_id,
+        tda.season_avg_yc,
+        tda.py_season_avg_yc,
+        tl5d.last5_yc,
+        tda.league_avg_yc,
+        1 - tda.season_yc_match_pct AS 0_card_matches,
+        1 - tda.py_season_yc_match_pct AS 0_card_matches_py,
+        tda.season_avg_yc_against,
+        tda.py_season_avg_yc_against,
+        tl5d.last5_yc_against,
+        tda.league_avg_yc_against,
+        1 - tda.season_yc_against_match_pct AS 0_against_card_matches,
+        1 - tda.py_season_yc_against_match_pct AS 0_against_card_matches_py,
+    
+        tda.season_avg_offsides,
+        tda.py_season_avg_offsides,
+        tl5d.last5_offsides,
+        tda.league_avg_offsides,
+        1 - tda.season_offsides_match_pct AS 0_offsides_matches,
+        1 - tda.py_season_offsides_match_pct AS 0_offsides_matches_py,
+        tda.season_avg_offsides_against,
+        tda.py_season_avg_offsides_against,
+        tl5d.last5_offsides_against,
+        tda.league_avg_offsides_against,
+        1 - tda.season_offsides_against_match_pct AS 0_against_offsides_matches,
+        1 - tda.py_season_offsides_against_match_pct AS 0_against_offsides_matches_py,
+    
+        tda.season_avg_corners,
+        tda.py_season_avg_corners,
+        tl5d.last5_corners,
+        tda.league_avg_corners,
+        1 - tda.season_corners_match_pct AS 0_corners_matches,
+        1 - tda.py_season_corners_match_pct AS 0_corners_matches_py,
+        tda.season_avg_against_corners,
+        tda.py_season_avg_against_corners,
+        tl5d.last5_corners_against,
+        tda.league_avg_against_corners,
+        1 - tda.season_against_corners_match_pct AS 0_against_corners_matches,
+        1 - tda.py_season_against_corners_match_pct AS 0_against_corners_matches_py,
+    
+        tda.season_avg_shots,
+        tda.py_season_avg_shots,
+        tl5d.last5_shots,
+        tda.league_avg_shots,
+        tda.season_avg_against_shots,
+        tda.py_season_avg_against_shots,
+        tl5d.last5_shots_against,
+        tda.league_avg_against_shots,
+    
+        tda.season_avg_fouls,
+        tda.py_season_avg_fouls,
+        tl5d.last5_fouls,
+        tda.league_avg_fouls,
+    
+        tda.season_avg_against_fouls,
+        tda.py_season_avg_against_fouls,
+        tl5d.last5_fouls_drawn,
+        tda.league_avg_against_fouls,
+    
+        tda.season_avg_tackles,
+        tda.py_season_avg_tackles,
+        tl5d.last5_tackles,
+        tda.league_avg_tackles,
+    
+        tda.season_avg_against_tackles,
+        tda.py_season_avg_against_tackles,
+        tl5d.last5_tackles_against,
+        tda.league_avg_against_tackles
     FROM teams_data_agg tda
-    JOIN teams_last_5_data tl5d on tda.team_id = tl5d.team_id
-    # WHERE tda.team_id IN (33, 40)
+    JOIN teams_last_5_data tl5d ON tda.team_id = tl5d.team_id;
     ;
     '''
 ]
@@ -290,7 +344,7 @@ cursor = db_conn.cursor()
 
 # Execute each SQL statement
 for sql in sql_statements:
-    print(sql)
+    # print(sql)
     cursor.execute(sql)
     # referee_data = cursor.fetchall()
     # print(referee_data)
