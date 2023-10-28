@@ -103,18 +103,22 @@ sql_statements = [
     rbd.fixture_id,
     rbd.cleaned_referee_name,
     IFNULL(SUM(matches), 0) AS total_matches,
-    IFNULL(SUM(CASE WHEN fouls > 0 THEN fouls END) / (SUM(CASE WHEN fouls > 0 THEN total_yc END) - SUM(CASE WHEN fouls > 0 THEN argue_yc END) - SUM(CASE WHEN fouls > 0 THEN tw_yc END)), 0) AS fouls_per_yc,
+    IFNULL(SUM(CASE WHEN fouls > 0 THEN fouls END) / SUM(CASE WHEN fouls > 0 THEN total_yc END), 0) AS fouls_per_yc,
     IFNULL(SUM(argue_yc) / SUM(total_yc), 0) AS argue_yc_pct,
     IFNULL(SUM(tw_yc) / SUM(matches), 0) AS tw_yc_pct,
     IFNULL(SUM(total_yc) / SUM(matches), 0) AS avg_yc_total,
     IFNULL(SUM(total_rc) / SUM(matches), 0) AS avg_rc_total,
+    IFNULL(SUM(CASE WHEN `00-30` + `31-45` + `46-75` + `76-90` > 0 THEN `00-30` END) / (SUM(CASE WHEN `00-30` + `31-45` + `46-75` + `76-90` > 0 THEN total_yc END) + SUM(CASE WHEN `00-30` + `31-45` + `46-75` + `76-90` > 0 THEN total_rc END)), 0) AS r_0_30_total,
+    IFNULL(SUM(CASE WHEN `00-30` + `31-45` + `46-75` + `76-90` > 0 THEN `31-45` END) / (SUM(CASE WHEN `00-30` + `31-45` + `46-75` + `76-90` > 0 THEN total_yc END) + SUM(CASE WHEN `00-30` + `31-45` + `46-75` + `76-90` > 0 THEN total_rc END)), 0)  AS r_31_45_total,
+    IFNULL(SUM(CASE WHEN `00-30` + `31-45` + `46-75` + `76-90` > 0 THEN `46-75` END) / (SUM(CASE WHEN `00-30` + `31-45` + `46-75` + `76-90` > 0 THEN total_yc END) + SUM(CASE WHEN `00-30` + `31-45` + `46-75` + `76-90` > 0 THEN total_rc END)), 0)  AS r_46_75_total,
+    IFNULL(SUM(CASE WHEN `00-30` + `31-45` + `46-75` + `76-90` > 0 THEN `76-90` END) / (SUM(CASE WHEN `00-30` + `31-45` + `46-75` + `76-90` > 0 THEN total_yc END) + SUM(CASE WHEN `00-30` + `31-45` + `46-75` + `76-90` > 0 THEN total_rc END)), 0)  AS r_76_90_total,
     IFNULL(SUM(CASE WHEN season_year = tf_season THEN total_yc END) / SUM(CASE WHEN season_year = YEAR(CURRENT_DATE()) THEN matches END), 0) AS season_avg_yc,
     IFNULL(SUM(CASE WHEN league_name = tf_league THEN total_yc END) / SUM(CASE WHEN league_name = tf_league THEN matches END), 0) AS league_avg_yc,
     IFNULL(SUM(0_card_matches) / SUM(matches), 0) AS 0_card_matches,
     IFNULL(SUM(CASE WHEN rbd.season_year = tf_season THEN 0_card_matches END) / SUM(CASE WHEN rbd.season_year = tf_season THEN matches END), 0) AS season_0_card_matches
     FROM referee_base_data rbd
     WHERE 1 = 1
-    # AND cleaned_referee_name = 'J. Iglesias'
+    AND cleaned_referee_name IS NOT NULL
     GROUP BY 1, 2
     ;
     ''',
@@ -160,16 +164,25 @@ sql_statements = [
     rda.total_matches,
     rda.avg_yc_total,
     rl5d.last5_yc,
+    rda.tw_yc_pct,
+    rda.argue_yc_pct,
     rda.fouls_per_yc,
     rl5d.last5_fouls_per_yc,
     rda.0_card_matches,
+    rda.r_0_30_total,
+    rda.r_31_45_total,
+    rda.r_46_75_total,
+    rda.r_76_90_total,
     rda.season_avg_yc,
     rda.season_0_card_matches,
     rda.league_avg_yc,
     rda.avg_rc_total,
     rl5d.last5_rc
     FROM referee_data_agg rda
-    JOIN referee_last_5_data rl5d  ON rda.cleaned_referee_name = rl5d.cleaned_referee_name
+    JOIN referee_last_5_data rl5d
+    ON rda.cleaned_referee_name = rl5d.cleaned_referee_name
+    WHERE 1 = 1
+    # AND LOWER(rda.cleaned_referee_name) LIKE '%king%'
     ;
     '''
 ]
