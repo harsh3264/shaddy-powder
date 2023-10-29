@@ -47,11 +47,20 @@ sql_statements = [
         player_id,
         GROUP_CONCAT(CASE WHEN is_substitute = 0 AND player_rnk_sub <= 5 THEN IFNULL(goals, 0) END ORDER BY fixture_date DESC SEPARATOR '') AS last5_start_goal,
         GROUP_CONCAT(CASE WHEN is_substitute = 0 AND player_rnk_sub <= 5 THEN IFNULL(fouls_committed, 0) END ORDER BY fixture_date DESC SEPARATOR '') AS last5_start_foul,
-        GROUP_CONCAT(CASE WHEN is_substitute = 1 AND player_rnk_sub <= 5 THEN IFNULL(fouls_committed, 0) END ORDER BY fixture_date DESC SEPARATOR '') AS last5_sub_foul,
         REPLACE(
             SUBSTRING_INDEX(
                 GROUP_CONCAT(
-                    CASE WHEN is_substitute = 1 AND LEFT(result, 1) = 'W' THEN IFNULL(fouls_committed, 0) END ORDER BY fixture_date DESC
+                    CASE WHEN is_substitute = 1 AND (IFNULL(minutes_played,0) > 5 OR IFNULL(fouls_committed, 0) > 0) THEN IFNULL(fouls_committed, 0) END ORDER BY fixture_date DESC
+                ),
+                ',', 5
+            ),
+            ',',
+            ''
+        ) AS last5_sub_foul,
+        REPLACE(
+            SUBSTRING_INDEX(
+                GROUP_CONCAT(
+                    CASE WHEN is_substitute = 1 AND (IFNULL(minutes_played,0) > 5 OR IFNULL(fouls_committed, 0) > 0) AND LEFT(result, 1) = 'W' THEN IFNULL(fouls_committed, 0) END ORDER BY fixture_date DESC
                 ),
                 ',', 5
             ),
@@ -61,7 +70,7 @@ sql_statements = [
         REPLACE(
             SUBSTRING_INDEX(
                 GROUP_CONCAT(
-                    CASE WHEN is_substitute = 1 AND LEFT(result, 1) = 'L' THEN IFNULL(fouls_committed, 0) END ORDER BY fixture_date DESC
+                    CASE WHEN is_substitute = 1 AND (IFNULL(minutes_played,0) > 5 OR IFNULL(fouls_committed, 0) > 0) AND LEFT(result, 1) = 'L' THEN IFNULL(fouls_committed, 0) END ORDER BY fixture_date DESC
                 ),
                 ',', 5
             ),
@@ -71,7 +80,7 @@ sql_statements = [
         REPLACE(
             SUBSTRING_INDEX(
                 GROUP_CONCAT(
-                    CASE WHEN is_substitute = 1 AND LEFT(result, 1) = 'D' THEN IFNULL(fouls_committed, 0) END ORDER BY fixture_date DESC
+                    CASE WHEN is_substitute = 1 AND (IFNULL(minutes_played,0) > 5 OR IFNULL(fouls_committed, 0) > 0) AND LEFT(result, 1) = 'D' THEN IFNULL(fouls_committed, 0) END ORDER BY fixture_date DESC
                 ),
                 ',', 5
             ),
@@ -79,7 +88,16 @@ sql_statements = [
             ''
         ) AS last5_draw_sub_foul,
         GROUP_CONCAT(CASE WHEN is_substitute = 0 AND player_rnk_sub <= 5 THEN IFNULL(minutes_played, 0) END ORDER BY fixture_date DESC SEPARATOR '|') AS last5_start_mins,
-        GROUP_CONCAT(CASE WHEN is_substitute = 1 AND player_rnk_sub <= 5 THEN IFNULL(minutes_played, 0) END ORDER BY fixture_date DESC SEPARATOR '|') AS last5_sub_mins,
+        REPLACE(
+            SUBSTRING_INDEX(
+                GROUP_CONCAT(
+                    CASE WHEN is_substitute = 1 AND (IFNULL(minutes_played,0) > 5 OR IFNULL(fouls_committed, 0) > 0) THEN IFNULL(minutes_played, 0) END ORDER BY fixture_date DESC
+                ),
+                ',', 5
+            ),
+            ',',
+            '|'
+        ) AS last5_sub_mins,
         GROUP_CONCAT(CASE WHEN is_substitute = 0 AND player_rnk_sub <= 5 THEN IFNULL(LEFT(result,1), 0) END ORDER BY fixture_date DESC SEPARATOR '|') AS last5_start_result,
         GROUP_CONCAT(CASE WHEN is_substitute = 1 AND player_rnk_sub <= 5 THEN IFNULL(LEFT(result,1), 0) END ORDER BY fixture_date DESC SEPARATOR '|') AS last5_sub_result,
         GROUP_CONCAT(CASE WHEN is_substitute = 0 AND player_rnk_sub <= 5 THEN IFNULL(fouls_drawn, 0) END ORDER BY fixture_date DESC SEPARATOR '') AS last5_fouls_drawn,
@@ -93,15 +111,23 @@ sql_statements = [
                 ELSE CAST(IFNULL(cards_yellow, 0) + IFNULL(cards_red, 0) AS CHAR)
             END
         END ORDER BY fixture_date DESC SEPARATOR '') AS last5_start_yc,
-        GROUP_CONCAT(CASE WHEN is_substitute = 1 AND player_rnk_sub <= 5 THEN
+        REPLACE(
+            SUBSTRING_INDEX(
+                GROUP_CONCAT(CASE WHEN is_substitute = 0 AND (IFNULL(minutes_played,0) > 5 OR IFNULL(fouls_committed, 0) > 0) THEN
             CASE
                 WHEN IFNULL(cards_yellow, 0) + IFNULL(cards_red, 0) > 1 THEN '1'
                 ELSE CAST(IFNULL(cards_yellow, 0) + IFNULL(cards_red, 0) AS CHAR)
             END
-        END ORDER BY fixture_date DESC SEPARATOR '') AS last5_sub_yc
+        END ORDER BY fixture_date DESC),
+                ',', 5
+            ),
+            ',',
+            ''
+        ) AS last5_sub_yc
     FROM analytics.fixture_player_stats_compile
     WHERE 1 = 1
         AND player_rnk_sub <= 100
+    # AND player_id = 919
     GROUP BY player_id
     ;
     ''',
@@ -321,7 +347,7 @@ sql_statements = [
         pda.season_avg_fouls,
         pl5d.last5_start_foul,
         1 - pda.foul_match_pct AS zero_foul_match_pct,
-        1 - pda.season_foul_match_pct AS zero_foul_shot_match_pct,
+        1 - pda.season_foul_match_pct AS zero_season_foul_match_pct,
         pda.avg_yc_total,
         pda.season_avg_yc,
         pl5d.last5_start_yc,
