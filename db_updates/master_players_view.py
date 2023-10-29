@@ -99,7 +99,16 @@ sql_statements = [
             '|'
         ) AS last5_sub_mins,
         GROUP_CONCAT(CASE WHEN is_substitute = 0 AND player_rnk_sub <= 5 THEN IFNULL(LEFT(result,1), 0) END ORDER BY fixture_date DESC SEPARATOR '|') AS last5_start_result,
-        GROUP_CONCAT(CASE WHEN is_substitute = 1 AND player_rnk_sub <= 5 THEN IFNULL(LEFT(result,1), 0) END ORDER BY fixture_date DESC SEPARATOR '|') AS last5_sub_result,
+                REPLACE(
+            SUBSTRING_INDEX(
+                GROUP_CONCAT(
+                    CASE WHEN is_substitute = 1 AND (IFNULL(minutes_played,0) > 5 OR IFNULL(fouls_committed, 0) > 0) THEN IFNULL(LEFT(result,1), 0) END ORDER BY fixture_date DESC
+                ),
+                ',', 5
+            ),
+            ',',
+            '|'
+        ) AS last5_sub_result,
         GROUP_CONCAT(CASE WHEN is_substitute = 0 AND player_rnk_sub <= 5 THEN IFNULL(fouls_drawn, 0) END ORDER BY fixture_date DESC SEPARATOR '') AS last5_fouls_drawn,
         GROUP_CONCAT(CASE WHEN is_substitute = 0 AND player_rnk_sub <= 5 THEN IFNULL(shots_total, 0) END ORDER BY fixture_date DESC SEPARATOR '') AS last5_shots_total,
         GROUP_CONCAT(CASE WHEN is_substitute = 0 AND player_rnk_sub <= 5 THEN IFNULL(shots_on_target, 0) END ORDER BY fixture_date DESC SEPARATOR '') AS last5_sot_total,
