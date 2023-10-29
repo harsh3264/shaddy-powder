@@ -193,7 +193,7 @@ cursor = db_conn.cursor()
 
 # Execute each SQL statement
 for sql in sql_statements:
-    print(sql)
+    # print(sql)
     cursor.execute(sql)
     # referee_data = cursor.fetchall()
     # print(referee_data)

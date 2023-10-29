@@ -272,6 +272,7 @@ sql_statements = [
     CREATE TABLE teams_last_5_data AS
     SELECT
         team_id,
+        SUBSTRING_INDEX(GROUP_CONCAT(IFNULL(LEFT(result,1), 0) ORDER BY team_r ASC SEPARATOR '|'), '|', 5) AS last5_results,
         SUBSTRING_INDEX(GROUP_CONCAT(IFNULL(team_goals, 0) ORDER BY team_r ASC SEPARATOR '|'), '|', 5) AS last5_goals,
         SUBSTRING_INDEX(GROUP_CONCAT(IFNULL(against_team_goals, 0) ORDER BY team_r ASC SEPARATOR '|'), '|', 5) AS last5_goals_against,
         SUBSTRING_INDEX(GROUP_CONCAT(IFNULL(btts, 0) ORDER BY team_r ASC SEPARATOR '|'), '|', 5) AS last5_btts,
@@ -299,9 +300,10 @@ sql_statements = [
     ''',
     '''
     CREATE TABLE master_teams_view AS
-    SELECT
+    SELECT DISTINCT
     tda.fixture_id,
     tda.team_id,
+    tl5d.last_5_results,
     
     -- goals metrics --
     tda.season_avg_goals,

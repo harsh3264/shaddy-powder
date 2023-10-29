@@ -191,6 +191,7 @@ sql_statements = [
       fsc.team_goals,
       fsc.against_team_goals,
       fsc.result,
+      ps.goals_total AS goals,
       ps.minutes_played,
       ps.fouls_committed,
       ps.fouls_drawn,
