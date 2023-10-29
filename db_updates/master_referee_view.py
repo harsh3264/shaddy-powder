@@ -108,10 +108,10 @@ sql_statements = [
     IFNULL(SUM(tw_yc) / SUM(matches), 0) AS tw_yc_pct,
     IFNULL(SUM(total_yc) / SUM(matches), 0) AS avg_yc_total,
     IFNULL(SUM(total_rc) / SUM(matches), 0) AS avg_rc_total,
-    IFNULL(SUM(CASE WHEN `00-30` + `31-45` + `46-75` + `76-90` > 0 THEN `00-30` END) / (SUM(CASE WHEN `00-30` + `31-45` + `46-75` + `76-90` > 0 THEN total_yc END) + SUM(CASE WHEN `00-30` + `31-45` + `46-75` + `76-90` > 0 THEN total_rc END)), 0) AS r_0_30_total,
-    IFNULL(SUM(CASE WHEN `00-30` + `31-45` + `46-75` + `76-90` > 0 THEN `31-45` END) / (SUM(CASE WHEN `00-30` + `31-45` + `46-75` + `76-90` > 0 THEN total_yc END) + SUM(CASE WHEN `00-30` + `31-45` + `46-75` + `76-90` > 0 THEN total_rc END)), 0)  AS r_31_45_total,
-    IFNULL(SUM(CASE WHEN `00-30` + `31-45` + `46-75` + `76-90` > 0 THEN `46-75` END) / (SUM(CASE WHEN `00-30` + `31-45` + `46-75` + `76-90` > 0 THEN total_yc END) + SUM(CASE WHEN `00-30` + `31-45` + `46-75` + `76-90` > 0 THEN total_rc END)), 0)  AS r_46_75_total,
-    IFNULL(SUM(CASE WHEN `00-30` + `31-45` + `46-75` + `76-90` > 0 THEN `76-90` END) / (SUM(CASE WHEN `00-30` + `31-45` + `46-75` + `76-90` > 0 THEN total_yc END) + SUM(CASE WHEN `00-30` + `31-45` + `46-75` + `76-90` > 0 THEN total_rc END)), 0)  AS r_76_90_total,
+    IFNULL(SUM(CASE WHEN `00-30` + `31-45` + `46-75` + `76-90` > 0 THEN `00-30` END) / SUM(CASE WHEN `00-30` + `31-45` + `46-75` + `76-90` > 0 THEN `00-30` + `31-45` + `46-75` + `76-90` END), 0) AS r_0_30_total,
+    IFNULL(SUM(CASE WHEN `00-30` + `31-45` + `46-75` + `76-90` > 0 THEN `31-45` END) / SUM(CASE WHEN `00-30` + `31-45` + `46-75` + `76-90` > 0 THEN `00-30` + `31-45` + `46-75` + `76-90` END) , 0)  AS r_31_45_total,
+    IFNULL(SUM(CASE WHEN `00-30` + `31-45` + `46-75` + `76-90` > 0 THEN `46-75` END) / SUM(CASE WHEN `00-30` + `31-45` + `46-75` + `76-90` > 0 THEN `00-30` + `31-45` + `46-75` + `76-90` END), 0)  AS r_46_75_total,
+    IFNULL(SUM(CASE WHEN `00-30` + `31-45` + `46-75` + `76-90` > 0 THEN `76-90` END) / SUM(CASE WHEN `00-30` + `31-45` + `46-75` + `76-90` > 0 THEN `00-30` + `31-45` + `46-75` + `76-90` END), 0)  AS r_76_90_total,
     IFNULL(SUM(CASE WHEN season_year = tf_season THEN total_yc END) / SUM(CASE WHEN season_year = YEAR(CURRENT_DATE()) THEN matches END), 0) AS season_avg_yc,
     IFNULL(SUM(CASE WHEN league_name = tf_league THEN total_yc END) / SUM(CASE WHEN league_name = tf_league THEN matches END), 0) AS league_avg_yc,
     IFNULL(SUM(0_card_matches) / SUM(matches), 0) AS 0_card_matches,
@@ -193,7 +193,7 @@ cursor = db_conn.cursor()
 
 # Execute each SQL statement
 for sql in sql_statements:
-    # print(sql)
+    print(sql)
     cursor.execute(sql)
     # referee_data = cursor.fetchall()
     # print(referee_data)
