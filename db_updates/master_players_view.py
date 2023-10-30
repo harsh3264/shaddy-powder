@@ -331,7 +331,16 @@ sql_statements = [
     IFNULL(SUM(CASE WHEN is_substitute = 0 THEN tackled_matches END) / SUM(CASE WHEN is_substitute = 0 THEN matches END), 0) AS tackle_match_pct,
     IFNULL(SUM(CASE WHEN is_substitute = 0 THEN tackles END) / SUM(CASE WHEN is_substitute = 0 THEN matches END), 0) AS avg_tackles_total,
     IFNULL(SUM(CASE WHEN tackles > 0 AND is_substitute = 0 AND season_year = tf_season THEN tackled_matches END) / SUM(CASE WHEN is_substitute = 0 AND season_year = tf_season THEN matches END), 0) AS season_tackle_match_pct,
-    IFNULL(SUM(CASE WHEN tackles > 0 AND is_substitute = 0 AND season_year = tf_season THEN tackles END) / SUM(CASE WHEN is_substitute = 0 AND season_year = tf_season THEN matches END), 0) AS season_avg_tackles
+    IFNULL(SUM(CASE WHEN tackles > 0 AND is_substitute = 0 AND season_year = tf_season THEN tackles END) / SUM(CASE WHEN is_substitute = 0 AND season_year = tf_season THEN matches END), 0) AS season_avg_tackles,
+    
+    -- Cards Extra Metrics
+    IFNULL(SUM(IFNULL(argue_yc,0)) / SUM((IFNULL(argue_yc,0) + IFNULL(tw_yc,0) + IFNULL(foul_yc,0) + IFNULL(hand_yc,0))), 0) AS argue_yc_pct,
+    IFNULL(SUM(IFNULL(tw_yc,0)) / SUM((IFNULL(argue_yc,0) + IFNULL(tw_yc,0) + IFNULL(foul_yc,0) + IFNULL(hand_yc,0))), 0) AS tw_yc_pct,
+    IFNULL(SUM(IFNULL(`00-30`,0)) / SUM((IFNULL(`00-30`,0) + IFNULL(`31-45`,0) + IFNULL(`46-75`,0) + IFNULL(`76-90`,0))), 0) AS r_0_30_yc_pct,
+    IFNULL(SUM(IFNULL(`31-45`,0)) / SUM((IFNULL(`00-30`,0) + IFNULL(`31-45`,0) + IFNULL(`46-75`,0) + IFNULL(`76-90`,0))), 0) AS r_31_45_yc_pct,
+    IFNULL(SUM(IFNULL(`46-75`,0)) / SUM((IFNULL(`00-30`,0) + IFNULL(`31-45`,0) + IFNULL(`46-75`,0) + IFNULL(`76-90`,0))), 0) AS r_46_75_yc_pct,
+    IFNULL(SUM(IFNULL(`76-90`,0)) / SUM((IFNULL(`00-30`,0) + IFNULL(`31-45`,0) + IFNULL(`46-75`,0) + IFNULL(`76-90`,0))), 0) AS r_76_90_yc_pct
+
     
     FROM players_base_data pbd
     INNER JOIN players_last_5_data pl5d
@@ -400,7 +409,14 @@ sql_statements = [
         pl5d.last5_win_sub_foul,
         pl5d.last5_loss_sub_foul,
         pl5d.last5_draw_sub_foul,
-        pl5d.last5_start_result
+        pl5d.last5_start_result,
+        pda.argue_yc_pct,
+        pda.tw_yc_pct,
+        pda.r_0_30_yc_pct,
+        pda.r_31_45_yc_pct,
+        pda.r_46_75_yc_pct,
+        pda.r_76_90_yc_pct
+                
         FROM players_data_agg pda
         JOIN players_last_5_data pl5d on pda.player_id = pl5d.player_id
     ;

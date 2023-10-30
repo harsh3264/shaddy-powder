@@ -303,7 +303,7 @@ sql_statements = [
     SELECT DISTINCT
     tda.fixture_id,
     tda.team_id,
-    tl5d.last_5_results,
+    tl5d.last5_results,
     
     -- goals metrics --
     tda.season_avg_goals,
