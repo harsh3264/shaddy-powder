@@ -50,23 +50,24 @@ with open(fixtures_script_path) as f:
 
 # Modify the query dynamically
 query = '''
-SELECT DISTINCT f.fixture_id
+    SELECT DISTINCT f.fixture_id
     FROM fixtures f
     LEFT JOIN leagues l ON f.league_id = l.league_id AND f.season_year = l.season_year
     LEFT JOIN fixture_player_stats fps ON f.fixture_id = fps.fixture_id
     WHERE 1 = 1
       AND f.elapsed >= 90
       AND f.fixture_date >= CURRENT_DATE - 2
-    #   AND f.season_year > 2022
+      AND f.season_year > 2022
       AND l.season_coverage_fixtures_statistics_fixtures = 1
       AND l.season_coverage_fixtures_statistics_players = 1
       AND l.league_id NOT IN (10, 667)
       AND f.league_id IN (SELECT f.league_id FROM top_leagues)
+    #   AND f.fixture_id IN (SELECT fixture_id FROM missing_fixt)
     #   AND f.league_id IN (SELECT league_id FROM today_fixture)
       AND fps.fixture_id IS NULL
     ORDER BY fixture_date DESC
-;
-'''
+    ;
+    '''
 
 def update_player_info():
     players_query = """
@@ -89,14 +90,14 @@ def update_player_info():
     load_player_info(players_query)
     
 
-# Call the function to update fixture stats and store the fixture IDs
-load_fixture_stats(query)
+# # Call the function to update fixture stats and store the fixture IDs
+# load_fixture_stats(query)
 
-# Call the function to update fixture events and pass the fixture IDs
-load_fixture_events(query)
+# # Call the function to update fixture events and pass the fixture IDs
+# load_fixture_events(query)
 
-# Call the function to update fixture lineups and pass the fixture IDs
-load_fixture_lineups(query)
+# # Call the function to update fixture lineups and pass the fixture IDs
+# load_fixture_lineups(query)
 
 # Call the function to update fixture player stats and pass the fixture IDs
 load_fixture_player_stats(query)

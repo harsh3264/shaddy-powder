@@ -132,7 +132,15 @@ sql_statements = [
             ),
             ',',
             ''
-        ) AS last5_sub_yc
+        ) AS last5_sub_yc,
+    GROUP_CONCAT(CASE WHEN player_rnk <= 5 THEN
+        CASE
+            WHEN IFNULL(cards_yellow, 0) + IFNULL(cards_red, 0) > 1 THEN '1'
+            ELSE CAST(IFNULL(cards_yellow, 0) + IFNULL(cards_red, 0) AS CHAR)
+        END
+    END ORDER BY fixture_date DESC SEPARATOR '') AS last5_yc,
+    GROUP_CONCAT(CASE WHEN player_rnk <= 5 THEN minutes_played END ORDER BY fixture_date DESC SEPARATOR '|') AS last5_mins,
+    GROUP_CONCAT(CASE WHEN player_rnk <= 5 THEN is_substitute END ORDER BY fixture_date DESC SEPARATOR '') AS last5_subs
     FROM analytics.fixture_player_stats_compile
     WHERE 1 = 1
         AND player_rnk_sub <= 100
@@ -410,6 +418,9 @@ sql_statements = [
         pl5d.last5_loss_sub_foul,
         pl5d.last5_draw_sub_foul,
         pl5d.last5_start_result,
+        pl5d.last5_yc,
+        pl5d.last5_mins,
+        pl5d.last5_subs,
         pda.argue_yc_pct,
         pda.tw_yc_pct,
         pda.r_0_30_yc_pct,

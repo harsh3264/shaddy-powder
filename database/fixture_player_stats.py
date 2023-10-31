@@ -25,7 +25,9 @@ def insert_fixture_player_stats(cursor, fixture_id, player_stats):
         INSERT INTO fixture_player_stats (player_id, fixture_id, team_id, minutes_played, rating, captain, offsides, shots_total, shots_on_target, goals_total, goals_conceded, assists, saves, passes_total, passes_key, passes_accuracy, tackles_total, tackles_blocks, tackles_interceptions, duels_total, duels_won, dribbles_attempts, dribbles_success, dribbles_past, fouls_drawn, fouls_committed, cards_yellow, cards_red, penalty_won, penalty_committed, penalty_scored, penalty_missed, penalty_saved)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         ON DUPLICATE KEY UPDATE
-                minutes_played = VALUES(minutes_played),
+        player_id = VALUES(player_id),
+        fixture_id = VALUES(fixture_id),
+        minutes_played = VALUES(minutes_played),
         rating = VALUES(rating),
         captain = VALUES(captain),
         offsides = VALUES(offsides),
