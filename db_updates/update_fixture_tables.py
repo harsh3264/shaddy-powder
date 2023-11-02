@@ -90,16 +90,16 @@ def update_player_info():
     load_player_info(players_query)
     
 
-# # Call the function to update fixture stats and store the fixture IDs
-# load_fixture_stats(query)
+# Call the function to update fixture stats and store the fixture IDs
+load_fixture_stats(query)
 
-# # Call the function to update fixture events and pass the fixture IDs
-# load_fixture_events(query)
+# Call the function to update fixture events and pass the fixture IDs
+load_fixture_events(query)
 
-# # Call the function to update fixture lineups and pass the fixture IDs
-# load_fixture_lineups(query)
+# Call the function to update fixture lineups and pass the fixture IDs
+load_fixture_lineups(query)
 
-# Call the function to update fixture player stats and pass the fixture IDs
+# # Call the function to update fixture player stats and pass the fixture IDs
 load_fixture_player_stats(query)
 
 # # # Call the function to update player info 
