@@ -43,7 +43,7 @@ sql_statements = [
          league_id IN (40, 41, 71, 188, 253))
     AND season_year >= 2022
     GROUP BY 1
-    HAVING teams > 3
+    HAVING teams > 2
     ORDER BY 2 DESC
     ;
     ''',

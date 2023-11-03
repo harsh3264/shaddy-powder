@@ -7,7 +7,7 @@ SELECT
     fpsc.cleaned_referee_name,
     tf.fixture_id,
     tf.fixt,
-    tf.season_year AS tf_season,
+    COALESCE(tf.season_year, mx.max_season) AS tf_season,
     tf.match_time,
     tf.name AS tf_league,
     fpsc.league_name,
@@ -26,6 +26,9 @@ SELECT
     0 AS 'tw_yc'
 FROM analytics.fixture_stats_compile fpsc
 LEFT JOIN today_fixture tf on fpsc.cleaned_referee_name = tf.cleaned_referee_name
+LEFT JOIN (SELECT cleaned_referee_name, MAX(season_year) AS max_season
+           FROM analytics.fixture_stats_compile GROUP BY 1) AS mx
+ON fpsc.cleaned_referee_name = mx.cleaned_referee_name
 WHERE 1 = 1
 AND league_name IS NOT NULL
 GROUP BY 1, 2, 3, 4, 5, 6, 7, 8

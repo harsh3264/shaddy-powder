@@ -41,11 +41,12 @@ sql_statements = [
     CREATE TABLE quicksight.referee_dashboard
     AS
     SELECT
-    tf.fixt,
-    tf.name AS league,
-    tf.match_time,
-    tf.fixture_date,
     tf.fixture_id,
+    tf.country_name,
+    tf.name AS league,
+    tf.fixture_date,
+    tf.match_time,
+    tf.fixt,
     mrv.cleaned_referee_name,
     mrv.total_matches,
     mrv.avg_yc_total,
@@ -65,11 +66,12 @@ sql_statements = [
     mrv.r_46_75_total,
     mrv.r_76_90_total
     FROM today_fixture tf
-    LEFT JOIN master_referee_view mrv on mrv.fixture_id = tf.fixture_id
+    LEFT JOIN master_referee_view mrv on mrv.cleaned_referee_name = tf.cleaned_referee_name
     WHERE 1 = 1
     # AND tf.cleaned_referee_name IS NOT NULL
     # AND LOWER(mrv.cleaned_referee_name) LIKE '%king%'
-    ORDER BY tf.timestamp, tf.league_id;
+    ORDER BY tf.timestamp, tf.league_id
+    ;
     ''',
     '''
     DROP TABLE IF EXISTS quicksight.teams_yc_dashboard;
