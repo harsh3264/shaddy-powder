@@ -213,7 +213,7 @@ IFNULL(SUM(CASE WHEN season_year = tf_season - 1 THEN fouls END) / SUM(CASE WHEN
 IFNULL(SUM(CASE WHEN season_year = tf_season AND league_name = tf_league THEN fouls END) / SUM(CASE WHEN season_year = tf_season AND league_name = tf_league THEN matches END), 0) AS league_avg_fouls,
 
 -- Against Fouls metrics
-IFNULL(SUM(CASE WHEN season_year = tf_season THEN found_rows() END) / SUM(CASE WHEN season_year = tf_season THEN matches END), 0) AS season_avg_against_fouls,
+IFNULL(SUM(CASE WHEN season_year = tf_season THEN fouls_drawn END) / SUM(CASE WHEN season_year = tf_season THEN matches END), 0) AS season_avg_against_fouls,
 IFNULL(SUM(CASE WHEN season_year = tf_season - 1 THEN fouls_drawn END) / SUM(CASE WHEN season_year = tf_season - 1 THEN matches END), 0) AS py_season_avg_against_fouls,
 IFNULL(SUM(CASE WHEN season_year = tf_season AND league_name = tf_league THEN fouls_drawn END) / SUM(CASE WHEN season_year = tf_season AND league_name = tf_league THEN matches END), 0) AS league_avg_against_fouls,
 

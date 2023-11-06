@@ -15,14 +15,15 @@ INJURIES_URL = "https://api-football-v1.p.rapidapi.com/v3/injuries"
 TOP_SCORERS_URL = "https://api-football-v1.p.rapidapi.com/v3/topscorers"
 LINEUP_URL = "https://api-football-v1.p.rapidapi.com/v3/fixtures/lineups"
 EVENTS_URL = "https://api-football-v1.p.rapidapi.com/v3/fixtures/events"
-ODDS_URL = "https://api-football-v1.p.rapidapi.com/v3/odds"
 PREDICTIONS_URL = "https://api-football-v1.p.rapidapi.com/v3/predictions"
 BOOKMAKERS_URL = "https://api-football-v1.p.rapidapi.com/v3/bookmakers"
 HEAD2HEAD_URL = "https://api-football-v1.p.rapidapi.com/v3/fixtures/headtohead"
 TV_STATIONS_URL = "https://api-football-v1.p.rapidapi.com/v3/tvstations"
 TRANSFERS_URL = "https://api-football-v1.p.rapidapi.com/v3/transfers"
 STADIUMS_URL = "https://api-football-v1.p.rapidapi.com/v3/stadiums"
-BETS_URL = "https://api-football-v1.p.rapidapi.com/v3/bets"
+BOOKMAKERS_URL = "https://api-football-v1.p.rapidapi.com/v3/odds/bookmakers"
+BETS_URL = "https://api-football-v1.p.rapidapi.com/v3/odds/bets"
+ODDS_URL = "https://api-football-v1.p.rapidapi.com/v3/odds"
 
 
 
