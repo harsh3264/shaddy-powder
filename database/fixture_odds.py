@@ -23,7 +23,7 @@ db_config = {
 }
 
 # Define the query to select `fixture_id` from the `today_fixture` table
-today_fixture_query = "SELECT DISTINCT fixture_id FROM today_fixture;"
+today_fixture_query = "SELECT DISTINCT fixture_id FROM fixtures WHERE fixture_date = CURDATE();"
 
 # Establish a connection to the MySQL database
 connection = mysql.connector.connect(**db_config)

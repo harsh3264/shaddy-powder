@@ -97,6 +97,23 @@ def upsert_live_fixture(cursor, fixture):
     )
     cursor.execute(upsert_query, values)
 
+
+# Function to update referee data into the "fixtures" table
+def update_fixture(cursor, fixture):
+    fixture_id = fixture['fixture']['id']
+    # print(fixture_id)
+    referee = fixture['fixture']['referee']
+    # print(referee)
+    fixture_date = fixture['fixture']['date'].split('T')[0]
+
+    values = (referee, fixture_date, fixture_id)  # Include the fixture_id for the WHERE clause
+    update_query = '''
+        UPDATE fixtures
+        SET referee = %s, fixture_date = %s
+        WHERE fixture_id = %s;
+    '''
+    cursor.execute(update_query, values)
+
 # Establish a connection to the MySQL database
 db_conn = mysql.connector.connect(**db_config)
 cursor = db_conn.cursor()
@@ -111,12 +128,15 @@ query = '''
     FROM fixtures f
     INNER JOIN top_leagues tl on f.league_id = tl.league_id
     WHERE 1 = 1
-    # AND fixture_date = CURDATE()
-    AND timestamp > UNIX_TIMESTAMP(NOW()  - INTERVAL 120 MINUTE)
-    AND timestamp < UNIX_TIMESTAMP(NOW()  + INTERVAL 60 MINUTE);
+    AND fixture_date = CURDATE()
+    # AND timestamp > UNIX_TIMESTAMP(NOW()  - INTERVAL 120 MINUTE)
+    # AND timestamp < UNIX_TIMESTAMP(NOW()  + INTERVAL 60 MINUTE)
+    ;
 '''
 cursor.execute(query)
 league_season_data = cursor.fetchall()
+
+# print(league_season_data)
 
 # Iterate over the league and season data
 for league_id, season_year in league_season_data:
@@ -142,6 +162,8 @@ for league_id, season_year in league_season_data:
 
     # # Iterate over the fixtures data
     for fixture in filtered_fixtures:
+        # print("Processing fixture:", fixture['fixture']['id'])
+        update_fixture(cursor, fixture)
         status = fixture['fixture']['status']['short']
         timestamp = fixture['fixture']['timestamp']
         if (
