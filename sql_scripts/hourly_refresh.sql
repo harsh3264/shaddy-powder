@@ -231,7 +231,7 @@ FROM quicksight.referee_dashboard_replica rd
 INNER JOIN temp.fixture_cards_bookmakers_summary fcbs
 ON rd.fixture_id = fcbs.fixture_id AND fcbs.team_id = 0
 WHERE 1 = 1
-AND league = 'UEFA Champions League'
+-- AND league = 'UEFA Champions League'
 ;
 
 
