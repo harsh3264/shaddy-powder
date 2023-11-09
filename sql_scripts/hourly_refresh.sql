@@ -216,6 +216,139 @@ WHERE 1 = 1
 ORDER BY tf.timestamp, tf.league_id
 ;
 
+DROP TABLE IF EXISTS temp.bookmakers_prediction;
+
+CREATE TABLE temp.bookmakers_prediction
+AS
+SELECT
+tf.fixt,
+tf.fixture_id,
+CASE WHEN LOWER(bet_name) LIKE '%home%' THEN home_team_id
+     WHEN LOWER(bet_name) LIKE '%away%' THEN away_team_id
+     ELSE 0 END AS team_id,
+CASE WHEN LOWER(bet_name) LIKE '%home%' THEN home_team
+     WHEN LOWER(bet_name) LIKE '%away%' THEN away_team
+     ELSE 'total'END AS team_name,
+CASE WHEN LOWER(bet_name) LIKE '%home%' THEN 0
+     WHEN LOWER(bet_name) LIKE '%away%' THEN 1
+     ELSE 3 END AS is_home,
+bet_name,
+value_type,
+bookmaker_name,
+fo.bookmaker_id,
+fo.bet_type_id,
+odd
+FROM fixture_odds fo
+JOIN bookmakers b on fo.bookmaker_id = b.bookmaker_id
+JOIN today_fixture tf on fo.fixture_id = tf.fixture_id
+WHERE 1 = 1
+# AND tf.fixture_id = 1035146
+AND (bet_type_id IN (80, 82, 83, 150, 151, 153)
+         OR (bet_type_id = 86 AND LOWER(value_type) = 'yes')
+    )
+# AND LOWER(value_type) = 'yes'
+# AND fixture_date = CURDATE()
+# AND fo.fixture_id =
+ORDER BY league_id, match_time, fixt, is_home
+;
+
+# SELECT * FROM fixture_odds WHERE bet_type_id = 79;
+
+DROP TABLE IF EXISTS temp.fixture_cards_bookmakers;
+
+CREATE TABLE temp.fixture_cards_bookmakers
+AS
+SELECT
+*,
+DENSE_RANK() over (partition by fixture_id order by odd) AS fixture_rnk,
+DENSE_RANK() over (partition by fixture_id, is_home order by odd) AS fixture_team_rnk,
+DENSE_RANK() over (partition by fixture_id, is_home, bookmaker_name order by odd) AS fixture_team_bookie_rnk
+FROM temp.bookmakers_prediction
+WHERE 1 = 1
+;
+
+DROP TABLE IF EXISTS temp.fixture_cards_bookmakers_summary;
+
+CREATE TABLE temp.fixture_cards_bookmakers_summary
+AS
+SELECT
+fixture_id,
+team_id,
+fixt,
+GROUP_CONCAT(CASE WHEN fixture_team_bookie_rnk = 1 AND bookmaker_name = 'Bet365' THEN CONCAT(value_type, ' (', odd, ')') END SEPARATOR ' | ') AS Bet365,
+GROUP_CONCAT(CASE WHEN fixture_team_bookie_rnk = 1 AND bookmaker_name = 'Marathonbet' THEN CONCAT(value_type, ' (', odd, ')') END SEPARATOR  ' | ') AS Marathonbet,
+GROUP_CONCAT(CASE WHEN fixture_team_bookie_rnk = 1 AND bookmaker_name = 'Pinnacle' THEN CONCAT(value_type, ' (', odd, ')') END SEPARATOR ' | ') AS Pinnacle
+FROM temp.fixture_cards_bookmakers
+WHERE 1 = 1
+# AND fixture_id = 1035146
+GROUP BY 1, 2
+;
+
+-- Fixture Q
+
+DROP TABLE IF EXISTS temp.fixture_level_cards_odds;
+
+CREATE TABLE temp.fixture_level_cards_odds
+AS
+SELECT
+f.fixture_id,
+f.fixt,
+CASE WHEN f.team_id = 0 THEN 'Total' ELSE t.name END AS team,
+Bet365,
+Marathonbet,
+Pinnacle,
+CASE WHEN f.team_id = tf.home_team_id THEN 0
+     WHEN f.team_id = tf.away_team_id THEN 1
+     ELSE 2 END AS tnk
+FROM temp.fixture_cards_bookmakers_summary f
+JOIN teams t on t.team_id = f.team_id
+JOIN today_fixture tf on f.fixture_id = tf.fixture_id
+ORDER BY f.fixture_id, tnk
+;
+
+DROP TABLE IF EXISTS temp.top_high_voltage;
+
+CREATE TABLE temp.top_high_voltage
+AS
+SELECT * FROM
+(SELECT
+DISTINCT fixture_id, fixt, Bet365, Marathonbet, Pinnacle
+FROM temp.fixture_level_cards_odds
+WHERE 1 = 1
+AND team = 'Total' ) AS base
+WHERE
+1 = 1
+AND
+(
+    (
+    (LOWER(Bet365) LIKE '%over 4%' OR LOWER(Bet365) LIKE '%over 5%' OR LOWER(Bet365) LIKE '%over 6%' OR LOWER(Bet365) LIKE '%over 7%')
+    OR
+    (LOWER(Bet365) LIKE '%under 6%' OR LOWER(Bet365) LIKE '%under 7%' OR LOWER(Bet365) LIKE '%under 8%')
+    )
+    OR
+    (
+    (LOWER(Marathonbet) LIKE '%over 4%' OR LOWER(Marathonbet) LIKE '%over 5%' OR LOWER(Marathonbet) LIKE '%over 6%' OR LOWER(Marathonbet) LIKE '%over 7%')
+    OR
+    (LOWER(Marathonbet) LIKE '%under 6%' OR LOWER(Marathonbet) LIKE '%under 7%' OR LOWER(Marathonbet) LIKE '%under 8%')
+    )
+    OR
+    (
+    (LOWER(Pinnacle) LIKE '%over 4%' OR LOWER(Pinnacle) LIKE '%over 5%' OR LOWER(Pinnacle) LIKE '%over 6%' OR LOWER(Pinnacle) LIKE '%over 7%')
+    OR
+    (LOWER(Pinnacle) LIKE '%under 6%' OR LOWER(Pinnacle) LIKE '%under 7%' OR LOWER(Pinnacle) LIKE '%under 8%')
+    )
+)
+AND (
+    LOWER(IFNULL(Bet365, 'aa')) NOT LIKE '%under 3%'
+        AND
+    LOWER(IFNULL(Bet365, 'aa')) NOT LIKE '%under 4%'
+        AND
+    LOWER(IFNULL(Pinnacle, 'aa')) NOT LIKE '%under 4%'
+        AND
+    LOWER(IFNULL(Pinnacle, 'aa')) NOT LIKE '%under 4%'
+    )
+;
+
 -- referee_q
 
 DROP TABLE IF EXISTS temp.referee_q;
@@ -226,13 +359,17 @@ SELECT
 rd.*,
 fcbs.Bet365,
 fcbs.Marathonbet,
-fcbs.Pinnacle
+fcbs.Pinnacle,
+CASE WHEN thv.fixture_id IS NOT NULL THEN 1 ELSE 0 END AS is_high_voltage
 FROM quicksight.referee_dashboard_replica rd
 INNER JOIN temp.fixture_cards_bookmakers_summary fcbs
 ON rd.fixture_id = fcbs.fixture_id AND fcbs.team_id = 0
+LEFT JOIN temp.top_high_voltage thv
+ON rd.fixture_id = thv.fixture_id
 WHERE 1 = 1
 -- AND league = 'UEFA Champions League'
 ;
+
 
 
 
@@ -282,6 +419,20 @@ AND is_substitute = 0
 GROUP BY 1
 ;
 
+DROP TABLE IF EXISTS temp.player_suspension;
+
+CREATE TABLE temp.player_suspension
+AS
+SELECT fpsc.player_id,
+       COUNT(DISTINCT CASE WHEN fpsc.league_id = f.league_id AND fpsc.season_year = f.season_year AND IFNULL(cards_yellow,0) THEN fpsc.fixture_id END) AS season_league_cards
+FROM analytics.fixture_player_stats_compile fpsc
+INNER JOIN master_players_view mpv on fpsc.player_id = mpv.player_id
+JOIN fixtures f on mpv.fixture_id = f.fixture_id
+WHERE 1 = 1
+# AND is_substitute = 0
+GROUP BY 1
+;
+
 DROP TABLE IF EXISTS temp.player_pre_view;
 
 CREATE TABLE temp.player_pre_view AS
@@ -290,10 +441,12 @@ DISTINCT
 mpv.fixture_id,
 tf.fixt,
 mpv.player_id,
+tf.league_id,
 t.name AS team_name,
 p.name AS player_name,
 mpv.last5_start_foul,
 mpv.last5_start_yc,
+ps.season_league_cards,
 season_avg_fouls,
 season_avg_yc,
 zero_season_foul_match_pct,
@@ -308,12 +461,13 @@ plsd.last_start,
 i.type,
 CASE WHEN LEFT(last5_start_yc, 1) = '1' OR LEFT(last5_yc, 1) = '1' THEN 1 ELSE 0 END AS is_last_yellow
 FROM master_players_view mpv
-JOIN today_fixture tf on mpv.fixture_id = tf.fixture_id
+LEFT JOIN today_fixture tf on mpv.fixture_id = tf.fixture_id
 JOIN teams t on mpv.team_id = t.team_id
 JOIN players p on mpv.player_id = p.player_id
 LEFT JOIN injuries i on mpv.player_id = i.player_id AND mpv.fixture_id = i.fixture_id
 LEFT JOIN temp.player_last_start_date plsd on mpv.player_id = plsd.player_id
 LEFT JOIN temp.team_last_start_date tlsd on mpv.team_id = tlsd.team_id
+LEFT JOIN temp.player_suspension ps on mpv.player_id = ps.player_id
 WHERE 1 = 1
 # AND ((LOWER(last5_start_foul) NOT LIKE '%00%' AND (season_avg_fouls > 1.5 OR avg_yc_total > 0.2))
 #            OR
@@ -326,8 +480,6 @@ AND plsd.last_start > CURDATE() - INTERVAL 20 DAY
 ORDER BY fixt, avg_yc_total DESC, zero_foul_match_pct, season_avg_fouls DESC
 ;
 
-# SELECT * FROM temp.player_pre_view WHERE player_name = 'B. Soumaré'
-
 DROP TABLE IF EXISTS temp.player_rnk_view;
 
 CREATE TABLE temp.player_rnk_view AS
@@ -338,54 +490,11 @@ dense_rank() over (partition by team_name, fixture_id order by tw_yc_pct DESC) A
 dense_rank() over (partition by team_name, fixture_id order by avg_fouls_total DESC) AS fouler_rnk,
 dense_rank() over (partition by team_name, fixture_id order by zero_season_foul_match_pct) AS zero_m_rnk,
 dense_rank() over (partition by team_name, fixture_id order by avg_yc_total DESC) AS yc_rnk
-FROM temp.player_pre_view
-;
+FROM temp.player_pre_view;
 
-DROP TABLE IF EXISTS temp.player_final_view;
+DROP TABLE IF EXISTS temp.base_player_q;
 
-CREATE TABLE temp.player_final_view
-AS
-SELECT
-'top_card_pickers' AS p_type,
-p.*
-FROM temp.player_rnk_view p
-WHERE 1 = 1
-AND yc_rnk < 4;
-
-INSERT INTO temp.player_final_view
-SELECT
-'top_foulers' AS p_type,
-p.*
-FROM temp.player_rnk_view p
-WHERE 1 = 1
-AND fouler_rnk < 4
-AND player_name NOT IN (SELECT player_name FROM temp.player_final_view)
-;
-
-INSERT INTO temp.player_final_view
-SELECT
-'top_const_fouler' AS p_type,
-p.*
-FROM temp.player_rnk_view p
-WHERE 1 = 1
-AND zero_m_rnk < 4
-AND player_name NOT IN (SELECT player_name FROM temp.player_final_view)
-;
-
-INSERT INTO temp.player_final_view
-SELECT
-'top_arguers' AS p_type,
-p.*
-FROM temp.player_rnk_view p
-WHERE 1 = 1
-AND argue_rnk < 3
-AND player_name NOT IN (SELECT player_name FROM temp.player_final_view)
-;
-
-
-DROP TABLE IF EXISTS temp.player_q;
-
-CREATE TABLE temp.player_q
+CREATE TABLE temp.base_player_q
 AS
 SELECT base.*,
        row_number() over (partition by fixture_id order by calc_metric DESC) AS rnk
@@ -397,37 +506,197 @@ tf.league_id,
 pfv.fixture_id,
 pfv.fixt,
 team_name,
-p_type,
+# p_type,
+pfv.player_id,
 player_name,
 last5_start_foul,
 last5_start_yc,
 argue_yc_pct,
 avg_fouls_total,
 season_avg_fouls,
+zero_foul_match_pct,
+zero_season_foul_match_pct,
 avg_yc_total,
 season_avg_yc,
 last_start,
 played_last_game,
 season_matches,
-CASE WHEN season_matches > 5 THEN ROUND(((avg_yc_total)
+CASE WHEN thv.fixture_id IS NOT NULL THEN 1 ELSE 0 END AS is_high_voltage,
+CASE WHEN lfl.player_id IS NOT NULL THEN 1 ELSE 0 END AS starting_xi,
+CASE WHEN lfl.fixture_id IS NOT NULL THEN 1 ELSE 0 END AS is_match_live,
+season_league_cards,
+CASE WHEN tf.league_id IN (848, 3, 2) AND season_league_cards = 2 THEN ROUND(((avg_yc_total)
+                                                                                + (season_avg_yc)
+                                                                                + ((avg_fouls_total) / 5)
+                                                                                + ((season_avg_fouls) / 5)
+                                                                                + (CASE WHEN is_last_yellow = 0 THEN ((season_avg_fouls) / 5) ELSE 0 END)) * (1- zero_foul_match_pct) / 7.5, 2)
+     WHEN tf.league_id NOT IN (848, 3, 2) AND season_league_cards IN (4, 9) THEN ROUND(((avg_yc_total)
+                                                                                        + (season_avg_yc)
+                                                                                        + ((avg_fouls_total) / 5)
+                                                                                        + ((season_avg_fouls) / 5)
+                                                                                        + (CASE WHEN is_last_yellow = 0 THEN ((season_avg_fouls) / 5) ELSE 0 END)) * (1- zero_foul_match_pct) / 7.5, 2)
+      WHEN season_matches > 5 THEN ROUND(((avg_yc_total)
                                             + (season_avg_yc)
                                             + ((avg_fouls_total) / 5)
                                             + ((season_avg_fouls) / 5)
-                                            + (CASE WHEN is_last_yellow = 0 THEN ((season_avg_fouls) / 5) ELSE 0 END)) / 5, 2)
-    ELSE
+                                            + (CASE WHEN is_last_yellow = 0 THEN ((season_avg_fouls) / 5) ELSE 0 END)) * (1- zero_foul_match_pct) / 5, 2)
+     ELSE
         ROUND(((avg_yc_total)
             + ((avg_fouls_total) / 5)
-            + (CASE WHEN is_last_yellow = 0 THEN ((avg_yc_total) / 5) ELSE 0 END)) / 3, 2)
-    END AS calc_metric
-FROM temp.player_final_view pfv
+            + (CASE WHEN is_last_yellow = 0 THEN ((avg_yc_total) / 5) ELSE 0 END)) * (1- zero_foul_match_pct) / 3, 2)
+     END AS calc_metric
+FROM temp.player_rnk_view pfv
 LEFT JOIN injuries i on pfv.player_id = i.player_id
 AND pfv.fixture_id = i.fixture_id
-JOIN today_fixture tf on pfv.fixture_id = tf.fixture_id
+LEFT JOIN today_fixture tf on pfv.fixture_id = tf.fixture_id
+LEFT JOIN temp.top_high_voltage thv on pfv.fixture_id = thv.fixture_id
+LEFT JOIN live_updates.live_fixture_lineups lfl
+    on pfv.fixture_id = lfl.fixture_id AND pfv.player_id = lfl.player_id
 WHERE 1 = 1
 AND last5_start_foul NOT LIKE '%00%'
 # AND LEFT(last5_start_yc, 1) NOT LIKE '1'
 AND (avg_fouls_total > 1.01 OR season_avg_fouls > 1.3)
 AND (last_start > CURDATE() - INTERVAL 10 DAY OR i.type IS NULL)
+# AND player_name = 'N. Amrabat'
 )AS base
 ORDER BY  league_id, fixture_id, rnk
+;
+
+
+
+DROP TABLE IF EXISTS temp.player_q;
+
+CREATE TABLE temp.player_q
+AS
+SELECT
+CONCAT(fixt,rnk) AS f_rnk,
+player_name,
+CONCAT(last5_start_foul,'-') AS last5_start_foul,
+CONCAT(last5_start_yc, '-') AS last5_start_yc,
+team_name,
+calc_metric,
+season_league_cards,
+# p_type,
+season_matches,
+season_avg_fouls,
+season_avg_yc,
+avg_fouls_total,
+avg_yc_total,
+played_last_game,
+last_start,
+argue_yc_pct,
+is_high_voltage,
+is_match_live,
+starting_xi,
+fixture_id
+FROM temp.base_player_q
+WHERE 1 = 1
+AND fixt IS NOT NULL
+AND is_match_live = 1
+AND is_high_voltage = 1
+AND starting_xi = 1
+AND rnk < 7
+ORDER BY  timestamp, league_id, fixture_id, rnk
+;
+
+INSERT INTO temp.player_q
+SELECT
+CONCAT(fixt,rnk) AS f_rnk,
+player_name,
+CONCAT(last5_start_foul,'-') AS last5_start_foul,
+CONCAT(last5_start_yc, '-') AS last5_start_yc,
+team_name,
+calc_metric,
+season_league_cards,
+# p_type,
+season_matches,
+season_avg_fouls,
+season_avg_yc,
+avg_fouls_total,
+avg_yc_total,
+played_last_game,
+last_start,
+argue_yc_pct,
+is_high_voltage,
+is_match_live,
+starting_xi,
+fixture_id
+FROM temp.base_player_q
+WHERE 1 = 1
+AND fixt IS NOT NULL
+AND is_match_live = 1
+AND is_high_voltage = 0
+AND starting_xi = 1
+AND rnk < 7
+AND calc_metric >= 0.15
+AND fixture_id NOT IN (SELECT fixture_id FROM temp.player_q)
+ORDER BY  timestamp, league_id, fixture_id, rnk
+;
+
+INSERT INTO temp.player_q
+SELECT
+CONCAT(fixt,rnk) AS f_rnk,
+player_name,
+CONCAT(last5_start_foul,'-') AS last5_start_foul,
+CONCAT(last5_start_yc, '-') AS last5_start_yc,
+team_name,
+calc_metric,
+season_league_cards,
+# p_type,
+season_matches,
+season_avg_fouls,
+season_avg_yc,
+avg_fouls_total,
+avg_yc_total,
+played_last_game,
+last_start,
+argue_yc_pct,
+is_high_voltage,
+is_match_live,
+starting_xi,
+fixture_id
+FROM temp.base_player_q
+WHERE 1 = 1
+AND fixt IS NOT NULL
+AND is_match_live = 0
+AND is_high_voltage = 1
+# AND starting_xi = 1
+AND rnk < 7
+# AND calc_metric > 0.2
+AND fixture_id NOT IN (SELECT fixture_id FROM temp.player_q)
+ORDER BY  timestamp, league_id, fixture_id, rnk
+;
+
+INSERT INTO temp.player_q
+SELECT
+CONCAT(fixt,rnk) AS f_rnk,
+player_name,
+CONCAT(last5_start_foul,'-') AS last5_start_foul,
+CONCAT(last5_start_yc, '-') AS last5_start_yc,
+team_name,
+calc_metric,
+season_league_cards,
+# p_type,
+season_matches,
+season_avg_fouls,
+season_avg_yc,
+avg_fouls_total,
+avg_yc_total,
+played_last_game,
+last_start,
+argue_yc_pct,
+is_high_voltage,
+is_match_live,
+starting_xi,
+fixture_id
+FROM temp.base_player_q
+WHERE 1 = 1
+AND fixt IS NOT NULL
+AND is_match_live = 0
+AND is_high_voltage = 0
+# AND starting_xi = 1
+AND rnk < 7
+AND calc_metric >= 0.15
+AND fixture_id NOT IN (SELECT fixture_id FROM temp.player_q)
+ORDER BY  timestamp, league_id, fixture_id, rnk
 ;
