@@ -178,44 +178,6 @@ ORDER BY tf.timestamp, tf.league_id, home_away DESC;
 ;
 
 
-DROP TABLE IF EXISTS quicksight.referee_dashboard_replica;
-
-
-CREATE TABLE quicksight.referee_dashboard_replica
-AS
-SELECT
-tf.fixture_id,
-tf.country_name,
-tf.name AS league,
-tf.fixture_date,
-tf.match_time,
-tf.fixt,
-mrv.cleaned_referee_name,
-mrv.total_matches,
-mrv.avg_yc_total,
-mrv.last5_yc,
-mrv.fouls_per_yc,
-mrv.last5_fouls_per_yc,
-mrv.`0_card_matches`,
-mrv.season_avg_yc,
-mrv.season_0_card_matches,
-mrv.league_avg_yc,
-mrv.avg_rc_total,
-mrv.last5_rc,
-mrv.argue_yc_pct,
-mrv.tw_yc_pct,
-mrv.r_0_30_total,
-mrv.r_31_45_total,
-mrv.r_46_75_total,
-mrv.r_76_90_total
-FROM today_fixture tf
-LEFT JOIN master_referee_view mrv on mrv.fixture_id = tf.fixture_id
-WHERE 1 = 1
-# AND tf.cleaned_referee_name IS NOT NULL
-# AND LOWER(mrv.cleaned_referee_name) LIKE '%king%'
-ORDER BY tf.timestamp, tf.league_id
-;
-
 DROP TABLE IF EXISTS temp.bookmakers_prediction;
 
 CREATE TABLE temp.bookmakers_prediction
@@ -361,7 +323,7 @@ fcbs.Bet365,
 fcbs.Marathonbet,
 fcbs.Pinnacle,
 CASE WHEN thv.fixture_id IS NOT NULL THEN 1 ELSE 0 END AS is_high_voltage
-FROM quicksight.referee_dashboard_replica rd
+FROM quicksight.referee_dashboard rd
 INNER JOIN temp.fixture_cards_bookmakers_summary fcbs
 ON rd.fixture_id = fcbs.fixture_id AND fcbs.team_id = 0
 LEFT JOIN temp.top_high_voltage thv
