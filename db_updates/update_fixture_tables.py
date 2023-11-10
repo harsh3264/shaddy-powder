@@ -65,6 +65,7 @@ query = '''
     #   AND f.fixture_id IN (SELECT fixture_id FROM missing_fixt)
     #   AND f.league_id IN (SELECT league_id FROM today_fixture)
       AND fps.fixture_id IS NULL
+    #   AND f.fixture_id = 1123547
     ORDER BY fixture_date DESC
     ;
     '''

@@ -52,7 +52,7 @@ sorted_script_files = sorted(os.listdir(directory_path))
 # print(sorted_script_files)
 
 for filename in sorted_script_files:
-    if filename.endswith(".sql"):
+    if filename.endswith(".sql") and not filename.startswith("hourly"):
         script_path = os.path.join(directory_path, filename)
         print(f"Running script: {script_path}")
         sql_script_runner(script_path, db_config)
