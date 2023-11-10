@@ -128,9 +128,9 @@ query = '''
     FROM fixtures f
     INNER JOIN top_leagues tl on f.league_id = tl.league_id
     WHERE 1 = 1
-    AND fixture_date = CURDATE()
-    # AND timestamp > UNIX_TIMESTAMP(NOW()  - INTERVAL 120 MINUTE)
-    # AND timestamp < UNIX_TIMESTAMP(NOW()  + INTERVAL 60 MINUTE)
+    # AND fixture_date = CURDATE()
+    AND timestamp > UNIX_TIMESTAMP(NOW()  - INTERVAL 200 MINUTE)
+    AND timestamp < UNIX_TIMESTAMP(NOW()  + INTERVAL 200 MINUTE)
     ;
 '''
 cursor.execute(query)

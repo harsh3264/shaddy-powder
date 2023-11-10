@@ -52,6 +52,7 @@ JOIN top_leagues tl ON f.league_id = tl.league_id
 LEFT JOIN cleaned_referees cr ON f.referee = cr.original_referee_name
 WHERE 1 = 1
 AND timestamp BETWEEN UNIX_TIMESTAMP(NOW() - INTERVAL 2 HOUR) AND UNIX_TIMESTAMP(NOW() + INTERVAL 48 HOUR)
+GROUP BY 1
 ORDER BY f.timestamp;
 
 
