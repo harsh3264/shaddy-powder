@@ -492,7 +492,7 @@ DROP TABLE IF EXISTS temp.base_player_q;
 CREATE TABLE temp.base_player_q
 AS
 SELECT base.*,
-       row_number() over (partition by fixture_id order by calc_metric DESC) AS rnk
+       row_number() over (partition by fixture_id, starting_xi order by calc_metric DESC) AS rnk
 FROM
 (SELECT
 DISTINCT
