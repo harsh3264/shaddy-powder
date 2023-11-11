@@ -471,7 +471,7 @@ AND LENGTH(last5_start_foul) > 4
 AND (LOWER(i.type) NOT LIKE '%missing%' OR i.type IS NULL)
 # AND LOWER(p.name) NOT LIKE '%can'
 # AND i.type IS NULL
-AND plsd.last_start > CURDATE() - INTERVAL 20 DAY
+AND plsd.last_start > CURDATE() - INTERVAL 30 DAY
 ORDER BY fixt, avg_yc_total DESC, zero_foul_match_pct, season_avg_fouls DESC
 ;
 
@@ -709,4 +709,80 @@ AND rnk < 5
 AND calc_metric >= 0.1
 AND fixture_id NOT IN (SELECT fixture_id FROM temp.player_q)
 ORDER BY  timestamp, league_id, fixture_id, rnk
+;
+
+-- Foulers
+
+DROP TABLE IF EXISTS temp.legendary_sub_foulers;
+
+CREATE TABLE temp.legendary_sub_foulers
+AS
+SELECT
+player_id,
+'Legendary Fouler' AS type
+FROM master_players_view
+WHERE 1 = 1
+AND LOWER(last5_sub_foul) NOT LIKE '%0%'
+AND LENGTH(last5_sub_foul) > 3
+GROUP BY 1
+;
+
+INSERT INTO temp.legendary_sub_foulers
+SELECT
+player_id,
+'Miss_1 Fouler' AS type
+FROM master_players_view
+WHERE 1 = 1
+AND LOWER(last5_sub_foul) NOT LIKE '%00%'
+AND LEFT(last5_sub_foul, 2) NOT LIKE '00'
+AND LENGTH(last5_sub_foul) > 3
+AND player_id NOT IN (SELECT player_id FROM temp.legendary_sub_foulers)
+GROUP BY 1
+;
+
+INSERT INTO temp.legendary_sub_foulers
+SELECT
+player_id,
+'Situation Fouler' AS type
+FROM master_players_view
+WHERE 1 = 1
+AND (
+            LOWER(last5_win_sub_foul) NOT LIKE '%0%'
+        OR
+            LOWER(last5_draw_sub_foul) NOT LIKE '%0%'
+        OR
+            LOWER(last5_loss_sub_foul) NOT LIKE '%0%'
+    )
+AND LENGTH(last5_sub_foul) > 3
+AND player_id NOT IN (SELECT player_id FROM temp.legendary_sub_foulers)
+GROUP BY 1
+;
+
+DROP TABLE IF EXISTS temp.legendary_start_foulers;
+
+CREATE TABLE temp.legendary_start_foulers
+AS
+SELECT
+player_id,
+'Legendary Start Fouler' AS type
+FROM master_players_view
+WHERE 1 = 1
+AND LOWER(last5_start_foul) NOT LIKE '%0%'
+AND LENGTH(last5_start_foul) > 3
+AND (avg_fouls_total > 1 OR season_avg_fouls > 1)
+GROUP BY 1
+;
+
+INSERT INTO temp.legendary_start_foulers
+SELECT
+player_id,
+'Miss_1 Start Fouler' AS type
+FROM master_players_view
+WHERE 1 = 1
+AND LOWER(last5_start_foul) NOT LIKE '%00%'
+AND LEFT(last5_start_foul, 2) NOT LIKE '00'
+AND (avg_fouls_total > 1 OR season_avg_fouls > 1)
+AND LENGTH(last5_start_foul) > 3
+AND player_id NOT IN (SELECT player_id FROM temp.legendary_start_foulers)
+GROUP BY 1
 ;
