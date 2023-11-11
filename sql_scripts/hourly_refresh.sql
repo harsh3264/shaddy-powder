@@ -492,7 +492,7 @@ DROP TABLE IF EXISTS temp.base_player_q;
 CREATE TABLE temp.base_player_q
 AS
 SELECT base.*,
-       row_number() over (partition by fixture_id, starting_xi order by calc_metric DESC) AS rnk
+       row_number() over (partition by fixture_id order by calc_metric DESC) AS rnk
 FROM
 (SELECT
 DISTINCT
@@ -526,12 +526,12 @@ CASE WHEN tf.league_id IN (848, 3, 2) AND season_league_cards = 2 THEN ROUND(((a
                                                                                 + (season_avg_yc)
                                                                                 + ((avg_fouls_total) / (efm.fouls / efm.yc_matches))
                                                                                 + ((season_avg_fouls) / (efm.fouls / efm.yc_matches))
-                                                                                + (CASE WHEN is_last_yellow = 0 THEN ((season_avg_fouls) / (efm.fouls / efm.yc_matches)) ELSE 0 END)) * (1- zero_foul_match_pct) / 7.5, 2)
+                                                                                + (CASE WHEN is_last_yellow = 0 THEN season_avg_yc ELSE 0 END)) * (1- zero_foul_match_pct) / 6, 2)
      WHEN tf.league_id NOT IN (848, 3, 2) AND season_league_cards IN (4, 9) THEN ROUND(((avg_yc_total)
                                                                                         + (season_avg_yc)
                                                                                         + ((avg_fouls_total) / (efm.fouls / efm.yc_matches))
                                                                                         + ((season_avg_fouls) / (efm.fouls / efm.yc_matches))
-                                                                                        + (CASE WHEN is_last_yellow = 0 THEN ((season_avg_fouls) / (efm.fouls / efm.yc_matches)) ELSE 0 END)) * (1- zero_foul_match_pct) / 7.5, 2)
+                                                                                        + (CASE WHEN is_last_yellow = 0 THEN season_avg_yc ELSE 0 END)) * (1- zero_foul_match_pct) / 6, 2)
       WHEN pfv.season_matches > 5 THEN ROUND(((avg_yc_total)
                                             + (season_avg_yc)
                                             + ((avg_fouls_total) / (efm.fouls / efm.yc_matches))
@@ -551,9 +551,9 @@ LEFT JOIN live_updates.live_fixture_lineups lfl
     on pfv.fixture_id = lfl.fixture_id AND pfv.player_id = lfl.player_id
 LEFT JOIN temp.exp_fyc_model efm on pfv.player_id = efm.player_id
 WHERE 1 = 1
-AND last5_start_foul NOT LIKE '%00%'
+# AND last5_start_foul NOT LIKE '%00%'
 # AND LEFT(last5_start_yc, 1) NOT LIKE '1'
-AND (avg_fouls_total > 1.01 OR season_avg_fouls > 1.3)
+# AND (avg_fouls_total > 1.01 OR season_avg_fouls > 1.3)
 AND (last_start > CURDATE() - INTERVAL 10 DAY OR i.type IS NULL)
 # AND player_name = 'N. Amrabat'
 )AS base
@@ -573,6 +573,8 @@ CONCAT(last5_start_yc, '-') AS last5_start_yc,
 team_name,
 calc_metric,
 season_league_cards,
+last5_mins,
+f_to_yc_ratio,
 # p_type,
 season_matches,
 season_avg_fouls,
@@ -607,6 +609,8 @@ CONCAT(last5_start_yc, '-') AS last5_start_yc,
 team_name,
 calc_metric,
 season_league_cards,
+last5_mins,
+f_to_yc_ratio,
 # p_type,
 season_matches,
 season_avg_fouls,
@@ -627,7 +631,7 @@ AND fixt IS NOT NULL
 AND is_match_live = 1
 AND is_high_voltage = 0
 AND starting_xi = 1
-AND rnk < 7
+AND rnk < 5
 AND calc_metric >= 0.1
 AND fixture_id NOT IN (SELECT fixture_id FROM temp.player_q)
 ORDER BY  timestamp, league_id, fixture_id, rnk
@@ -642,6 +646,8 @@ CONCAT(last5_start_yc, '-') AS last5_start_yc,
 team_name,
 calc_metric,
 season_league_cards,
+last5_mins,
+f_to_yc_ratio,
 # p_type,
 season_matches,
 season_avg_fouls,
@@ -662,7 +668,7 @@ AND fixt IS NOT NULL
 AND is_match_live = 0
 AND is_high_voltage = 1
 # AND starting_xi = 1
-AND rnk < 5
+AND rnk < 7
 AND calc_metric >= 0.1
 AND fixture_id NOT IN (SELECT fixture_id FROM temp.player_q)
 ORDER BY  timestamp, league_id, fixture_id, rnk
@@ -677,6 +683,8 @@ CONCAT(last5_start_yc, '-') AS last5_start_yc,
 team_name,
 calc_metric,
 season_league_cards,
+last5_mins,
+f_to_yc_ratio,
 # p_type,
 season_matches,
 season_avg_fouls,
