@@ -324,7 +324,7 @@ fcbs.Marathonbet,
 fcbs.Pinnacle,
 CASE WHEN thv.fixture_id IS NOT NULL THEN 1 ELSE 0 END AS is_high_voltage
 FROM quicksight.referee_dashboard rd
-INNER JOIN temp.fixture_cards_bookmakers_summary fcbs
+LEFT JOIN temp.fixture_cards_bookmakers_summary fcbs
 ON rd.fixture_id = fcbs.fixture_id AND fcbs.team_id = 0
 LEFT JOIN temp.top_high_voltage thv
 ON rd.fixture_id = thv.fixture_id
@@ -347,90 +347,18 @@ tyd.*,
 fcbs.Bet365,
 fcbs.Marathonbet
 FROM
-temp.fixture_cards_bookmakers_summary fcbs
-JOIN quicksight.teams_dashboard tyd
-ON tyd.fixture_id = fcbs.fixture_id AND tyd.team_id = fcbs.team_id;
-
+quicksight.teams_dashboard tyd
+LEFT JOIN temp.fixture_cards_bookmakers_summary fcbs
+ON tyd.fixture_id = fcbs.fixture_id AND tyd.team_id = fcbs.team_id
+ORDER BY fixture_date, tyd.fixt, home_away DESC
+;
 -- player_q
 
-DROP TABLE IF EXISTS temp.player_last_start_date;
-
-CREATE TABLE temp.player_last_start_date
-AS
-SELECT fpsc.player_id,
-       max(fixture_date) AS last_start,
-       COUNT(DISTINCT CASE WHEN is_substitute = 0 AND season_year = max_p.max_season THEN fixture_id END) AS season_matches
-FROM analytics.fixture_player_stats_compile fpsc
-    JOIN (SELECT player_id, MAX(season_year) AS max_season
-          FROM analytics.fixture_player_stats_compile
-          GROUP BY player_id) max_p
-ON fpsc.player_id = max_p.player_id
-WHERE 1 = 1
-AND is_substitute = 0
-AND fpsc.player_id <> 0
-GROUP BY 1
-;
-
-DROP TABLE IF EXISTS temp.team_last_start_date;
-
-CREATE TABLE temp.team_last_start_date
-AS
-SELECT team_id,
-       max(fixture_date) AS last_start
-FROM analytics.fixture_player_stats_compile
-WHERE 1 = 1
-AND is_substitute = 0
-GROUP BY 1
-;
-
-DROP TABLE IF EXISTS temp.player_suspension;
-
-CREATE TABLE temp.player_suspension
-AS
-SELECT fpsc.player_id,
-       COUNT(DISTINCT CASE WHEN fpsc.league_id = f.league_id AND fpsc.season_year = f.season_year AND IFNULL(cards_yellow,0) THEN fpsc.fixture_id END) AS season_league_cards
-FROM analytics.fixture_player_stats_compile fpsc
-INNER JOIN master_players_view mpv on fpsc.player_id = mpv.player_id
-JOIN fixtures f on mpv.fixture_id = f.fixture_id
-WHERE 1 = 1
-# AND is_substitute = 0
-GROUP BY 1
-;
-
-DROP TABLE IF EXISTS temp.exp_fyc_model;
-
-CREATE TABLE temp.exp_fyc_model AS
-SELECT
-fpsc.player_id,
-t.name,
-COALESCE(tf.fixt, tf2.fixt) AS fixt,
-COALESCE(tf.fixture_id, tf2.fixture_id) AS fixture_id,
-fpsc.player_name,
-COUNT(DISTINCT fpsc.fixture_id) AS total_matches,
-COUNT(DISTINCT CASE WHEN fpsc.season_year = max_season THEN fpsc.fixture_id END) AS season_matches,
-COUNT(DISTINCT CASE WHEN IFNULL(cards_yellow,0) + IFNULL(cards_red,0) > 0 THEN fpsc.fixture_id END) AS yc_matches,
-COUNT(DISTINCT CASE WHEN IFNULL(cards_yellow,0) + IFNULL(cards_red,0) > 0 AND (LOWER(card_reason) NOT LIKE '%wasting%' AND LOWER(card_reason) NOT LIKE '%argu%') THEN fpsc.fixture_id END) AS yc_w_foul_matches,
-COUNT(DISTINCT CASE WHEN IFNULL(fouls_committed,0) > 0 THEN fpsc.fixture_id END) AS foul_matches,
-SUM(IFNULL(fouls_committed, 0)) AS fouls
-FROM analytics.fixture_player_stats_compile fpsc
-INNER JOIN (SELECT player_id, MAX(season_year) AS max_season FROM analytics.fixture_player_stats_compile GROUP BY 1) AS mx
-ON fpsc.player_id = mx.player_id
-INNER JOIN player_latest_club mpv ON fpsc.player_id = mpv.player_id
-INNER JOIN teams t ON mpv.team_id = t.team_id
-LEFT JOIN today_fixture tf on tf.home_team_id = t.team_id
-LEFT JOIN today_fixture tf2 on tf2.away_team_id = t.team_id
-WHERE 1 = 1
-AND is_substitute = 0
-AND fpsc.player_id IN (SELECT player_id FROM master_players_view WHERE fixture_id IS NOT NULL AND fixture_id <> 0)
-# AND (tf.country_name = 'England' OR tf2.country_name = 'England')
-GROUP BY 1
-;
 
 DROP TABLE IF EXISTS temp.player_pre_view;
 
 CREATE TABLE temp.player_pre_view AS
 SELECT
-DISTINCT
 mpv.fixture_id,
 tf.fixt,
 mpv.player_id,
@@ -464,15 +392,10 @@ LEFT JOIN temp.player_last_start_date plsd on mpv.player_id = plsd.player_id
 LEFT JOIN temp.team_last_start_date tlsd on mpv.team_id = tlsd.team_id
 LEFT JOIN temp.player_suspension ps on mpv.player_id = ps.player_id
 WHERE 1 = 1
-# AND ((LOWER(last5_start_foul) NOT LIKE '%00%' AND (season_avg_fouls > 1.5 OR avg_yc_total > 0.2))
-#            OR
-#        (LOWER(last5_start_foul) NOT LIKE '%0%' AND season_avg_yc > 0.23))
 AND LENGTH(last5_start_foul) > 4
 AND (LOWER(i.type) NOT LIKE '%missing%' OR i.type IS NULL)
-# AND LOWER(p.name) NOT LIKE '%can'
-# AND i.type IS NULL
 AND plsd.last_start > CURDATE() - INTERVAL 30 DAY
-ORDER BY fixt, avg_yc_total DESC, zero_foul_match_pct, season_avg_fouls DESC
+GROUP BY player_id
 ;
 
 DROP TABLE IF EXISTS temp.player_rnk_view;
@@ -548,107 +471,4 @@ WHERE 1 = 1
 # AND (avg_fouls_total > 1.01 OR season_avg_fouls > 1.3)
 AND last_start > CURDATE() - INTERVAL 10 DAY
 GROUP BY pfv.player_id
-;
-
-
--- Foulers
-
-DROP TABLE IF EXISTS temp.legendary_sub_foulers;
-
-CREATE TABLE temp.legendary_sub_foulers
-AS
-SELECT
-player_id,
-'Legendary Fouler' AS type
-FROM master_players_view
-WHERE 1 = 1
-AND LOWER(last5_sub_foul) NOT LIKE '%0%'
-AND LENGTH(last5_sub_foul) > 3
-GROUP BY 1
-;
-
-INSERT INTO temp.legendary_sub_foulers
-SELECT
-player_id,
-'Miss_1 Fouler' AS type
-FROM master_players_view
-WHERE 1 = 1
-AND LOWER(last5_sub_foul) NOT LIKE '%00%'
-AND LEFT(last5_sub_foul, 2) NOT LIKE '%0%'
-AND LENGTH(last5_sub_foul) > 3
-AND player_id NOT IN (SELECT player_id FROM temp.legendary_sub_foulers)
-GROUP BY 1
-;
-
-INSERT INTO temp.legendary_sub_foulers
-SELECT
-player_id,
-'Situation Fouler W' AS type
-FROM master_players_view
-WHERE 1 = 1
-AND (
-            LOWER(last5_win_sub_foul) NOT LIKE '%0%'
-    )
-AND LENGTH(last5_sub_foul) > 3
-AND player_id NOT IN (SELECT player_id FROM temp.legendary_sub_foulers)
-GROUP BY 1
-;
-
-
-INSERT INTO temp.legendary_sub_foulers
-SELECT
-player_id,
-'Situation Fouler D' AS type
-FROM master_players_view
-WHERE 1 = 1
-AND (
-            LOWER(last5_draw_sub_foul) NOT LIKE '%0%'
-    )
-AND LENGTH(last5_sub_foul) > 3
-AND player_id NOT IN (SELECT player_id FROM temp.legendary_sub_foulers)
-GROUP BY 1
-;
-
-
-INSERT INTO temp.legendary_sub_foulers
-SELECT
-player_id,
-'Situation Fouler L' AS type
-FROM master_players_view
-WHERE 1 = 1
-AND (
-            LOWER(last5_loss_sub_foul) NOT LIKE '%0%'
-    )
-AND LENGTH(last5_sub_foul) > 3
-AND player_id NOT IN (SELECT player_id FROM temp.legendary_sub_foulers)
-GROUP BY 1
-;
-
-DROP TABLE IF EXISTS temp.legendary_start_foulers;
-
-CREATE TABLE temp.legendary_start_foulers
-AS
-SELECT
-player_id,
-'Legendary Start Fouler' AS type
-FROM master_players_view
-WHERE 1 = 1
-AND LOWER(last5_start_foul) NOT LIKE '%0%'
-AND LENGTH(last5_start_foul) > 3
-AND (avg_fouls_total > 1 OR season_avg_fouls > 1)
-GROUP BY 1
-;
-
-INSERT INTO temp.legendary_start_foulers
-SELECT
-player_id,
-'Miss_1 Start Fouler' AS type
-FROM master_players_view
-WHERE 1 = 1
-AND LOWER(last5_start_foul) NOT LIKE '%00%'
-AND LEFT(last5_start_foul, 2) NOT LIKE '%0%'
-AND (avg_fouls_total > 1 OR season_avg_fouls > 1)
-AND LENGTH(last5_start_foul) > 3
-AND player_id NOT IN (SELECT player_id FROM temp.legendary_start_foulers)
-GROUP BY 1
 ;

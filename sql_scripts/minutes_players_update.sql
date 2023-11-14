@@ -10,7 +10,16 @@ TRUNCATE temp.base_player_q;
 INSERT INTO temp.base_player_q
 SELECT pbpq.*,
        row_number() over (partition by fixture_id, starting_xi order by calc_metric DESC) AS rnk
-FROM temp.pre_base_player_q pbpq ;
+FROM temp.pre_base_player_q pbpq
+JOIN players_upcoming_fixture puf
+    on pbpq.fixture_id = puf.fixture_id
+    and pbpq.player_id = puf.player_id
+WHERE 1 = 1
+AND (
+    (is_match_live = 0 AND is_new = 0)
+OR  (is_match_live = 1 AND starting_xi = 1)
+     )
+;
 
 
 TRUNCATE temp.player_q;
@@ -46,7 +55,7 @@ AND fixt IS NOT NULL
 AND is_match_live = 1
 AND is_high_voltage = 1
 AND starting_xi = 1
-AND calc_metric >= 0.15
+AND calc_metric >= 0.12
 AND rnk < 7
 ORDER BY  timestamp, league_id, fixture_id, rnk
 ;
@@ -120,7 +129,7 @@ AND is_match_live = 0
 AND is_high_voltage = 1
 # AND starting_xi = 1
 AND rnk < 7
-AND calc_metric >= 0.15
+AND calc_metric >= 0.12
 AND fixture_id NOT IN (SELECT fixture_id FROM temp.player_q)
 ORDER BY  timestamp, league_id, fixture_id, rnk
 ;

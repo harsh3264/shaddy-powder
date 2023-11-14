@@ -1,7 +1,49 @@
+DROP TABLE IF EXISTS country_code;
+
+CREATE TABLE country_code AS
+SELECT
+team_id AS country_id, team_name AS country
+FROM analytics.fixture_player_stats_compile fpsc
+WHERE team_name = nationality
+GROUP BY 1
+;
+
+DROP TABLE IF EXISTS players_country;
+
+CREATE TABLE players_country AS
+SELECT *,
+       0 AS is_new
+       FROM
+(SELECT player_id, nationality AS country, team_id AS country_id, season_year,
+   ROW_NUMBER() over (partition by player_id ORDER BY fixture_date DESC) AS r
+FROM analytics.fixture_player_stats_compile fpsc
+WHERE team_name = nationality
+)A
+WHERE 1 = 1
+AND r = 1
+AND season_year > YEAR(current_date) - 2
+;
+
+INSERT INTO players_country
+SELECT
+fpsc.player_id,
+c.country,
+c.country_id,
+MAX(season_year) AS season_year,
+1 AS rnk,
+1 AS is_new
+FROM
+analytics.fixture_player_stats_compile fpsc
+JOIN country_code c on LOWER(fpsc.nationality) = LOWER(c.country)
+WHERE 1 = 1
+AND fpsc.player_id NOT IN (SELECT player_id FROM players_country)
+GROUP BY 1, 2, 3
+HAVING season_year > YEAR(current_date) - 2
+;
+
 
 DROP TABLE IF EXISTS players_latest_club
 ;
-
 
 CREATE TABLE players_latest_club AS
 SELECT * FROM
@@ -15,6 +57,76 @@ AND r = 1
 AND season_year > YEAR(current_date) - 2
 ;
 
+DROP TABLE IF EXISTS players_next_fixtures
+;
+
+CREATE TABLE players_next_fixtures AS
+SELECT
+plc.player_id,
+plc.team_id,
+tf.fixture_id,
+tf.fixture_date,
+0 AS is_new
+FROM player_latest_club plc
+JOIN today_fixture tf on plc.team_id = tf.home_team_id
+GROUP BY 1
+;
+
+INSERT INTO players_next_fixtures
+SELECT
+plc.player_id,
+plc.team_id,
+tf.fixture_id,
+tf.fixture_date,
+0 AS is_new
+FROM player_latest_club plc
+JOIN today_fixture tf on plc.team_id = tf.away_team_id
+GROUP BY 1
+;
+
+INSERT INTO players_next_fixtures
+SELECT
+pc.player_id,
+pc.country_id,
+tf.fixture_id,
+tf.fixture_date,
+is_new
+FROM players_country pc
+JOIN today_fixture tf on pc.country_id = tf.home_team_id
+GROUP BY 1
+;
+
+INSERT INTO players_next_fixtures
+SELECT
+pc.player_id,
+pc.country_id,
+tf.fixture_id,
+tf.fixture_date,
+is_new
+FROM players_country pc
+JOIN today_fixture tf on pc.country_id = tf.away_team_id
+GROUP BY 1
+;
+
+DROP TABLE IF EXISTS players_upcoming_fixture
+;
+
+CREATE TABLE players_upcoming_fixture
+AS
+SELECT
+base.player_id,
+base.team_id,
+base.fixture_id,
+base.fixture_date,
+base.is_new
+FROM
+(SELECT
+*,
+ROW_NUMBER() over (partition by player_id order by fixture_date DESC) AS prk
+FROM players_next_fixtures) AS base
+WHERE prk = 1
+# GROUP BY player_id
+;
 
 DROP TABLE IF EXISTS players_last_5_data
 ;
@@ -138,7 +250,7 @@ fpsc.player_name,
 fpsc.is_substitute,
 tf.fixture_id,
 tf.season_year AS tf_season,
-plc.team_id AS tf_team,
+puf.team_id AS tf_team,
 fpsc.team_id,
 fpsc.season_year,
 COUNT(DISTINCT fpsc.fixture_id) AS matches,
@@ -165,16 +277,15 @@ SUM(CASE WHEN lower(card_reason) like '%argument%' THEN IFNULL(cards_yellow, 0) 
 SUM(CASE WHEN lower(card_reason) like '%wasting%' THEN IFNULL(cards_yellow, 0) + IFNULL(cards_red, 0) END) AS tw_yc,
 SUM(CASE WHEN lower(card_reason) like '%handball%' THEN IFNULL(cards_yellow, 0) + IFNULL(cards_red, 0) END) AS hand_yc
 FROM analytics.fixture_player_stats_compile fpsc
-LEFT JOIN players_latest_club plc
-ON fpsc.player_id = plc.player_id
-INNER JOIN today_fixture tf on plc.team_id = tf.home_team_id
+LEFT JOIN players_upcoming_fixture puf
+ON fpsc.player_id = puf.player_id
+INNER JOIN today_fixture tf on puf.team_id = tf.home_team_id
 WHERE 1 = 1
 AND league_name IS NOT NULL
 AND fpsc.player_id <> 0
 GROUP BY 1, 2, 3, 4, 5, 6, 7, 8
 HAVING matches > 1
 ;
-
 
 INSERT INTO players_base_data
 SELECT
@@ -183,7 +294,7 @@ fpsc.player_name,
 fpsc.is_substitute,
 tf.fixture_id,
 tf.season_year AS tf_season,
-plc.team_id AS tf_team,
+puf.team_id AS tf_team,
 fpsc.team_id,
 fpsc.season_year,
 COUNT(DISTINCT fpsc.fixture_id) AS matches,
@@ -210,9 +321,9 @@ SUM(CASE WHEN lower(card_reason) like '%argument%' THEN IFNULL(cards_yellow, 0) 
 SUM(CASE WHEN lower(card_reason) like '%wasting%' THEN IFNULL(cards_yellow, 0) + IFNULL(cards_red, 0) END) AS tw_yc,
 SUM(CASE WHEN lower(card_reason) like '%handball%' THEN IFNULL(cards_yellow, 0) + IFNULL(cards_red, 0) END) AS hand_yc
 FROM analytics.fixture_player_stats_compile fpsc
-LEFT JOIN players_latest_club plc
-ON fpsc.player_id = plc.player_id
-INNER JOIN today_fixture tf on plc.team_id = tf.away_team_id
+LEFT JOIN players_upcoming_fixture puf
+ON fpsc.player_id = puf.player_id
+INNER JOIN today_fixture tf on puf.team_id = tf.away_team_id
 WHERE 1 = 1
 AND league_name IS NOT NULL
 AND fpsc.player_id <> 0
@@ -228,7 +339,7 @@ fpsc.player_name,
 fpsc.is_substitute,
 0 AS fixture_id,
 max_season AS tf_season,
-plc.team_id AS tf_team,
+puf.team_id AS tf_team,
 fpsc.team_id,
 fpsc.season_year,
 COUNT(DISTINCT fpsc.fixture_id) AS matches,
@@ -257,8 +368,8 @@ SUM(CASE WHEN lower(card_reason) like '%handball%' THEN IFNULL(cards_yellow, 0) 
 FROM analytics.fixture_player_stats_compile fpsc
 INNER JOIN (SELECT player_id, MAX(season_year) AS max_season FROM analytics.fixture_player_stats_compile GROUP BY 1) As max
 ON fpsc.player_id = max.player_id
-LEFT JOIN players_latest_club plc
-ON fpsc.player_id = plc.player_id
+LEFT JOIN players_upcoming_fixture puf
+ON fpsc.player_id = puf.player_id
 WHERE 1 = 1
 AND league_name IS NOT NULL
 AND fpsc.player_id <> 0
@@ -266,6 +377,7 @@ AND fpsc.player_id NOT IN (SELECT player_id FROM players_base_data)
 GROUP BY 1, 2, 3, 4, 5, 6, 7, 8
 HAVING matches > 1
 ;
+
 
 
 DROP TABLE IF EXISTS players_data_agg
@@ -339,7 +451,6 @@ GROUP BY 1, 2, 3, 4, 5, 6, 7, 8
 DROP TABLE IF EXISTS master_players_view
 ;
 
-
 CREATE TABLE master_players_view AS
 SELECT
 DISTINCT
@@ -405,7 +516,176 @@ pda.r_0_30_yc_pct,
 pda.r_31_45_yc_pct,
 pda.r_46_75_yc_pct,
 pda.r_76_90_yc_pct
-        
+
 FROM players_data_agg pda
 JOIN players_last_5_data pl5d on pda.player_id = pl5d.player_id
+;
+
+-- Foulers
+
+DROP TABLE IF EXISTS temp.legendary_sub_foulers;
+
+CREATE TABLE temp.legendary_sub_foulers
+AS
+SELECT
+player_id,
+'Sub Fouler - Legend' AS type
+FROM master_players_view
+WHERE 1 = 1
+AND LOWER(last5_sub_foul) NOT LIKE '%0%'
+AND LENGTH(last5_sub_foul) > 3
+GROUP BY 1
+;
+
+INSERT INTO temp.legendary_sub_foulers
+SELECT
+player_id,
+'Sub Fouler - Miss_1' AS type
+FROM master_players_view
+WHERE 1 = 1
+AND LOWER(last5_sub_foul) NOT LIKE '%00%'
+AND LEFT(last5_sub_foul, 2) NOT LIKE '%0%'
+AND LENGTH(last5_sub_foul) > 3
+AND player_id NOT IN (SELECT player_id FROM temp.legendary_sub_foulers)
+GROUP BY 1
+;
+
+INSERT INTO temp.legendary_sub_foulers
+SELECT
+player_id,
+'Sub Fouler - Win' AS type
+FROM master_players_view
+WHERE 1 = 1
+AND (
+            LOWER(last5_win_sub_foul) NOT LIKE '%0%'
+    )
+AND LENGTH(last5_sub_foul) > 3
+AND player_id NOT IN (SELECT player_id FROM temp.legendary_sub_foulers)
+GROUP BY 1
+;
+
+
+INSERT INTO temp.legendary_sub_foulers
+SELECT
+player_id,
+'Sub Fouler - Draw' AS type
+FROM master_players_view
+WHERE 1 = 1
+AND (
+            LOWER(last5_draw_sub_foul) NOT LIKE '%0%'
+    )
+AND LENGTH(last5_sub_foul) > 3
+AND player_id NOT IN (SELECT player_id FROM temp.legendary_sub_foulers)
+GROUP BY 1
+;
+
+
+INSERT INTO temp.legendary_sub_foulers
+SELECT
+player_id,
+'Sub Fouler - Loss' AS type
+FROM master_players_view
+WHERE 1 = 1
+AND (
+            LOWER(last5_loss_sub_foul) NOT LIKE '%0%'
+    )
+AND LENGTH(last5_sub_foul) > 3
+AND player_id NOT IN (SELECT player_id FROM temp.legendary_sub_foulers)
+GROUP BY 1
+;
+
+DROP TABLE IF EXISTS temp.legendary_start_foulers;
+
+CREATE TABLE temp.legendary_start_foulers
+AS
+SELECT
+player_id,
+'Start Fouler - Legend' AS type
+FROM master_players_view
+WHERE 1 = 1
+AND LOWER(last5_start_foul) NOT LIKE '%0%'
+AND LENGTH(last5_start_foul) > 3
+AND (avg_fouls_total > 1 OR season_avg_fouls > 1)
+GROUP BY 1
+;
+
+INSERT INTO temp.legendary_start_foulers
+SELECT
+player_id,
+'Start Fouler - Miss_1' AS type
+FROM master_players_view
+WHERE 1 = 1
+AND LOWER(last5_start_foul) NOT LIKE '%00%'
+AND LEFT(last5_start_foul, 2) NOT LIKE '%0%'
+AND (avg_fouls_total > 1 OR season_avg_fouls > 1)
+AND LENGTH(last5_start_foul) > 3
+AND player_id NOT IN (SELECT player_id FROM temp.legendary_start_foulers)
+GROUP BY 1
+;
+
+-- Other Player level metrics
+
+DROP TABLE IF EXISTS temp.player_last_start_date;
+
+CREATE TABLE temp.player_last_start_date
+AS
+SELECT fpsc.player_id,
+       max(fixture_date) AS last_start,
+       COUNT(DISTINCT CASE WHEN is_substitute = 0 AND season_year = max_p.max_season THEN fixture_id END) AS season_matches
+FROM analytics.fixture_player_stats_compile fpsc
+    JOIN (SELECT player_id, MAX(season_year) AS max_season
+          FROM analytics.fixture_player_stats_compile
+          GROUP BY player_id) max_p
+ON fpsc.player_id = max_p.player_id
+WHERE 1 = 1
+AND is_substitute = 0
+AND fpsc.player_id <> 0
+GROUP BY 1
+;
+
+DROP TABLE IF EXISTS temp.team_last_start_date;
+
+CREATE TABLE temp.team_last_start_date
+AS
+SELECT team_id,
+       max(fixture_date) AS last_start
+FROM analytics.fixture_player_stats_compile
+WHERE 1 = 1
+AND is_substitute = 0
+GROUP BY 1
+;
+
+DROP TABLE IF EXISTS temp.player_suspension;
+
+CREATE TABLE temp.player_suspension
+AS
+SELECT fpsc.player_id,
+       COUNT(DISTINCT CASE WHEN fpsc.league_id = f.league_id AND fpsc.season_year = f.season_year AND IFNULL(cards_yellow,0) THEN fpsc.fixture_id END) AS season_league_cards
+FROM analytics.fixture_player_stats_compile fpsc
+INNER JOIN master_players_view mpv on fpsc.player_id = mpv.player_id
+JOIN fixtures f on mpv.fixture_id = f.fixture_id
+WHERE 1 = 1
+# AND is_substitute = 0
+GROUP BY 1
+;
+
+DROP TABLE IF EXISTS temp.exp_fyc_model;
+
+CREATE TABLE temp.exp_fyc_model AS
+SELECT
+fpsc.player_id,
+COUNT(DISTINCT fpsc.fixture_id) AS total_matches,
+COUNT(DISTINCT CASE WHEN fpsc.season_year = max_season THEN fpsc.fixture_id END) AS season_matches,
+COUNT(DISTINCT CASE WHEN IFNULL(cards_yellow,0) + IFNULL(cards_red,0) > 0 THEN fpsc.fixture_id END) AS yc_matches,
+COUNT(DISTINCT CASE WHEN IFNULL(cards_yellow,0) + IFNULL(cards_red,0) > 0 AND (LOWER(card_reason) NOT LIKE '%wasting%' AND LOWER(card_reason) NOT LIKE '%argu%') THEN fpsc.fixture_id END) AS yc_w_foul_matches,
+COUNT(DISTINCT CASE WHEN IFNULL(fouls_committed,0) > 0 THEN fpsc.fixture_id END) AS foul_matches,
+SUM(IFNULL(fouls_committed, 0)) AS fouls
+FROM analytics.fixture_player_stats_compile fpsc
+INNER JOIN (SELECT player_id, MAX(season_year) AS max_season FROM analytics.fixture_player_stats_compile GROUP BY 1) AS mx
+ON fpsc.player_id = mx.player_id
+WHERE 1 = 1
+AND is_substitute = 0
+# AND fpsc.player_id IN (SELECT player_id FROM master_players_view WHERE fixture_id IS NOT NULL AND fixture_id <> 0)
+# AND (tf.country_name = 'England' OR tf2.country_name = 'England')
+GROUP BY 1
 ;

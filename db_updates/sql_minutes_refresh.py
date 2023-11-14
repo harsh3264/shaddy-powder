@@ -58,3 +58,17 @@ for filename in sorted_script_files:
         sql_script_runner(script_path, db_config)
         # TABLE_UPDATES(script_path, db_config)
         print(f"Finished script: {script_path}\n")
+        
+
+#Gsheet Push
+
+gsheet_directory = "db_updates"
+gsheet_script_name = "gsheet_connecter.py"
+
+# Construct the absolute path
+gsheet_script_path = os.path.abspath(os.path.join(user_home, project_directory, gsheet_directory, gsheet_script_name))
+
+# Run the fixtures script using exec
+with open(gsheet_script_path) as f:
+    code = compile(f.read(), gsheet_script_path, 'exec')
+    exec(code)

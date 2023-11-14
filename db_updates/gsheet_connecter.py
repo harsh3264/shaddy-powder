@@ -127,7 +127,7 @@ for i, sql in enumerate(sql_statements):
     # Clear the existing sheet
     service.spreadsheets().values().clear(
         spreadsheetId=spreadsheet_id,
-        range=range_name,
+        range=sheet_name,
     ).execute()
 
     # Perform the update
@@ -144,4 +144,3 @@ db_conn.close()
 
 # Delete the JSON file after use
 os.remove(local_json_path)
-
