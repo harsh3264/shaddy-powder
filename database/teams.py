@@ -42,12 +42,12 @@ insert_query = '''
         team_id, name, country, logo, founded,
         national, venue_id, venue_name,
         venue_address, venue_city, venue_capacity,
-        venue_surface, venue_image
+        venue_surface, venue_image, code
     )
     VALUES (
         %s, %s, %s, %s, %s,
         %s, %s, %s, %s, %s,
-        %s, %s, %s
+        %s, %s, %s, %s
     )
     ON DUPLICATE KEY UPDATE
     name = VALUES(name),
@@ -61,7 +61,8 @@ insert_query = '''
     venue_city = VALUES(venue_city),
     venue_capacity = VALUES(venue_capacity),
     venue_surface = VALUES(venue_surface),
-    venue_image = VALUES(venue_image)
+    venue_image = VALUES(venue_image),
+    code = VALUES(code)
 '''
 
 # Insert or update data for each country's teams
@@ -77,9 +78,9 @@ for country_name in country_names:
         # print(team_data)
         
         team = team_data.get('team')
-
         team_id = team.get('id')
         name = team.get('name', '')
+        code = team.get('code', '')
         country = team.get('country', '')
         logo = team.get('logo', '')
         founded = team.get('founded')
@@ -109,7 +110,7 @@ for country_name in country_names:
             team_id, name, country, logo, founded,
             national, venue_id, venue_name,
             venue_address, venue_city, venue_capacity,
-            venue_surface, venue_image
+            venue_surface, venue_image, code
         )
         
         # print(values)
