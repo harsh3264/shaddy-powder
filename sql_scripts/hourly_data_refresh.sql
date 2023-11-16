@@ -345,11 +345,14 @@ AS
 SELECT
 tyd.*,
 fcbs.Bet365,
-fcbs.Marathonbet
+fcbs.Marathonbet,
+t.code
 FROM
 quicksight.teams_dashboard tyd
 LEFT JOIN temp.fixture_cards_bookmakers_summary fcbs
 ON tyd.fixture_id = fcbs.fixture_id AND tyd.team_id = fcbs.team_id
+LEFT JOIN teams t
+ON tyd.team_id = t.team_id
 ORDER BY fixture_date, tyd.fixt, home_away DESC
 ;
 -- player_q
