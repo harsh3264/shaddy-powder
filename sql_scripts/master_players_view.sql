@@ -1,3 +1,16 @@
+-- Country Filter --
+
+UPDATE analytics.fixture_player_stats_compile fpsc
+SET nationality = 'Turkey'
+WHERE nationality = 'Türkiye'
+;
+
+UPDATE players p
+SET nationality = 'Turkey'
+WHERE nationality = 'Türkiye'
+;
+
+
 DROP TABLE IF EXISTS country_code;
 
 CREATE TABLE country_code AS
@@ -21,7 +34,7 @@ WHERE team_name = nationality
 )A
 WHERE 1 = 1
 AND r = 1
-AND season_year > YEAR(current_date) - 2
+AND season_year > YEAR(current_date) - 5
 ;
 
 INSERT INTO players_country
@@ -54,7 +67,7 @@ WHERE team_name <> nationality
 )A
 WHERE 1 = 1
 AND r = 1
-AND season_year > YEAR(current_date) - 2
+AND season_year > YEAR(current_date) - 3
 ;
 
 DROP TABLE IF EXISTS players_next_fixtures
