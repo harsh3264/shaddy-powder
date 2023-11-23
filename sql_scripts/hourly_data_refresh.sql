@@ -472,6 +472,6 @@ WHERE 1 = 1
 # AND last5_start_foul NOT LIKE '%00%'
 # AND LEFT(last5_start_yc, 1) NOT LIKE '1'
 # AND (avg_fouls_total > 1.01 OR season_avg_fouls > 1.3)
-AND last_start > CURDATE() - INTERVAL 10 DAY
+# AND last_start > CURDATE() - INTERVAL 10 DAY
 GROUP BY pfv.player_id
 ;
