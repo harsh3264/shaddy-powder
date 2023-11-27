@@ -702,3 +702,36 @@ AND is_substitute = 0
 # AND (tf.country_name = 'England' OR tf2.country_name = 'England')
 GROUP BY 1
 ;
+
+DROP TABLE IF EXISTS temp.players_ht_fouls;
+
+CREATE TABLE temp.players_ht_fouls
+SELECT
+fpsc.player_id,
+SUM(CASE WHEN minutes_played IS NOT NULL THEN fixture_id END) AS total_fixt,
+SUM(CASE WHEN minutes_played IS NOT NULL THEN IFNULL(fouls_committed, 0) END) AS total_fouls,
+SUM(CASE WHEN minutes_played IS NOT NULL THEN IFNULL(minutes_played, 0) END) AS total_mins,
+SUM(CASE WHEN season_year = mx.mx_year AND minutes_played IS NOT NULL THEN fixture_id END) AS season_fixt,
+SUM(CASE WHEN season_year = mx.mx_year AND minutes_played IS NOT NULL THEN IFNULL(fouls_committed, 0) END) AS season_fouls,
+SUM(CASE WHEN season_year = mx.mx_year AND minutes_played IS NOT NULL THEN IFNULL(minutes_played, 0) END) AS season_mins
+FROM analytics.fixture_player_stats_compile fpsc
+INNER JOIN (SELECT player_id, MAX(season_year) AS mx_year
+            FROM analytics.fixture_player_stats_compile
+            WHERE 1 = 1
+            GROUP BY 1
+            )AS mx
+ON fpsc.player_id = mx.player_id
+WHERE 1 = 1
+AND is_substitute = 0
+AND season_year > 2020
+GROUP BY 1;
+
+DROP TABLE IF EXISTS temp.exp_ht_fouls;
+
+CREATE TABLE temp.exp_ht_fouls
+SELECT
+*,
+SUM(total_fouls) * 45 * 0.8 / SUM(total_mins) AS total_exp_ht_fouls,
+SUM(season_fouls) * 45 * 0.8 / SUM(season_mins) AS season_exp_ht_fouls
+FROM temp.players_ht_fouls
+GROUP BY 1;
