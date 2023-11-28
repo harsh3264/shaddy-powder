@@ -718,6 +718,7 @@ FROM analytics.fixture_player_stats_compile fpsc
 INNER JOIN (SELECT player_id, MAX(season_year) AS mx_year
             FROM analytics.fixture_player_stats_compile
             WHERE 1 = 1
+            AND season_year <= YEAR(curdate())
             GROUP BY 1
             )AS mx
 ON fpsc.player_id = mx.player_id
