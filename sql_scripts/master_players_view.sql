@@ -732,7 +732,7 @@ DROP TABLE IF EXISTS temp.exp_ht_fouls;
 CREATE TABLE temp.exp_ht_fouls
 SELECT
 *,
-SUM(total_fouls) * 45 * 0.8 / SUM(total_mins) AS total_exp_ht_fouls,
-SUM(season_fouls) * 45 * 0.8 / SUM(season_mins) AS season_exp_ht_fouls
+SUM(total_fouls) * 45  / SUM(total_mins) AS total_exp_ht_fouls,
+SUM(season_fouls) * 45 / SUM(season_mins) AS season_exp_ht_fouls
 FROM temp.players_ht_fouls
 GROUP BY 1;
