@@ -150,6 +150,7 @@ SELECT
 player_id,
 GROUP_CONCAT(CASE WHEN is_substitute = 0 AND player_rnk_sub <= 5 THEN IFNULL(goals, 0) END ORDER BY fixture_date DESC SEPARATOR '') AS last5_start_goal,
 GROUP_CONCAT(CASE WHEN is_substitute = 0 AND player_rnk_sub <= 5 THEN IFNULL(fouls_committed, 0) END ORDER BY fixture_date DESC SEPARATOR '') AS last5_start_foul,
+GROUP_CONCAT(CASE WHEN is_substitute = 0 AND player_rnk_sub <= 5 THEN IFNULL(fouls_drawn, 0) END ORDER BY fixture_date DESC SEPARATOR '') AS last5_start_fouls_drawn,
 REPLACE(
     SUBSTRING_INDEX(
         GROUP_CONCAT(
@@ -280,6 +281,7 @@ COUNT(DISTINCT CASE WHEN IFNULL(tackles_total,0) > 0 THEN fpsc.fixture_id END) A
 SUM(IFNULL(fouls_committed,0)) AS fouls,
 COUNT(DISTINCT CASE WHEN IFNULL(fouls_committed,0) > 0 THEN fpsc.fixture_id END) AS fouled_matches,
 SUM(IFNULL(fouls_drawn,0)) AS fouls_drawn,
+COUNT(DISTINCT CASE WHEN IFNULL(fouls_drawn,0) > 0 THEN fpsc.fixture_id END) AS foul_drawn_matches,
 SUM(CASE WHEN card_minute < 31 THEN IFNULL(cards_yellow, 0) + IFNULL(cards_red, 0) END) AS '00-30',
 SUM(CASE WHEN card_minute BETWEEN 31 AND 45 THEN IFNULL(cards_yellow, 0) + IFNULL(cards_red, 0) END) AS '31-45',
 SUM(CASE WHEN card_minute BETWEEN 46 AND 75 THEN IFNULL(cards_yellow, 0) + IFNULL(cards_red, 0) END) AS '46-75',
@@ -324,6 +326,7 @@ COUNT(DISTINCT CASE WHEN IFNULL(tackles_total,0) > 0 THEN fpsc.fixture_id END) A
 SUM(IFNULL(fouls_committed,0)) AS fouls,
 COUNT(DISTINCT CASE WHEN IFNULL(fouls_committed,0) > 0 THEN fpsc.fixture_id END) AS fouled_matches,
 SUM(IFNULL(fouls_drawn,0)) AS fouls_drawn,
+COUNT(DISTINCT CASE WHEN IFNULL(fouls_drawn,0) > 0 THEN fpsc.fixture_id END) AS foul_drawn_matches,
 SUM(CASE WHEN card_minute < 31 THEN IFNULL(cards_yellow, 0) + IFNULL(cards_red, 0) END) AS '00-30',
 SUM(CASE WHEN card_minute BETWEEN 31 AND 45 THEN IFNULL(cards_yellow, 0) + IFNULL(cards_red, 0) END) AS '31-45',
 SUM(CASE WHEN card_minute BETWEEN 46 AND 75 THEN IFNULL(cards_yellow, 0) + IFNULL(cards_red, 0) END) AS '46-75',
@@ -369,6 +372,7 @@ COUNT(DISTINCT CASE WHEN IFNULL(tackles_total,0) > 0 THEN fpsc.fixture_id END) A
 SUM(IFNULL(fouls_committed,0)) AS fouls,
 COUNT(DISTINCT CASE WHEN IFNULL(fouls_committed,0) > 0 THEN fpsc.fixture_id END) AS fouled_matches,
 SUM(IFNULL(fouls_drawn,0)) AS fouls_drawn,
+COUNT(DISTINCT CASE WHEN IFNULL(fouls_drawn,0) > 0 THEN fpsc.fixture_id END) AS foul_drawn_matches,
 SUM(CASE WHEN card_minute < 31 THEN IFNULL(cards_yellow, 0) + IFNULL(cards_red, 0) END) AS '00-30',
 SUM(CASE WHEN card_minute BETWEEN 31 AND 45 THEN IFNULL(cards_yellow, 0) + IFNULL(cards_red, 0) END) AS '31-45',
 SUM(CASE WHEN card_minute BETWEEN 46 AND 75 THEN IFNULL(cards_yellow, 0) + IFNULL(cards_red, 0) END) AS '46-75',
@@ -413,9 +417,13 @@ SUM(CASE WHEN season_year = tf_season THEN matches END) AS season_matches,
 -- Foul and YC metrics
 IFNULL(SUM(CASE WHEN is_substitute = 0 THEN fouled_matches END) / SUM(CASE WHEN is_substitute = 0 THEN matches END), 0) AS foul_match_pct,
 IFNULL(SUM(CASE WHEN is_substitute = 0 THEN fouls END) / SUM(CASE WHEN is_substitute = 0 THEN matches END), 0) AS avg_fouls_total,
+IFNULL(SUM(CASE WHEN is_substitute = 0 THEN foul_drawn_matches END) / SUM(CASE WHEN is_substitute = 0 THEN matches END), 0) AS foul_drawn_match_pct,
+IFNULL(SUM(CASE WHEN is_substitute = 0 THEN fouls_drawn END) / SUM(CASE WHEN is_substitute = 0 THEN matches END), 0) AS avg_fouls_drawn_total,
 IFNULL(SUM(CASE WHEN is_substitute = 0 THEN card END) / SUM(CASE WHEN is_substitute = 0 THEN matches END), 0) AS avg_yc_total,
 IFNULL(SUM(CASE WHEN fouls > 0 AND is_substitute = 0 AND season_year = tf_season THEN fouled_matches END) / SUM(CASE WHEN is_substitute = 0 AND season_year = tf_season THEN matches END), 0) AS season_foul_match_pct,
 IFNULL(SUM(CASE WHEN fouls > 0 AND is_substitute = 0 AND season_year = tf_season THEN fouls END) / SUM(CASE WHEN is_substitute = 0 AND season_year = tf_season THEN matches END), 0) AS season_avg_fouls,
+IFNULL(SUM(CASE WHEN fouls > 0 AND is_substitute = 0 AND season_year = tf_season THEN foul_drawn_matches END) / SUM(CASE WHEN is_substitute = 0 AND season_year = tf_season THEN matches END), 0) AS season_foul_drawn_match_pct,
+IFNULL(SUM(CASE WHEN fouls > 0 AND is_substitute = 0 AND season_year = tf_season THEN fouls_drawn END) / SUM(CASE WHEN is_substitute = 0 AND season_year = tf_season THEN matches END), 0) AS season_avg_fouls_drawn,
 IFNULL(SUM(CASE WHEN season_year = tf_season AND is_substitute = 0 THEN card END) / SUM(CASE WHEN season_year = tf_season AND is_substitute = 0 THEN matches END), 0) AS season_avg_yc,
 
 -- Shot, SOT, Goal metrics
@@ -476,6 +484,11 @@ pda.season_avg_fouls,
 pl5d.last5_start_foul,
 1 - pda.foul_match_pct AS zero_foul_match_pct,
 1 - pda.season_foul_match_pct AS zero_season_foul_match_pct,
+pda.avg_fouls_drawn_total,
+pda.season_avg_fouls_drawn,
+pl5d.last5_start_fouls_drawn,
+1 - pda.foul_drawn_match_pct AS zero_foul_drawn_match_pct,
+1 - pda.season_foul_drawn_match_pct AS zero_season_foul_drawn_match_pct,
 pda.avg_yc_total,
 pda.season_avg_yc,
 pl5d.last5_start_yc,
@@ -731,8 +744,11 @@ DROP TABLE IF EXISTS temp.exp_ht_fouls;
 
 CREATE TABLE temp.exp_ht_fouls
 SELECT
-*,
-SUM(total_fouls) * 45  / SUM(total_mins) AS total_exp_ht_fouls,
-SUM(season_fouls) * 45 / SUM(season_mins) AS season_exp_ht_fouls
-FROM temp.players_ht_fouls
-GROUP BY 1;
+phf.*,
+SUM(total_fouls) * 45 * (1 - zero_foul_match_pct)  / SUM(total_mins) AS total_exp_ht_fouls,
+SUM(season_fouls) * 45 * (1 - zero_season_foul_match_pct) / SUM(season_mins) AS season_exp_ht_fouls
+FROM temp.players_ht_fouls phf
+JOIN master_players_view mpv on phf.player_id = mpv.player_id
+# WHERE LENGTH(mpv.fixture_id) > 4
+GROUP BY 1
+;
