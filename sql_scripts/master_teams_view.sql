@@ -377,3 +377,97 @@ tda.league_avg_against_tackles
 FROM teams_data_agg tda
 JOIN teams_last_5_data tl5d on tda.team_id = tl5d.team_id
 ;
+
+DROP TABLE IF EXISTS temp.team_level_fls;
+
+CREATE TABLE temp.team_level_fls AS
+SELECT
+fpsc.team_id,
+t.name,
+fpsc.fixture_id,
+SUM(CASE WHEN fpsc.is_substitute = 0 THEN COALESCE(fouls_committed, 0) END) AS start_fouls,
+SUM(CASE WHEN fpsc.is_substitute = 0 THEN COALESCE(fouls_drawn, 0) END) AS start_fouls_drawn,
+SUM(CASE WHEN fpsc.is_substitute = 0 THEN COALESCE(minutes_played, 0) END) AS start_mins,
+SUM(CASE WHEN fpsc.is_substitute = 1 THEN COALESCE(fouls_committed, 0) END) AS sub_fouls
+FROM analytics.fixture_player_stats_compile fpsc
+LEFT JOIN fixture_lineups fl
+ON fpsc.player_id = fl.player_id AND fpsc.fixture_id = fl.fixture_id
+LEFT JOIN teams t on fpsc.team_id = t.team_id
+WHERE season_year = 2023
+AND fpsc.team_id IN (SELECT home_team_id fROM today_fixture)
+# AND fpsc.is_substitute = 0
+AND COALESCE(fl.player_pos, 'T') <> 'G'
+# AND league_id = 39
+GROUP BY 1, 2, 3;
+
+INSERT INTO temp.team_level_fls
+SELECT
+fpsc.team_id,
+t.name,
+fpsc.fixture_id,
+SUM(CASE WHEN fpsc.is_substitute = 0 THEN COALESCE(fouls_committed, 0) END) AS start_fouls,
+SUM(CASE WHEN fpsc.is_substitute = 0 THEN COALESCE(fouls_drawn, 0) END) AS start_fouls_drawn,
+SUM(CASE WHEN fpsc.is_substitute = 0 THEN COALESCE(minutes_played, 0) END) AS start_mins,
+SUM(CASE WHEN fpsc.is_substitute = 1 THEN COALESCE(fouls_committed, 0) END) AS sub_fouls
+FROM analytics.fixture_player_stats_compile fpsc
+LEFT JOIN fixture_lineups fl
+ON fpsc.player_id = fl.player_id AND fpsc.fixture_id = fl.fixture_id
+LEFT JOIN teams t on fpsc.team_id = t.team_id
+WHERE season_year = 2023
+AND fpsc.team_id IN (SELECT away_team_id fROM today_fixture)
+# AND fpsc.is_substitute = 0
+AND COALESCE(fl.player_pos, 'T') <> 'G'
+# AND league_id = 39
+GROUP BY 1, 2, 3;
+
+DROP TABLE IF EXISTS temp.team_exp_ht_fls;
+
+CREATE TABLE temp.team_exp_ht_fls AS
+SELECT
+team_id,
+ROUND(SUM(start_fouls) * 400 / SUM(start_mins), 2) AS avg_fouls_data,
+ROUND(SUM(start_fouls_drawn) * 400 / SUM(start_mins), 2) AS avg_fouls_drawn_data
+FROM temp.team_level_fls
+WHERE 1 = 1
+# AND LOWER(name) LIKE '%manc%'
+GROUP BY 1
+;
+
+DROP TABLE IF EXISTS temp.team_ht_mapping;
+
+CREATE TABLE temp.team_ht_mapping
+SELECT
+tf.fixture_id,
+tf.home_team_id AS main_team,
+tf.away_team_id AS against_team,
+tehf1.avg_fouls_data,
+tehf1.avg_fouls_drawn_data
+FROM
+today_fixture tf
+JOIN temp.team_exp_ht_fls tehf1 ON tf.home_team_id = tehf1.team_id;
+
+INSERT INTO temp.team_ht_mapping
+SELECT
+tf.fixture_id,
+tf.away_team_id AS main_team,
+tf.home_team_id AS against_team,
+tehf1.avg_fouls_data,
+tehf1.avg_fouls_drawn_data
+FROM
+today_fixture tf
+JOIN temp.team_exp_ht_fls tehf1 ON tf.away_team_id = tehf1.team_id;
+
+DROP TABLE IF EXISTS temp.team_ht_combo;
+
+CREATE TABLE temp.team_ht_combo
+SELECT
+thm1.fixture_id,
+thm1.main_team,
+thm1.avg_fouls_data,
+thm2.avg_fouls_drawn_data,
+ROUND((thm1.avg_fouls_data + thm2.avg_fouls_drawn_data) / 2, 1) AS avg_ht_fouls
+FROM
+temp.team_ht_mapping thm1
+LEFT JOIN temp.team_ht_mapping thm2
+ON thm1.fixture_id = thm2.fixture_id AND thm1.main_team = thm2.against_team
+;

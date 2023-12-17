@@ -745,10 +745,12 @@ DROP TABLE IF EXISTS temp.exp_ht_fouls;
 CREATE TABLE temp.exp_ht_fouls
 SELECT
 phf.*,
-SUM(total_fouls) * 45 * (1 - zero_foul_match_pct)  / SUM(total_mins) AS total_exp_ht_fouls,
-SUM(season_fouls) * 45 * (1 - zero_season_foul_match_pct) / SUM(season_mins) AS season_exp_ht_fouls
+SUM(total_fouls) * 40   / SUM(total_mins) AS total_exp_ht_fouls,
+SUM(season_fouls) * 40 / SUM(season_mins) AS season_exp_ht_fouls
 FROM temp.players_ht_fouls phf
 JOIN master_players_view mpv on phf.player_id = mpv.player_id
 # WHERE LENGTH(mpv.fixture_id) > 4
 GROUP BY 1
 ;
+
+
