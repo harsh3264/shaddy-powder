@@ -89,16 +89,16 @@ tt.player_name_t1 AS player_name,
 tt.nn1,
 tt.pid_nn1,
 tt.dist_nn1,
-MAX(ROUND(mpv1.avg_fouls_drawn_total, 1)) AS nn1_fld,
-MAX(ROUND(mpv1.season_avg_fouls_drawn, 1)) AS nn1_fld_s,
+MAX(ROUND(mpv1.total_exp_ht_fouls_drawn, 1)) AS nn1_fld,
+MAX(ROUND(mpv1.season_exp_ht_fouls_drawn, 1)) AS nn1_fld_s,
 tt.nn2,
 tt.pid_nn2,
 tt.dist_nn2,
-MAX(ROUND(mpv2.avg_fouls_drawn_total, 1)) AS nn2_fld,
-MAX(ROUND(mpv2.season_avg_fouls_drawn, 1)) AS nn2_fld_s
+MAX(ROUND(mpv2.total_exp_ht_fouls_drawn, 1)) AS nn2_fld,
+MAX(ROUND(mpv2.season_exp_ht_fouls_drawn, 1)) AS nn2_fld_s
 FROM temp.DISTANCE_BASE_PLAYERS tt
-JOIN master_players_view mpv1 on tt.pid_nn1 = mpv1.player_id
-JOIN master_players_view mpv2 on tt.pid_nn2 = mpv2.player_id
+JOIN temp.exp_ht_fouls mpv1 on tt.pid_nn1 = mpv1.player_id
+JOIN temp.exp_ht_fouls mpv2 on tt.pid_nn2 = mpv2.player_id
 GROUP BY 1, 2, 3, 4, 5, 6, 7, 8, 11, 12, 13
 ORDER BY fixture_id, tt.team_id_t1
 ;

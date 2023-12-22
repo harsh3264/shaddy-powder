@@ -723,9 +723,11 @@ SELECT
 fpsc.player_id,
 SUM(CASE WHEN minutes_played IS NOT NULL THEN fixture_id END) AS total_fixt,
 SUM(CASE WHEN minutes_played IS NOT NULL THEN IFNULL(fouls_committed, 0) END) AS total_fouls,
+SUM(CASE WHEN minutes_played IS NOT NULL THEN IFNULL(fouls_drawn, 0) END) AS total_fouls_drawn,
 SUM(CASE WHEN minutes_played IS NOT NULL THEN IFNULL(minutes_played, 0) END) AS total_mins,
 SUM(CASE WHEN season_year = mx.mx_year AND minutes_played IS NOT NULL THEN fixture_id END) AS season_fixt,
 SUM(CASE WHEN season_year = mx.mx_year AND minutes_played IS NOT NULL THEN IFNULL(fouls_committed, 0) END) AS season_fouls,
+SUM(CASE WHEN season_year = mx.mx_year AND minutes_played IS NOT NULL THEN IFNULL(fouls_drawn, 0) END) AS season_fouls_drawn,
 SUM(CASE WHEN season_year = mx.mx_year AND minutes_played IS NOT NULL THEN IFNULL(minutes_played, 0) END) AS season_mins
 FROM analytics.fixture_player_stats_compile fpsc
 INNER JOIN (SELECT player_id, MAX(season_year) AS mx_year
@@ -746,11 +748,11 @@ CREATE TABLE temp.exp_ht_fouls
 SELECT
 phf.*,
 SUM(total_fouls) * 40   / SUM(total_mins) AS total_exp_ht_fouls,
-SUM(season_fouls) * 40 / SUM(season_mins) AS season_exp_ht_fouls
+SUM(season_fouls) * 40 / SUM(season_mins) AS season_exp_ht_fouls,
+SUM(total_fouls_drawn) * 40   / SUM(total_mins) AS total_exp_ht_fouls_drawn,
+SUM(season_fouls_drawn) * 40 / SUM(season_mins) AS season_exp_ht_fouls_drawn
 FROM temp.players_ht_fouls phf
-JOIN master_players_view mpv on phf.player_id = mpv.player_id
+# JOIN master_players_view mpv on phf.player_id = mpv.player_id
 # WHERE LENGTH(mpv.fixture_id) > 4
 GROUP BY 1
 ;
-
-
