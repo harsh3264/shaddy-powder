@@ -425,8 +425,8 @@ DROP TABLE IF EXISTS temp.team_exp_ht_fls;
 CREATE TABLE temp.team_exp_ht_fls AS
 SELECT
 team_id,
-ROUND(SUM(start_fouls) * 400 / SUM(start_mins), 2) AS avg_fouls_data,
-ROUND(SUM(start_fouls_drawn) * 400 / SUM(start_mins), 2) AS avg_fouls_drawn_data
+ROUND(SUM(start_fouls) * 350 / SUM(start_mins), 2) AS avg_fouls_data,
+ROUND(SUM(start_fouls_drawn) * 350 / SUM(start_mins), 2) AS avg_fouls_drawn_data
 FROM temp.team_level_fls
 WHERE 1 = 1
 # AND LOWER(name) LIKE '%manc%'
