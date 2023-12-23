@@ -50,7 +50,7 @@ query = '''
     SELECT DISTINCT f.fixture_id
     FROM live_updates.live_fixtures f
     WHERE
-        (DAYOFWEEK(CURRENT_DATE()) = 7 AND league_id NOT IN (40, 41))
+        (DAYOFWEEK(CURRENT_DATE()) = 7 AND league_id NOT IN (41))
         OR DAYOFWEEK(CURRENT_DATE()) != 7
     ;
 '''
