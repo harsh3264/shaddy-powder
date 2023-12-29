@@ -80,6 +80,7 @@ rbd.fixture_id,
 rbd.cleaned_referee_name,
 IFNULL(SUM(matches), 0) AS total_matches,
 IFNULL(SUM(CASE WHEN fouls > 0 THEN fouls END) / SUM(CASE WHEN fouls > 0 THEN total_yc END), 0) AS fouls_per_yc,
+IFNULL(SUM(CASE WHEN fouls > 0 THEN fouls END) / SUM(CASE WHEN fouls > 0 THEN matches END), 0) AS ref_avg_fouls,
 IFNULL(SUM(argue_yc) / SUM(total_yc), 0) AS argue_yc_pct,
 IFNULL(SUM(tw_yc) / SUM(matches), 0) AS tw_yc_pct,
 IFNULL(SUM(total_yc) / SUM(matches), 0) AS avg_yc_total,
@@ -97,6 +98,7 @@ WHERE 1 = 1
 AND cleaned_referee_name IS NOT NULL
 GROUP BY 1, 2
 ;
+
 
 DROP TABLE IF EXISTS referee_last_5_data
 ;
@@ -139,6 +141,7 @@ rl5d.last5_yc,
 rda.tw_yc_pct,
 rda.argue_yc_pct,
 rda.fouls_per_yc,
+rda.ref_avg_fouls,
 rl5d.last5_fouls_per_yc,
 rda.0_card_matches,
 rda.r_0_30_total,
@@ -149,7 +152,8 @@ rda.season_avg_yc,
 rda.season_0_card_matches,
 rda.league_avg_yc,
 rda.avg_rc_total,
-rl5d.last5_rc
+rl5d.last5_rc,
+rl5d.last5_fouls AS ref_last5_fouls
 FROM referee_data_agg rda
 JOIN referee_last_5_data rl5d
 ON rda.cleaned_referee_name = rl5d.cleaned_referee_name

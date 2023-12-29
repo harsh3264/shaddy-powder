@@ -226,7 +226,7 @@ GROUP_CONCAT(CASE WHEN is_substitute = 0 AND player_rnk_sub <= 5 THEN
 END ORDER BY fixture_date DESC SEPARATOR '') AS last5_start_yc,
 REPLACE(
     SUBSTRING_INDEX(
-        GROUP_CONCAT(CASE WHEN is_substitute = 0 AND (IFNULL(minutes_played,0) > 5 OR IFNULL(fouls_committed, 0) > 0) THEN
+        GROUP_CONCAT(CASE WHEN is_substitute = 1 AND (IFNULL(minutes_played,0) > 5 OR IFNULL(fouls_committed, 0) > 0) THEN
     CASE
         WHEN IFNULL(cards_yellow, 0) + IFNULL(cards_red, 0) > 1 THEN '1'
         ELSE CAST(IFNULL(cards_yellow, 0) + IFNULL(cards_red, 0) AS CHAR)
@@ -756,3 +756,44 @@ FROM temp.players_ht_fouls phf
 # WHERE LENGTH(mpv.fixture_id) > 4
 GROUP BY 1
 ;
+
+-- Shots FFH
+
+DROP TABLE IF EXISTS temp.player_ht_shots;
+
+
+CREATE TABLE temp.player_ht_shots AS (
+    SELECT
+        fpsc.player_id,
+        SUM(CASE WHEN minutes_played IS NOT NULL THEN fixture_id END) AS total_fixt,
+        SUM(CASE WHEN minutes_played IS NOT NULL THEN IFNULL(shots_total, 0) END) AS total_shots,
+        SUM(CASE WHEN minutes_played IS NOT NULL THEN IFNULL(minutes_played, 0) END) AS total_mins,
+        SUM(CASE WHEN season_year = mx.mx_year AND minutes_played IS NOT NULL THEN fixture_id END) AS season_fixt,
+        SUM(CASE WHEN season_year = mx.mx_year AND minutes_played IS NOT NULL THEN IFNULL(shots_total, 0) END) AS season_shots,
+        SUM(CASE WHEN season_year = mx.mx_year AND minutes_played IS NOT NULL THEN IFNULL(minutes_played, 0) END) AS season_mins
+    FROM analytics.fixture_player_stats_compile fpsc
+    INNER JOIN (
+        SELECT player_id, MAX(season_year) AS mx_year
+        FROM analytics.fixture_player_stats_compile
+        WHERE 1 = 1
+        AND season_year <= YEAR(curdate())
+        GROUP BY 1
+    ) AS mx
+    ON fpsc.player_id = mx.player_id
+    WHERE 1 = 1
+    AND is_substitute = 0
+    AND season_year > 2020
+    GROUP BY 1
+);
+
+DROP TABLE IF EXISTS temp.exp_ht_shots;
+
+CREATE TABLE temp.exp_ht_shots
+ AS (
+    SELECT
+        player_id,
+        SUM(total_shots) * 40 / SUM(total_mins) AS total_exp_ht_shots,
+        SUM(season_shots) * 40 / SUM(season_mins) AS season_exp_ht_shots
+    FROM temp.player_ht_shots
+    GROUP BY 1
+);

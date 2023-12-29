@@ -73,7 +73,6 @@ WHERE tf.cleaned_referee_name IS NULL
 
 DROP TABLE IF EXISTS quicksight.referee_dashboard;
 
-
 CREATE TABLE quicksight.referee_dashboard
 AS
 SELECT
@@ -100,7 +99,9 @@ mrv.tw_yc_pct,
 mrv.r_0_30_total,
 mrv.r_31_45_total,
 mrv.r_46_75_total,
-mrv.r_76_90_total
+mrv.r_76_90_total,
+mrv.ref_avg_fouls,
+mrv.ref_last5_fouls
 FROM today_fixture tf
 LEFT JOIN master_referee_view mrv on mrv.cleaned_referee_name = tf.cleaned_referee_name
 WHERE 1 = 1
@@ -108,7 +109,6 @@ WHERE 1 = 1
 # AND LOWER(mrv.cleaned_referee_name) LIKE '%king%'
 ORDER BY tf.timestamp, tf.league_id
 ;
-
 
 DROP TABLE IF EXISTS quicksight.teams_yc_dashboard;
 ;

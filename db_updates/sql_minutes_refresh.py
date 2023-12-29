@@ -60,15 +60,32 @@ for filename in sorted_script_files:
         print(f"Finished script: {script_path}\n")
         
 
+for filename in sorted_script_files:
+    if filename.startswith("raw"):
+        script_path = os.path.join(directory_path, filename)
+        print(f"Running script: {script_path}")
+        sql_script_runner(script_path, db_config)
+        # TABLE_UPDATES(script_path, db_config)
+        print(f"Finished script: {script_path}\n")
+        
+
 #Gsheet Push
 
 gsheet_directory = "db_updates"
 gsheet_script_name = "gsheet_connecter.py"
+ffh_script_name = "ffh_gsheet.py"
 
 # Construct the absolute path
 gsheet_script_path = os.path.abspath(os.path.join(user_home, project_directory, gsheet_directory, gsheet_script_name))
 
+ffh_script_path = os.path.abspath(os.path.join(user_home, project_directory, gsheet_directory, ffh_script_name))
+
 # Run the fixtures script using exec
 with open(gsheet_script_path) as f:
     code = compile(f.read(), gsheet_script_path, 'exec')
+    exec(code)
+    
+# Run the fixtures script using exec
+with open(ffh_script_path) as f:
+    code = compile(f.read(), ffh_script_path, 'exec')
     exec(code)
