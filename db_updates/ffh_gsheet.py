@@ -62,17 +62,24 @@ sql_statements = [
     '''
     SELECT
     CONCAT(fixt, rnk) AS vlk,
-    base.*
-    FROM temp.raw_ffh AS base;
+    base1.*
+    FROM temp.raw_ffh AS base1;
     ''',
     '''
-    SELECT * FROM temp.raw_sfh;
+    SELECT 
+    CONCAT(fixt, rnk) AS vlk,
+    base2.*
+    FROM temp.raw_sfh AS base2;
     ''',
     '''
-    SELECT * FROM temp.raw_fld;
+    SELECT 
+    CONCAT(fixt, rnk) AS vlk,
+    base3.*
+    FROM temp.raw_fld AS base3;
     ''',
     '''
-    SELECT * FROM temp.referee_q;
+    SELECT * 
+    FROM temp.referee_q;
     '''
 ]
 
