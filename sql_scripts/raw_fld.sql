@@ -44,7 +44,7 @@ FROM
     LEFT JOIN players p ON mpv.player_id = p.player_id
     LEFT JOIN live_updates.live_fixtures lf ON tf.fixture_id = lf.fixture_id
     LEFT JOIN live_updates.live_fixture_lineups lfl ON mpv.player_id = lfl.player_id
-    LEFT JOIN live_updates.live_fixture_coach lfc ON mpv.player_id = lfl.player_id
+    LEFT JOIN live_updates.live_fixture_coach lfc ON lfc.team_id = lfl.team_id AND lfc.fixture_id = lfl.fixture_id
     LEFT JOIN temp.new_pos_mapper nps ON lfl.grid = nps.grid AND lfc.formation = nps.formation
 WHERE 1 = 1
     AND lfl.player_id Is NOT NULL
