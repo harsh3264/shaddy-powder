@@ -215,6 +215,7 @@ CREATE TABLE temp.raw_ffh AS
 SELECT fixt,
         row_number() over (partition by fixt order by ffh DESC, new_logic DESC) AS rnk,
         player_name,
+        team_name,
         fouler_type,
         ffh,
         player_pos,

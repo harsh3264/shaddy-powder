@@ -60,7 +60,10 @@ from python_api.get_secrets import db_parameters
 # SQL statements to execute
 sql_statements = [
     '''
-    SELECT * FROM temp.raw_ffh;
+    SELECT
+    CONCAT(fixt, rnk) AS vlk,
+    base.*
+    FROM temp.raw_ffh AS base;
     ''',
     '''
     SELECT * FROM temp.raw_sfh;
