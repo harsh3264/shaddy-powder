@@ -108,7 +108,8 @@ SELECT
     cleaned_referee_name,
     SUBSTRING_INDEX(GROUP_CONCAT(fouls_per_yc ORDER BY referee_r ASC SEPARATOR '|'), '|', 5) AS last5_fouls_per_yc,
     SUBSTRING_INDEX(GROUP_CONCAT(yellow_cards ORDER BY referee_r ASC SEPARATOR '|'), '|', 5) AS last5_yc,
-    SUBSTRING_INDEX(GROUP_CONCAT(red_cards ORDER BY referee_r ASC SEPARATOR '|'), '|', 5) AS last5_rc
+    SUBSTRING_INDEX(GROUP_CONCAT(red_cards ORDER BY referee_r ASC SEPARATOR '|'), '|', 5) AS last5_rc,
+    SUBSTRING_INDEX(GROUP_CONCAT(fouls ORDER BY referee_r ASC SEPARATOR '|'), '|', 5) AS last5_fouls
 FROM
 (
     SELECT
@@ -116,7 +117,8 @@ FROM
         referee_r,
         ROUND(SUM(IFNULL(fouls, 0)) / SUM(IFNULL(yellow_cards, 0)), 1) AS fouls_per_yc,
         SUM(IFNULL(yellow_cards, 0)) AS yellow_cards,
-        SUM(IFNULL(red_cards, 0)) AS red_cards
+        SUM(IFNULL(red_cards, 0)) AS red_cards,
+        SUM(IFNULL(fouls, 0)) AS fouls
     FROM analytics.fixture_stats_compile
     WHERE 1 = 1
     AND referee_r <= 5
