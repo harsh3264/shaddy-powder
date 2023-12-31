@@ -18,8 +18,8 @@ CASE WHEN lsf.type = 'Start Fouler - Legend' THEN 'Pro'
 ROUND(((CASE WHEN season_fixt > 5 AND season_exp_ht_fouls IS NOT NULL THEN (ehf.season_exp_ht_fouls * 0.67 + ehf.total_exp_ht_fouls * 0.33)
             WHEN season_exp_ht_fouls IS NOT NULL THEN (ehf.season_exp_ht_fouls * 0.2 + ehf.total_exp_ht_fouls * 0.8)
             ELSE ehf.total_exp_ht_fouls END) +
-(ROUND(efm.fouls / efm.yc_matches, 2) * fp.fhc * (1 - mpv.zero_foul_match_pct) / fp.matches))
-/ 2, 1)
+((fp.fhc / fp.c_mt) * (efm.fouls) / efm.total_matches))
+/ 2, 2)
 AS calc_ht_fls,
 fdm.nn1 AS matchup_1,
 fdm.nn2 AS matchup_2,
@@ -120,8 +120,8 @@ CASE WHEN lsf.type = 'Start Fouler - Legend' THEN 'Pro'
 ROUND(((CASE WHEN season_fixt > 5 AND season_exp_ht_fouls IS NOT NULL THEN (ehf.season_exp_ht_fouls * 0.67 + ehf.total_exp_ht_fouls * 0.33)
             WHEN season_exp_ht_fouls IS NOT NULL THEN (ehf.season_exp_ht_fouls * 0.2 + ehf.total_exp_ht_fouls * 0.8)
             ELSE ehf.total_exp_ht_fouls END) +
-(ROUND(efm.fouls / efm.yc_matches, 2) * fp.fhc * (1 - mpv.zero_foul_match_pct) / fp.matches))
-/ 2, 1)
+((fp.fhc / fp.c_mt) * (efm.fouls) / efm.total_matches))
+/ 2, 2)
 AS calc_ht_fls,
 fdm.nn1 AS matchup_1,
 fdm.nn2 AS matchup_2,
@@ -239,21 +239,21 @@ player_name,
 player_pos,
 fouler_type,
 CASE
-    WHEN m_ht_impact IS NOT NULL AND exp_ht_fouls IS NOT NULL THEN ROUND((exp_ht_fouls + m_ht_impact) / 2, 2)
-    WHEN m_ht_impact IS NULL AND exp_ht_fouls IS NULL THEN ROUND(calc_ht_fls, 2)
-    WHEN m_ht_impact IS NULL AND exp_ht_fouls IS NOT NULL THEN ROUND(exp_ht_fouls, 2)
-    WHEN m_ht_impact IS NOT NULL AND exp_ht_fouls IS NULL THEN ROUND(m_ht_impact, 2)
-    ELSE calc_ht_fls END
+    WHEN m_ht_impact IS NOT NULL AND calc_ht_fls IS NOT NULL THEN ROUND((calc_ht_fls + m_ht_impact) / 2, 2)
+    WHEN m_ht_impact IS NULL AND calc_ht_fls IS NULL THEN ROUND(exp_ht_fouls, 2)
+    WHEN m_ht_impact IS NULL AND calc_ht_fls IS NOT NULL THEN ROUND(calc_ht_fls, 2)
+    WHEN m_ht_impact IS NOT NULL AND calc_ht_fls IS NULL THEN ROUND(m_ht_impact, 2)
+    ELSE exp_ht_fouls END
     AS ffh,
 # CASE WHEN exp_ht_fls IS NULL THEN ROUND((calc_ht_fls + m_ht_impact) / 2, 1)
 #      ELSE ROUND((((calc_ht_fls + exp_ht_fls) / 2) + m_ht_impact) / 2, 2) END AS new_logic,
 matchup_1,
 matchup_2,
 CASE
-    WHEN m_ht_impact IS NOT NULL AND calc_ht_fls IS NOT NULL THEN ROUND((calc_ht_fls + m_ht_impact) / 2, 2)
-    WHEN m_ht_impact IS NULL THEN ROUND(calc_ht_fls, 2)
-    WHEN calc_ht_fls IS NULL THEN ROUND(m_ht_impact, 2)
-    ELSE exp_ht_fouls END
+    WHEN m_ht_impact IS NOT NULL AND exp_ht_fouls IS NOT NULL THEN ROUND((exp_ht_fouls + m_ht_impact) / 2, 2)
+    WHEN m_ht_impact IS NULL THEN ROUND(exp_ht_fouls, 2)
+    WHEN exp_ht_fouls IS NULL THEN ROUND(m_ht_impact, 2)
+    ELSE calc_ht_fls END
     AS new_logic,
 m1_fld,
 m2_fld,
