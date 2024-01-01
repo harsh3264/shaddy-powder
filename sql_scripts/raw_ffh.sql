@@ -204,7 +204,7 @@ WHERE 1 = 1
 AND plsd.last_start > CURDATE() - INTERVAL 20 DAY
 AND COALESCE(i.type, 'A') <> 'Missing Fixture'
 AND tf.fixture_id NOT IN (SELECT fixture_id FROM temp.foul_announce)
-AND tf.timestamp BETWEEN UNIX_TIMESTAMP(NOW() - INTERVAL 10 MINUTE) AND UNIX_TIMESTAMP(NOW() + INTERVAL 720 MINUTE)
+AND tf.timestamp BETWEEN UNIX_TIMESTAMP(NOW() - INTERVAL 10 MINUTE) AND UNIX_TIMESTAMP(NOW() + INTERVAL 1440 MINUTE)
 # AND COALESCE(player_pos, 'S') <> 'G'
 ;
 
