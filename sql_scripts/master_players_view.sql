@@ -135,7 +135,7 @@ base.is_new
 FROM
 (SELECT
 *,
-ROW_NUMBER() over (partition by player_id order by fixture_date DESC) AS prk
+ROW_NUMBER() over (partition by player_id order by fixture_date) AS prk
 FROM players_next_fixtures) AS base
 WHERE prk = 1
 # GROUP BY player_id
