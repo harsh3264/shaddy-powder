@@ -102,6 +102,7 @@ query = '''
     AND season_year > 2022)
     OR (league_id = 188 AND season_year > 2022)
     OR (league_id = 556 AND season_year > 2022)
+    OR (league_id = 6 AND season_year > 2022)
 '''
 cursor.execute(query)
 league_season_data = cursor.fetchall()

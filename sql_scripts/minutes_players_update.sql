@@ -92,7 +92,7 @@ AND is_match_live = 1
 AND is_high_voltage = 0
 AND starting_xi = 1
 AND rnk < 5
-AND calc_metric >= 0.15
+AND calc_metric >= 0.08
 AND fixture_id NOT IN (SELECT fixture_id FROM temp.player_q)
 ORDER BY  timestamp, league_id, fixture_id, rnk
 ;
