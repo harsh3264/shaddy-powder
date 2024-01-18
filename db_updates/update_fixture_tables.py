@@ -56,11 +56,11 @@ query = '''
     LEFT JOIN fixture_player_stats fps ON f.fixture_id = fps.fixture_id
     WHERE 1 = 1
       AND f.elapsed >= 90
-      AND f.fixture_date >= CURRENT_DATE - INTERVAL 3 DAY
-    #   AND f.season_year > 2021
-      AND l.season_coverage_fixtures_statistics_fixtures = 1
-      AND l.season_coverage_fixtures_statistics_players = 1
-      AND l.league_id NOT IN (10, 667)
+      AND f.fixture_date >= CURRENT_DATE - INTERVAL 5 DAY
+      AND f.season_year > 2021
+    #   AND l.season_coverage_fixtures_statistics_fixtures = 1
+    #   AND l.season_coverage_fixtures_statistics_players = 1
+      AND f.league_id NOT IN (10, 667)
       AND f.league_id IN (SELECT league_id FROM top_leagues)
     #   AND f.fixture_id IN (SELECT fixture_id FROM missing_fixt)
     #   AND f.league_id IN (SELECT league_id FROM today_fixture)
