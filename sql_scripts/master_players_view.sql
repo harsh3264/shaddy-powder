@@ -10,6 +10,15 @@ SET nationality = 'Turkey'
 WHERE nationality = 'Türkiye'
 ;
 
+UPDATE analytics.fixture_player_stats_compile fpsc
+SET nationality = 'Ivory Coast'
+WHERE nationality =  'Côte d''Ivoire'
+;
+
+UPDATE players p
+SET nationality = 'Ivory Coast'
+WHERE nationality =  'Côte d''Ivoire'
+;
 
 DROP TABLE IF EXISTS country_code;
 
