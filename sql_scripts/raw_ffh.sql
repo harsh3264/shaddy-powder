@@ -21,15 +21,15 @@ ROUND(((CASE WHEN season_fixt > 5 AND season_exp_ht_fouls IS NOT NULL THEN (ehf.
 ((fp.fhc / fp.c_mt) * (efm.fouls) / efm.total_matches))
 / 2, 2)
 AS calc_ht_fls,
-ROUND((((CASE WHEN season_fixt > 5 AND season_exp_ht_fouls IS NOT NULL THEN (ehf.season_exp_ht_fouls * 0.67 + ehf.total_exp_ht_fouls * 0.33)
+ROUND((((CASE WHEN season_fixt > 5 AND season_exp_ht_fouls IS NOT NULL THEN (ehf.season_exp_ht_fouls * 0.9 + ehf.total_exp_ht_fouls * 0.1)
             WHEN season_exp_ht_fouls IS NOT NULL THEN (ehf.season_exp_ht_fouls * 0.2 + ehf.total_exp_ht_fouls * 0.8)
-            ELSE ehf.total_exp_ht_fouls END) * 0.7) +
-(((fp.fhc / fp.c_mt) * (efm.fouls) / efm.total_matches) * 0.3)), 2)
+            ELSE ehf.total_exp_ht_fouls END) * 0.75) +
+(((fp.fhc / fp.c_mt) * (efm.fouls) / efm.total_matches) * 0.25)), 2)
 AS pro_calc_ht_fls,
-ROUND((((CASE WHEN season_fixt > 5 AND season_exp_ht_fouls IS NOT NULL THEN (ehf.season_exp_ht_fouls * 0.67 + ehf.total_exp_ht_fouls * 0.33)
+ROUND((((CASE WHEN season_fixt > 5 AND season_exp_ht_fouls IS NOT NULL THEN (ehf.season_exp_ht_fouls * 0.8 + ehf.total_exp_ht_fouls * 0.2)
             WHEN season_exp_ht_fouls IS NOT NULL THEN (ehf.season_exp_ht_fouls * 0.2 + ehf.total_exp_ht_fouls * 0.8)
-            ELSE ehf.total_exp_ht_fouls END) * 0.6) +
-(((fp.fhc / fp.c_mt) * (efm.fouls) / efm.total_matches) * 0.4)), 2)
+            ELSE ehf.total_exp_ht_fouls END) * 0.66) +
+(((fp.fhc / fp.c_mt) * (efm.fouls) / efm.total_matches) * 0.34)), 2)
 AS spro_calc_ht_fls,
 fdm.nn1 AS matchup_1,
 fdm.nn2 AS matchup_2,
@@ -133,15 +133,15 @@ ROUND(((CASE WHEN season_fixt > 5 AND season_exp_ht_fouls IS NOT NULL THEN (ehf.
 ((fp.fhc / fp.c_mt) * (efm.fouls) / efm.total_matches))
 / 2, 2)
 AS calc_ht_fls,
-ROUND((((CASE WHEN season_fixt > 5 AND season_exp_ht_fouls IS NOT NULL THEN (ehf.season_exp_ht_fouls * 0.67 + ehf.total_exp_ht_fouls * 0.33)
+ROUND((((CASE WHEN season_fixt > 5 AND season_exp_ht_fouls IS NOT NULL THEN (ehf.season_exp_ht_fouls * 0.9 + ehf.total_exp_ht_fouls * 0.1)
             WHEN season_exp_ht_fouls IS NOT NULL THEN (ehf.season_exp_ht_fouls * 0.2 + ehf.total_exp_ht_fouls * 0.8)
-            ELSE ehf.total_exp_ht_fouls END) * 0.7) +
-(((fp.fhc / fp.c_mt) * (efm.fouls) / efm.total_matches) * 0.3)), 2)
+            ELSE ehf.total_exp_ht_fouls END) * 0.75) +
+(((fp.fhc / fp.c_mt) * (efm.fouls) / efm.total_matches) * 0.25)), 2)
 AS pro_calc_ht_fls,
-ROUND((((CASE WHEN season_fixt > 5 AND season_exp_ht_fouls IS NOT NULL THEN (ehf.season_exp_ht_fouls * 0.67 + ehf.total_exp_ht_fouls * 0.33)
+ROUND((((CASE WHEN season_fixt > 5 AND season_exp_ht_fouls IS NOT NULL THEN (ehf.season_exp_ht_fouls * 0.8 + ehf.total_exp_ht_fouls * 0.2)
             WHEN season_exp_ht_fouls IS NOT NULL THEN (ehf.season_exp_ht_fouls * 0.2 + ehf.total_exp_ht_fouls * 0.8)
-            ELSE ehf.total_exp_ht_fouls END) * 0.6) +
-(((fp.fhc / fp.c_mt) * (efm.fouls) / efm.total_matches) * 0.4)), 2)
+            ELSE ehf.total_exp_ht_fouls END) * 0.66) +
+(((fp.fhc / fp.c_mt) * (efm.fouls) / efm.total_matches) * 0.34)), 2)
 AS spro_calc_ht_fls,
 fdm.nn1 AS matchup_1,
 fdm.nn2 AS matchup_2,
@@ -262,8 +262,8 @@ player_name,
 player_pos,
 fouler_type,
 CASE
-    WHEN m_ht_impact IS NOT NULL AND calc_ht_fls IS NOT NULL AND fouler_type = 'Pro' THEN ROUND(((GREATEST(pro_calc_ht_fls, calc_ht_fls) * 0.7) + (m_ht_impact * 0.3)), 2)
-    WHEN m_ht_impact IS NOT NULL AND calc_ht_fls IS NOT NULL AND fouler_type = 'Semi-Pro' THEN ROUND(((GREATEST(spro_calc_ht_fls, calc_ht_fls) * 0.6) + (m_ht_impact * 0.4)), 2)
+    WHEN m_ht_impact IS NOT NULL AND calc_ht_fls IS NOT NULL AND fouler_type = 'Pro' THEN ROUND(((GREATEST(pro_calc_ht_fls, calc_ht_fls) * 0.75) + (m_ht_impact * 0.25)), 2)
+    WHEN m_ht_impact IS NOT NULL AND calc_ht_fls IS NOT NULL AND fouler_type = 'Semi-Pro' THEN ROUND(((GREATEST(spro_calc_ht_fls, calc_ht_fls) * 0.66) + (m_ht_impact * 0.34)), 2)
     WHEN m_ht_impact IS NOT NULL AND calc_ht_fls IS NOT NULL AND fouler_type = 'Occasional' THEN ROUND(((calc_ht_fls * 0.5) + (m_ht_impact * 0.5)), 2)
     WHEN m_ht_impact IS NULL AND calc_ht_fls IS NULL THEN ROUND(exp_ht_fouls, 2)
     WHEN m_ht_impact IS NULL AND calc_ht_fls IS NOT NULL THEN ROUND(calc_ht_fls, 2)
