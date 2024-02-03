@@ -249,7 +249,8 @@ SELECT fixt,
         fixture_id,
         calc_ht_fls,
         pro_calc_ht_fls,
-        spro_calc_ht_fls
+        spro_calc_ht_fls,
+        ROUND(GREATEST(pro_calc_ht_fls, calc_ht_fls), 2) AS c_data
 FROM
 (SELECT
 fixt,
