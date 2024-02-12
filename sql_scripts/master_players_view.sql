@@ -89,7 +89,7 @@ plc.team_id,
 tf.fixture_id,
 tf.fixture_date,
 0 AS is_new
-FROM player_latest_club plc
+FROM players_latest_club plc
 JOIN today_fixture tf on plc.team_id = tf.home_team_id
 GROUP BY 1
 ;
@@ -101,7 +101,7 @@ plc.team_id,
 tf.fixture_id,
 tf.fixture_date,
 0 AS is_new
-FROM player_latest_club plc
+FROM players_latest_club plc
 JOIN today_fixture tf on plc.team_id = tf.away_team_id
 GROUP BY 1
 ;

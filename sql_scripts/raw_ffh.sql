@@ -88,29 +88,30 @@ ROUND(ROUND(efm.fouls / efm.yc_w_foul_matches, 2) * fp.fhc * (1 - mpv.zero_foul_
 FROM
 master_players_view mpv
 LEFT JOIN players p ON mpv.player_id = p.player_id
+LEFT JOIN live_updates.live_fixture_lineups lfl ON mpv.player_id = lfl.player_id
 LEFT JOIN temp.FOUL_DRAWN_MAP fdm ON mpv.player_id = fdm.player_id
 LEFT JOIN temp.player_last_start_date plsd on mpv.player_id = plsd.player_id
-LEFT JOIN temp.team_last_start_date tlsd on mpv.team_id = tlsd.team_id
+LEFT JOIN temp.team_last_start_date tlsd on lfl.team_id = tlsd.team_id
 LEFT JOIN temp.live_players_fls_sum lpfs ON mpv.player_id = lpfs.player_id
-LEFT JOIN today_fixture tf on mpv.fixture_id = tf.fixture_id
-LEFT JOIN live_updates.live_fixtures lf ON tf.fixture_id = lf.fixture_id
-LEFT JOIN live_updates.live_fixture_lineups lfl ON mpv.player_id = lfl.player_id
+LEFT JOIN today_fixture tf on lfl.fixture_id = tf.fixture_id
+LEFT JOIN live_updates.live_fixtures lf ON lfl.fixture_id = lf.fixture_id
 LEFT JOIN live_updates.live_fixture_coach lfc ON lfl.team_id = lfc.team_id AND lfl.fixture_id = lfc.fixture_id
 LEFT JOIN temp.new_pos_mapper nps ON lfl.grid = nps.grid AND lfc.formation = nps.formation
-LEFT JOIN teams t ON mpv.team_id = t.team_id
+LEFT JOIN teams t ON lfl.team_id = t.team_id
 LEFT JOIN temp.legendary_start_foulers lsf ON mpv.player_id = lsf.player_id
 LEFT JOIN temp.exp_fyc_model  efm
 ON mpv.player_id = efm.player_id
 LEFT JOIN temp.exp_ht_fouls ehf
 ON mpv.player_id = ehf.player_id
 LEFT JOIN injuries i on mpv.player_id = i.player_id
-AND mpv.fixture_id = i.fixture_id
-LEFT JOIN temp.team_ht_combo thc on mpv.fixture_id = thc.fixture_id
-AND mpv.team_id = thc.main_team
+AND lfl.fixture_id = i.fixture_id
+LEFT JOIN temp.team_ht_combo thc on lfl.fixture_id = thc.fixture_id
+AND lfl.team_id = thc.main_team
 LEFT JOIN temp.ffh_player fp on mpv.player_id = fp.player_id
 WHERE 1 = 1
 AND COALESCE(player_pos, 'S') <> 'G'
-AND lfl.player_id Is NOT NULL);
+# AND mpv.player_id IN (46657, 46742)
+AND lfl.player_id IS NOT NULL);
 
 INSERT INTO temp.foul_announce
 SELECT
