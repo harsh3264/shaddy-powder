@@ -2,6 +2,7 @@ DROP TABLE IF EXISTS temp.foul_announce;
 
 CREATE TABLE temp.foul_announce AS
 (SELECT
+DISTINCT
 mpv.player_id,
 lfl.grid,
 lfc.formation,
@@ -115,6 +116,7 @@ AND lfl.player_id IS NOT NULL);
 
 INSERT INTO temp.foul_announce
 SELECT
+DISTINCT
 mpv.player_id,
 lfl.grid,
 lfc.formation,
