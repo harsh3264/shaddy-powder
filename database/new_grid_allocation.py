@@ -35,7 +35,9 @@ query = '''
            fl.player_pos,
            fl.grid
     FROM live_updates.live_fixture_lineups fl
-    JOIN live_updates.live_fixture_coach fc on fl.fixture_id = fc.fixture_id AND fl.team_id = fc.team_id;
+    JOIN live_updates.live_fixture_coach fc on fl.fixture_id = fc.fixture_id AND fl.team_id = fc.team_id
+    WHERE fc.formation is not null
+;
 '''
 cursor.execute(query)
 league_season_data = cursor.fetchall()
