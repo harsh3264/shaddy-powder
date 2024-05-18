@@ -25,7 +25,6 @@ db_config = {
     'database': 'base_data_apis'  # Use the live_updates database
 }
 
-# Function to insert or update fixture data into the "live_fixtures" table
 def upsert_live_fixture(cursor, fixture):
     fixture_id = fixture['fixture']['id']
     referee = fixture['fixture']['referee']
@@ -114,6 +113,7 @@ def update_fixture(cursor, fixture):
     '''
     cursor.execute(update_query, values)
 
+
 # Establish a connection to the MySQL database
 db_conn = mysql.connector.connect(**db_config)
 cursor = db_conn.cursor()
@@ -136,11 +136,11 @@ query = '''
 cursor.execute(query)
 league_season_data = cursor.fetchall()
 
-# print(league_season_data)
-
 # Iterate over the league and season data
 for league_id, season_year in league_season_data:
     params = {"season": season_year, "league": league_id}
+    
+    print(params)
 
     # Fetch the API data
     headers = {
@@ -150,7 +150,19 @@ for league_id, season_year in league_season_data:
 
     # Make the API request to fetch fixtures data
     response = requests.get(FIXTURES_URL, headers=headers, params=params)
-    fixtures = response.json()["response"]
+    
+    # Debugging: Print API response content, status code, and any error message
+    # print("API Response Content:", response.content)
+    # print("API Response Status Code:", response.status_code)
+    try:
+        response.raise_for_status()  # Raise an exception for 4xx or 5xx status codes
+    except requests.exceptions.HTTPError as err:
+        print("HTTP Error:", err)
+
+    try:
+        fixtures = response.json()["response"]
+    except ValueError:
+        print("Invalid JSON format in API response")
 
     # Filter out fixtures older than 7 days
     current_date = datetime.date.today()
