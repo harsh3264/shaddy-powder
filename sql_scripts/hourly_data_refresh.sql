@@ -16,8 +16,8 @@ AND ((team_id IN (SELECT home_team_id
                  WHERE league_id IN (1))
     )
          OR
-     league_id IN (6, 40, 41, 71, 188, 253, 547, 556))
-AND season_year >= 2022
+     league_id IN (4, 6, 40, 41, 71, 188, 253, 547, 556))
+AND season_year >= 2020
 AND league_id NOT IN (10, 667)
 GROUP BY 1
 HAVING teams > 2
