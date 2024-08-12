@@ -16,7 +16,7 @@ JOIN players_upcoming_fixture puf
     and pbpq.player_id = puf.player_id
 WHERE 1 = 1
 AND (
-    (is_match_live = 0 AND is_new = 0)
+    (is_match_live = 0 AND is_new = 0 AND last_start > CURDATE() - INTERVAL 90 DAY)
 OR  (is_match_live = 1 AND starting_xi = 1)
      )
 ;

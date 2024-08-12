@@ -398,7 +398,7 @@ LEFT JOIN temp.player_suspension ps on mpv.player_id = ps.player_id
 WHERE 1 = 1
 AND LENGTH(last5_start_foul) > 4
 AND (LOWER(i.type) NOT LIKE '%missing%' OR i.type IS NULL)
-AND plsd.last_start > CURDATE() - INTERVAL 30 DAY
+-- AND plsd.last_start > CURDATE() - INTERVAL 90 DAY
 GROUP BY player_id
 ;
 
