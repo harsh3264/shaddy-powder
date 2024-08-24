@@ -24,6 +24,20 @@ HAVING teams > 2
 ORDER BY 2 DESC
 ;
 
+DROP TABLE IF EXISTS temp.league_39_fixtures;
+
+CREATE TABLE temp.league_39_fixtures AS (
+    SELECT DISTINCT f.fixture_id
+    FROM fixtures f
+    JOIN leagues l ON f.league_id = l.league_id
+    WHERE
+        l.league_id = 39
+        AND DAYOFWEEK(FROM_UNIXTIME(f.timestamp)) = 7 -- Saturday
+        AND HOUR(CONVERT_TZ(FROM_UNIXTIME(f.timestamp), 'UTC', 'Europe/London')) = 15 -- 3 PM
+        AND timestamp BETWEEN UNIX_TIMESTAMP(NOW() - INTERVAL 2 HOUR) AND UNIX_TIMESTAMP(NOW() + INTERVAL 48 HOUR)
+);
+
+
 DROP TABLE IF EXISTS today_fixture
 ;
 
@@ -51,11 +65,17 @@ JOIN teams t1 ON f.home_team_id = t1.team_id
 JOIN teams t2 ON f.away_team_id = t2.team_id
 JOIN top_leagues tl ON f.league_id = tl.league_id
 LEFT JOIN cleaned_referees cr ON f.referee = cr.original_referee_name
-WHERE 1 = 1
-AND timestamp BETWEEN UNIX_TIMESTAMP(NOW() - INTERVAL 2 HOUR) AND UNIX_TIMESTAMP(NOW() + INTERVAL 48 HOUR)
-GROUP BY 1
+WHERE
+    tl.teams > 3
+    AND timestamp BETWEEN UNIX_TIMESTAMP(NOW() - INTERVAL 2 HOUR) AND UNIX_TIMESTAMP(NOW() + INTERVAL 48 HOUR)
+    AND NOT (
+        (l.league_id IN (40, 41) AND
+         DAYOFWEEK(FROM_UNIXTIME(f.timestamp)) = 7 AND
+         HOUR(CONVERT_TZ(FROM_UNIXTIME(f.timestamp), 'UTC', 'Europe/London')) = 15)
+        AND EXISTS (SELECT 1 FROM temp.league_39_fixtures)
+    )
+GROUP BY f.fixture_id
 ORDER BY f.timestamp;
-
 
 
 UPDATE today_fixture AS tf
