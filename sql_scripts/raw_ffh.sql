@@ -267,7 +267,7 @@ player_pos,
 fouler_type,
 CASE
     WHEN m_ht_impact IS NOT NULL AND calc_ht_fls IS NOT NULL AND fouler_type = 'Pro' THEN ROUND(((GREATEST(pro_calc_ht_fls, calc_ht_fls) * 0.7) + (m_ht_impact * 0.3)) + 0.12, 2)
-    WHEN m_ht_impact IS NOT NULL AND calc_ht_fls IS NOT NULL AND fouler_type = 'Semi-Pro' THEN ROUND(((GREATEST(spro_calc_ht_fls, calc_ht_fls) * 0.6) + (m_ht_impact * 0.4)) + 0.8, 2)
+    WHEN m_ht_impact IS NOT NULL AND calc_ht_fls IS NOT NULL AND fouler_type = 'Semi-Pro' THEN ROUND(((GREATEST(spro_calc_ht_fls, calc_ht_fls) * 0.6) + (m_ht_impact * 0.4)) + 0.08, 2)
     WHEN m_ht_impact IS NOT NULL AND calc_ht_fls IS NOT NULL AND fouler_type = 'Occasional' THEN ROUND(((calc_ht_fls * 0.5) + (m_ht_impact * 0.5)), 2)
     WHEN m_ht_impact IS NULL AND calc_ht_fls IS NULL THEN ROUND(exp_ht_fouls, 2)
     WHEN m_ht_impact IS NULL AND calc_ht_fls IS NOT NULL THEN ROUND(calc_ht_fls, 2)
