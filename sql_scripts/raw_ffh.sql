@@ -1,5 +1,7 @@
 DROP TABLE IF EXISTS temp.foul_announce;
 
+# SELECT * FROM temp.foul_announce LIMIT 40;
+
 CREATE TABLE temp.foul_announce AS
 (SELECT
 DISTINCT
@@ -84,6 +86,8 @@ fp.fhc,
 fp.c_mt,
 fp.matches,
 tf.timestamp,
+tf.fixture_date,
+tf.name AS league_name,
 ROUND(ROUND(efm.fouls / efm.yc_w_foul_matches, 2) * fp.fhc / fp.matches, 2) AS ratio_f,
 ROUND(ROUND(efm.fouls / efm.yc_w_foul_matches, 2) * fp.fhc * (1 - mpv.zero_foul_match_pct) / fp.matches, 2) AS ratio_f2
 FROM
@@ -198,6 +202,8 @@ fp.fhc,
 fp.c_mt,
 fp.matches,
 tf.timestamp,
+tf.fixture_date,
+tf.name AS league_name,
 ROUND(ROUND(efm.fouls / efm.yc_w_foul_matches, 2) * fp.fhc / fp.matches, 2) AS ratio_f,
 ROUND(ROUND(efm.fouls / efm.yc_w_foul_matches, 2) * fp.fhc * (1 - mpv.zero_foul_match_pct) / fp.matches, 2) AS ratio_f2
 FROM
@@ -253,7 +259,9 @@ SELECT fixt,
         calc_ht_fls,
         pro_calc_ht_fls,
         spro_calc_ht_fls,
-        ROUND(GREATEST(pro_calc_ht_fls, calc_ht_fls), 2) AS c_data
+        ROUND(GREATEST(pro_calc_ht_fls, calc_ht_fls), 2) AS c_data,
+        fixture_date,
+        league_name
 FROM
 (SELECT
 fixt,
@@ -266,6 +274,9 @@ player_name,
 player_pos,
 fouler_type,
 CASE
+    WHEN m_ht_impact IS NOT NULL AND calc_ht_fls IS NOT NULL AND fouler_type = 'Pro' AND player_pos LIKE '%CB%' THEN ROUND(((GREATEST(pro_calc_ht_fls, calc_ht_fls) * 0.7) + (m_ht_impact * 0.3)) - 0.1, 2)
+    WHEN m_ht_impact IS NOT NULL AND calc_ht_fls IS NOT NULL AND fouler_type = 'Semi-Pro' AND player_pos LIKE '%CB%' THEN ROUND(((GREATEST(spro_calc_ht_fls, calc_ht_fls) * 0.6) + (m_ht_impact * 0.4)) - 0.15, 2)
+    WHEN m_ht_impact IS NOT NULL AND calc_ht_fls IS NOT NULL AND fouler_type = 'Occasional' AND player_pos LIKE '%CB%' THEN ROUND(((calc_ht_fls * 0.5) + (m_ht_impact * 0.5)) - 0.2, 2)
     WHEN m_ht_impact IS NOT NULL AND calc_ht_fls IS NOT NULL AND fouler_type = 'Pro' THEN ROUND(((GREATEST(pro_calc_ht_fls, calc_ht_fls) * 0.7) + (m_ht_impact * 0.3)) + 0.12, 2)
     WHEN m_ht_impact IS NOT NULL AND calc_ht_fls IS NOT NULL AND fouler_type = 'Semi-Pro' THEN ROUND(((GREATEST(spro_calc_ht_fls, calc_ht_fls) * 0.6) + (m_ht_impact * 0.4)) + 0.08, 2)
     WHEN m_ht_impact IS NOT NULL AND calc_ht_fls IS NOT NULL AND fouler_type = 'Occasional' THEN ROUND(((calc_ht_fls * 0.5) + (m_ht_impact * 0.5)), 2)
@@ -296,9 +307,12 @@ zero_f_s,
 zero_f,
 r_d_fls,
 pro_calc_ht_fls,
-spro_calc_ht_fls
+spro_calc_ht_fls,
+fixture_date,
+league_name
 FROM temp.foul_announce
 WHERE 1 = 1
+AND COALESCE(fixt, 'A') <> 'A'
 # AND ((m_ht_impact > 0.5 AND calc_ht_fls > 0.5) OR
 #      (m_ht_impact > 0.4 AND calc_ht_fls > 0.8) OR
 #      (m_ht_impact > 0.3 AND calc_ht_fls > 1))
