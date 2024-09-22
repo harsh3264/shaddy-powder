@@ -369,8 +369,8 @@ INNER JOIN live_updates.live_fixtures lf
 WHERE 1 = 1
 AND lf.status = 'NS'
 ON DUPLICATE KEY UPDATE
-    ffh_rnk = VALUES(rf.rnk),
-    ffh = VALUES(rs.exp_ht_shots),
+    ffh_rnk = VALUES(ffh_rnk),
+    ffh = VALUES(ffh),
     sfh_rnk = VALUES(sfh_rnk),
     sfh = VALUES(sfh),
     yc_rnk = VALUES(yc_rnk),
