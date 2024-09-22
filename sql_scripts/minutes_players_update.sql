@@ -159,11 +159,15 @@ JOIN temp.live_team_fls_sum ltfs
 ON plfp.fixture_id = ltfs.fixture_id AND plfp.team_id = ltfs.team_id
 GROUP BY 1, 2, 3;
 
-INSERT INTO analytics.ffh_ht_datapoint (
+INSERT INTO analytics.total_ht_datapoint (
     fixture_id,
     player_id,
-    rnk,
+    ffh_rnk,
     ffh,
+    sfh_rnk,
+    sfh,
+    yc_rnk,
+    ycf,
     player_pos,
     fouler_type,
     last5_start_foul,
@@ -175,22 +179,26 @@ INSERT INTO analytics.ffh_ht_datapoint (
     yc_ft
 )
 SELECT
-    rf.fixture_id,
-    rf.player_id,
-    rf.rnk,
-    rf.ffh,
-    rf.player_pos,
-    rf.fouler_type,
-    rf.last5_start_foul,
+    thd.fixture_id,
+    thd.player_id,
+    thd.ffh_rnk,
+    thd.ffh,
+    thd.sfh_rnk,
+    thd.sfh,
+    thd.yc_rnk,
+    thd.ycf,
+    thd.player_pos,
+    thd.fouler_type,
+    thd.last5_start_foul,
     COALESCE(lfps.fouls_committed, 0) AS foul_ht,
     0 ,
     COALESCE(lfps.shots_total, 0) AS shot_ht,
     0 ,
     COALESCE(lfps.cards_yellow, 0) AS yc_ht,
     0
-FROM temp.raw_ffh rf
-INNER JOIN live_updates.live_fixture_player_stats lfps ON rf.fixture_id = lfps.fixture_id
-    AND rf.player_id = lfps.player_id
+FROM analytics.total_ht_datapoint thd
+INNER JOIN live_updates.live_fixture_player_stats lfps ON thd.fixture_id = lfps.fixture_id
+    AND thd.player_id = lfps.player_id
 INNER JOIN live_updates.live_fixtures lf on lfps.fixture_id = lf.fixture_id
 WHERE 1 = 1
 AND lf.status = '1H'
@@ -200,11 +208,15 @@ ON DUPLICATE KEY UPDATE
     yc_ht = VALUES(yc_ht)
 ;
 
-INSERT INTO analytics.ffh_ht_datapoint (
+INSERT INTO analytics.total_ht_datapoint (
     fixture_id,
     player_id,
-    rnk,
+    ffh_rnk,
     ffh,
+    sfh_rnk,
+    sfh,
+    yc_rnk,
+    ycf,
     player_pos,
     fouler_type,
     last5_start_foul,
@@ -216,27 +228,31 @@ INSERT INTO analytics.ffh_ht_datapoint (
     yc_ft
 )
 SELECT
-    rf.fixture_id,
-    rf.player_id,
-    rf.rnk,
-    rf.ffh,
-    rf.player_pos,
-    rf.fouler_type,
-    rf.last5_start_foul,
+    thd.fixture_id,
+    thd.player_id,
+    thd.ffh_rnk,
+    thd.ffh,
+    thd.sfh_rnk,
+    thd.sfh,
+    thd.yc_rnk,
+    thd.ycf,
+    thd.player_pos,
+    thd.fouler_type,
+    thd.last5_start_foul,
     0 ,
     COALESCE(lfps.fouls_committed, 0) AS foul_ft,
     0 ,
     COALESCE(lfps.shots_total, 0) AS shot_ft,
-    0 ,
+    0,
     COALESCE(lfps.cards_yellow, 0) AS yc_ft
-FROM temp.raw_ffh rf
-INNER JOIN live_updates.live_fixture_player_stats lfps ON rf.fixture_id = lfps.fixture_id
-    AND rf.player_id = lfps.player_id
+FROM analytics.total_ht_datapoint thd
+INNER JOIN live_updates.live_fixture_player_stats lfps ON thd.fixture_id = lfps.fixture_id
+    AND thd.player_id = lfps.player_id
 INNER JOIN live_updates.live_fixtures lf on lfps.fixture_id = lf.fixture_id
 WHERE 1 = 1
 AND lf.status = '2H'
 ON DUPLICATE KEY UPDATE
-    foul_ft = VALUES(foul_ft),
-    shot_ft = VALUES(shot_ft),
-    yc_ft = VALUES(yc_ft)
+    foul_ht = VALUES(foul_ht),
+    shot_ht = VALUES(shot_ht),
+    yc_ht = VALUES(yc_ht)
 ;

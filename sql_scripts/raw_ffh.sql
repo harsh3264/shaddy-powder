@@ -322,11 +322,15 @@ ORDER BY fixt, rnk
 ;
 
 
-INSERT INTO analytics.ffh_ht_datapoint (
+INSERT INTO analytics.total_ht_datapoint (
     fixture_id,
     player_id,
-    rnk,
+    ffh_rnk,
     ffh,
+    sfh_rnk,
+    sfh,
+    yc_rnk,
+    ycf,
     player_pos,
     fouler_type,
     last5_start_foul,
@@ -342,6 +346,10 @@ SELECT
     rf.player_id,
     rf.rnk,
     rf.ffh,
+    COALESCE(rs.rnk, 0),
+    COALESCE(rs.exp_ht_shots, 0),
+    COALESCE(pq.rnk, 99),
+    COALESCE(pq.calc_metric, 0.0),
     rf.player_pos,
     rf.fouler_type,
     rf.last5_start_foul,
@@ -352,13 +360,21 @@ SELECT
     0 AS yc_ht,
     0 AS yc_ft
 FROM temp.raw_ffh rf
+LEFT JOIN temp.raw_sfh rs
+ON rf.player_id = rs.player_id AND rf.fixture_id = rs.fixture_id
+LEFT JOIN temp.player_q pq
+ON rf.player_id = pq.player_id AND rf.fixture_id = pq.fixture_id
 INNER JOIN live_updates.live_fixtures lf
     ON rf.fixture_id = lf.fixture_id
 WHERE 1 = 1
 AND lf.status = 'NS'
 ON DUPLICATE KEY UPDATE
-    rnk = VALUES(rnk),
-    ffh = VALUES(ffh),
+    ffh_rnk = VALUES(rf.rnk),
+    ffh = VALUES(rs.exp_ht_shots),
+    sfh_rnk = VALUES(sfh_rnk),
+    sfh = VALUES(sfh),
+    yc_rnk = VALUES(yc_rnk),
+    ycf = VALUES(ycf),
     player_pos = VALUES(player_pos),
     fouler_type = VALUES(fouler_type)
 ;
