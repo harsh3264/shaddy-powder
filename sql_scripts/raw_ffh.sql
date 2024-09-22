@@ -261,7 +261,8 @@ SELECT fixt,
         spro_calc_ht_fls,
         ROUND(GREATEST(pro_calc_ht_fls, calc_ht_fls), 2) AS c_data,
         fixture_date,
-        league_name
+        league_name,
+        player_id
 FROM
 (SELECT
 fixt,
