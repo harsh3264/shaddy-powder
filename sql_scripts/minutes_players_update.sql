@@ -197,9 +197,9 @@ SELECT
     COALESCE(lfps.cards_yellow, 0) AS yc_ht,
     0
 FROM analytics.total_ht_datapoint thd
-INNER JOIN live_updates.live_fixture_player_stats lfps ON thd.fixture_id = lfps.fixture_id
+INNER JOIN live_updates.live_fixtures lf on thd.fixture_id = lf.fixture_id
+LEFT JOIN live_updates.live_fixture_player_stats lfps ON thd.fixture_id = lfps.fixture_id
     AND thd.player_id = lfps.player_id
-INNER JOIN live_updates.live_fixtures lf on lfps.fixture_id = lf.fixture_id
 WHERE 1 = 1
 AND lf.status = '1H'
 ON DUPLICATE KEY UPDATE
@@ -246,9 +246,9 @@ SELECT
     0,
     COALESCE(lfps.cards_yellow, 0) AS yc_ft
 FROM analytics.total_ht_datapoint thd
-INNER JOIN live_updates.live_fixture_player_stats lfps ON thd.fixture_id = lfps.fixture_id
+INNER JOIN live_updates.live_fixtures lf on thd.fixture_id = lf.fixture_id
+LEFT JOIN live_updates.live_fixture_player_stats lfps ON thd.fixture_id = lfps.fixture_id
     AND thd.player_id = lfps.player_id
-INNER JOIN live_updates.live_fixtures lf on lfps.fixture_id = lf.fixture_id
 WHERE 1 = 1
 AND lf.status = '2H'
 ON DUPLICATE KEY UPDATE
