@@ -252,7 +252,7 @@ INNER JOIN live_updates.live_fixtures lf on lfps.fixture_id = lf.fixture_id
 WHERE 1 = 1
 AND lf.status = '2H'
 ON DUPLICATE KEY UPDATE
-    foul_ht = VALUES(foul_ht),
-    shot_ht = VALUES(shot_ht),
-    yc_ht = VALUES(yc_ht)
+    foul_ft = VALUES(foul_ft),
+    shot_ft = VALUES(shot_ft),
+    yc_ft = VALUES(yc_ft)
 ;
