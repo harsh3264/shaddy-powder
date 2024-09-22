@@ -49,7 +49,8 @@ is_match_live,
 starting_xi,
 fixture_id,
 player_id,
-league_id
+league_id,
+rnk
 FROM temp.base_player_q
 WHERE 1 = 1
 AND fixt IS NOT NULL
@@ -87,7 +88,8 @@ is_match_live,
 starting_xi,
 fixture_id,
 player_id,
-league_id
+league_id,
+rnk
 FROM temp.base_player_q
 WHERE 1 = 1
 AND fixt IS NOT NULL

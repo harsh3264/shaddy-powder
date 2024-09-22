@@ -47,7 +47,7 @@ FROM
     LEFT JOIN live_updates.live_fixture_coach lfc ON lfc.team_id = lfl.team_id AND lfc.fixture_id = lfl.fixture_id
     LEFT JOIN temp.new_pos_mapper nps ON lfl.grid = nps.grid AND lfc.formation = nps.formation
 WHERE 1 = 1
-    -- AND tf.fixture_id = 1035357
+    AND tf.fixture_id <> 1035357
     AND lfl.player_id Is NOT NULL
     -- AND COALESCE(player_pos, 'S') <> 'G'
 ORDER BY tf.timestamp, tf.fixture_id, exp_ht_shots DESC)AS base;
@@ -105,5 +105,5 @@ WHERE 1 = 1
     AND COALESCE(i.type, 'A') <> 'Missing Fixture'
     AND tf.fixture_id NOT IN (SELECT fixture_id FROM temp.raw_sfh)
     AND tf.timestamp BETWEEN UNIX_TIMESTAMP(NOW() - INTERVAL 10 MINUTE) AND UNIX_TIMESTAMP(NOW() + INTERVAL 1440 MINUTE)
-    -- AND COALESCE(player_pos, 'S') <> 'G'
+    AND COALESCE(player_pos, 'S') <> 'G'
 ORDER BY tf.timestamp, tf.fixture_id, exp_ht_shots DESC)AS base;
