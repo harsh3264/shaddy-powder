@@ -12,14 +12,15 @@ SELECT fixt,
        avg_shots_total,
        zero_season_shot_match_pct,
        zero_shot_match_pct,
-       fixture_id
+       fixture_id,
+       player_id
 FROM
 (SELECT
     fixt,
     tf.fixture_id,
     t.name as team_name,
     p.name as player_name,
-    -- mpv.player_id,
+    mpv.player_id,
     -- t.team_id,
     ROUND(
         CASE
@@ -63,14 +64,15 @@ SELECT fixt,
        avg_shots_total,
        zero_season_shot_match_pct,
        zero_shot_match_pct,
-       fixture_id
+       fixture_id,
+       player_id
 FROM
 (SELECT
     fixt,
     tf.fixture_id,
     t.name as team_name,
     p.name as player_name,
-    -- mpv.player_id,
+    mpv.player_id,
     -- t.team_id,
     ROUND(
         CASE

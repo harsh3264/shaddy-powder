@@ -22,9 +22,9 @@ OR  (is_match_live = 1 AND starting_xi = 1)
 ;
 
 
-TRUNCATE temp.player_q;
+DROP TABLE IF EXISTS temp.player_q;
 
-INSERT INTO temp.player_q
+CREATE TABLE temp.player_q AS
 SELECT
 CONCAT(fixt,rnk) AS f_rnk,
 player_name,
@@ -48,54 +48,19 @@ is_high_voltage,
 is_match_live,
 starting_xi,
 fixture_id,
+player_id,
 league_id
 FROM temp.base_player_q
 WHERE 1 = 1
 AND fixt IS NOT NULL
 AND is_match_live = 1
-AND is_high_voltage = 1
+# AND is_high_voltage = 1
 AND starting_xi = 1
 AND calc_metric >= 0.05
 AND rnk < 7
 ORDER BY  timestamp, league_id, fixture_id, rnk
 ;
 
-INSERT INTO temp.player_q
-SELECT
-CONCAT(fixt,rnk) AS f_rnk,
-player_name,
-CONCAT(last5_start_foul,'-') AS last5_start_foul,
-CONCAT(last5_start_yc, '-') AS last5_start_yc,
-team_name,
-calc_metric,
-season_league_cards,
-last5_mins,
-f_to_yc_ratio,
-# p_type,
-season_matches,
-season_avg_fouls,
-season_avg_yc,
-avg_fouls_total,
-avg_yc_total,
-played_last_game,
-last_start,
-argue_yc_pct,
-is_high_voltage,
-is_match_live,
-starting_xi,
-fixture_id,
-league_id
-FROM temp.base_player_q
-WHERE 1 = 1
-AND fixt IS NOT NULL
-AND is_match_live = 1
-AND is_high_voltage = 0
-AND starting_xi = 1
-AND rnk < 5
-AND calc_metric >= 0.05
-AND fixture_id NOT IN (SELECT fixture_id FROM temp.player_q)
-ORDER BY  timestamp, league_id, fixture_id, rnk
-;
 
 INSERT INTO temp.player_q
 SELECT
@@ -121,56 +86,19 @@ is_high_voltage,
 is_match_live,
 starting_xi,
 fixture_id,
+player_id,
 league_id
 FROM temp.base_player_q
 WHERE 1 = 1
 AND fixt IS NOT NULL
 AND is_match_live = 0
-AND is_high_voltage = 1
+# AND is_high_voltage = 1
 # AND starting_xi = 1
 AND rnk < 7
 AND calc_metric >= 0.07
 AND fixture_id NOT IN (SELECT fixture_id FROM temp.player_q)
 ORDER BY  timestamp, league_id, fixture_id, rnk
 ;
-
-INSERT INTO temp.player_q
-SELECT
-CONCAT(fixt,rnk) AS f_rnk,
-player_name,
-CONCAT(last5_start_foul,'-') AS last5_start_foul,
-CONCAT(last5_start_yc, '-') AS last5_start_yc,
-team_name,
-calc_metric,
-season_league_cards,
-last5_mins,
-f_to_yc_ratio,
-# p_type,
-season_matches,
-season_avg_fouls,
-season_avg_yc,
-avg_fouls_total,
-avg_yc_total,
-played_last_game,
-last_start,
-argue_yc_pct,
-is_high_voltage,
-is_match_live,
-starting_xi,
-fixture_id,
-league_id
-FROM temp.base_player_q
-WHERE 1 = 1
-AND fixt IS NOT NULL
-AND is_match_live = 0
-AND is_high_voltage = 0
-# AND starting_xi = 1
-AND rnk < 5
-AND calc_metric >= 0.07
-AND fixture_id NOT IN (SELECT fixture_id FROM temp.player_q)
-ORDER BY  timestamp, league_id, fixture_id, rnk
-;
-
 
 DROP TABLE IF EXISTS temp.player_level_fls_pct;
 
