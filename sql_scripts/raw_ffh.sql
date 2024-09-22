@@ -275,11 +275,11 @@ player_name,
 player_pos,
 fouler_type,
 CASE
-    WHEN m_ht_impact IS NOT NULL AND calc_ht_fls IS NOT NULL AND fouler_type = 'Pro' AND player_pos LIKE '%CB%' THEN ROUND(((GREATEST(pro_calc_ht_fls, calc_ht_fls) * 0.7) + (m_ht_impact * 0.3)) - 0.1, 2)
-    WHEN m_ht_impact IS NOT NULL AND calc_ht_fls IS NOT NULL AND fouler_type = 'Semi-Pro' AND player_pos LIKE '%CB%' THEN ROUND(((GREATEST(spro_calc_ht_fls, calc_ht_fls) * 0.6) + (m_ht_impact * 0.4)) - 0.15, 2)
-    WHEN m_ht_impact IS NOT NULL AND calc_ht_fls IS NOT NULL AND fouler_type = 'Occasional' AND player_pos LIKE '%CB%' THEN ROUND(((calc_ht_fls * 0.5) + (m_ht_impact * 0.5)) - 0.2, 2)
-    WHEN m_ht_impact IS NOT NULL AND calc_ht_fls IS NOT NULL AND fouler_type = 'Pro' THEN ROUND(((GREATEST(pro_calc_ht_fls, calc_ht_fls) * 0.7) + (m_ht_impact * 0.3)) + 0.12, 2)
-    WHEN m_ht_impact IS NOT NULL AND calc_ht_fls IS NOT NULL AND fouler_type = 'Semi-Pro' THEN ROUND(((GREATEST(spro_calc_ht_fls, calc_ht_fls) * 0.6) + (m_ht_impact * 0.4)) + 0.08, 2)
+    WHEN m_ht_impact IS NOT NULL AND calc_ht_fls IS NOT NULL AND fouler_type = 'Pro' AND player_pos LIKE '%CB%' THEN ROUND(((GREATEST(pro_calc_ht_fls, calc_ht_fls) * 0.7) + (m_ht_impact * 0.3)) - 0.05, 2)
+    WHEN m_ht_impact IS NOT NULL AND calc_ht_fls IS NOT NULL AND fouler_type = 'Semi-Pro' AND player_pos LIKE '%CB%' THEN ROUND(((GREATEST(spro_calc_ht_fls, calc_ht_fls) * 0.6) + (m_ht_impact * 0.4)) - 0.1, 2)
+    WHEN m_ht_impact IS NOT NULL AND calc_ht_fls IS NOT NULL AND fouler_type = 'Occasional' AND player_pos LIKE '%CB%' THEN ROUND(((calc_ht_fls * 0.5) + (m_ht_impact * 0.5)) - 0.15, 2)
+    WHEN m_ht_impact IS NOT NULL AND calc_ht_fls IS NOT NULL AND fouler_type = 'Pro' THEN ROUND(((GREATEST(pro_calc_ht_fls, calc_ht_fls) * 0.7) + (m_ht_impact * 0.3)) + 0.15, 2)
+    WHEN m_ht_impact IS NOT NULL AND calc_ht_fls IS NOT NULL AND fouler_type = 'Semi-Pro' THEN ROUND(((GREATEST(spro_calc_ht_fls, calc_ht_fls) * 0.6) + (m_ht_impact * 0.4)) + 0.1, 2)
     WHEN m_ht_impact IS NOT NULL AND calc_ht_fls IS NOT NULL AND fouler_type = 'Occasional' THEN ROUND(((calc_ht_fls * 0.5) + (m_ht_impact * 0.5)), 2)
     WHEN m_ht_impact IS NULL AND calc_ht_fls IS NULL THEN ROUND(exp_ht_fouls, 2)
     WHEN m_ht_impact IS NULL AND calc_ht_fls IS NOT NULL THEN ROUND(calc_ht_fls, 2)
@@ -320,3 +320,46 @@ AND COALESCE(fixt, 'A') <> 'A'
 ORDER BY timestamp, fixture_id, ffh desc, calc_ht_fls DESC)base
 ORDER BY fixt, rnk
 ;
+
+
+INSERT INTO analytics.ffh_ht_datapoint (
+    fixture_id,
+    player_id,
+    rnk,
+    ffh,
+    player_pos,
+    fouler_type,
+    last5_start_foul,
+    foul_ht,
+    foul_ft,
+    shot_ht,
+    shot_ft,
+    yc_ht,
+    yc_ft
+)
+SELECT
+    rf.fixture_id,
+    rf.player_id,
+    rf.rnk,
+    rf.ffh,
+    rf.player_pos,
+    rf.fouler_type,
+    rf.last5_start_foul,
+    0 AS foul_ht,
+    0 AS foul_ft,
+    0 AS shot_ht,
+    0 AS shot_ft,
+    0 AS yc_ht,
+    0 AS yc_ft
+FROM temp.raw_ffh rf
+INNER JOIN live_updates.live_fixtures lf
+    ON rf.fixture_id = lf.fixture_id
+WHERE 1 = 1
+AND lf.status = 'NS'
+ON DUPLICATE KEY UPDATE
+    rnk = VALUES(rnk),
+    ffh = VALUES(ffh),
+    player_pos = VALUES(player_pos),
+    fouler_type = VALUES(fouler_type)
+;
+
