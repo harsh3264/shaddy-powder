@@ -95,16 +95,9 @@ query = '''
     SELECT DISTINCT league_id, season_year
     FROM leagues l
     WHERE 1 = 1
-    AND (season_coverage_fixtures_statistics_fixtures = 1
-    AND season_coverage_fixtures_statistics_players = 1
-    # AND league_id = 38
-    # AND (league_id, season_year) NOT IN (SELECT DISTINCT league_id, season_year FROM fixtures)
-    AND season_year > 2022)
-    OR (league_id = 188 AND season_year > 2022)
-    OR (league_id = 556 AND season_year > 2022)
-    OR (league_id = 6 AND season_year > 2022)
-    OR (league_id = 547 AND season_year > 2022)
-    OR (league_id = 4 AND season_year > 2022)
+    AND season_year > YEAR(CURRENT_DATE) - 2
+    AND league_id IN (SELECT league_id FROM top_leagues)
+    ;
 '''
 cursor.execute(query)
 league_season_data = cursor.fetchall()
