@@ -63,7 +63,7 @@ WHERE
         (
             DAYOFWEEK(FROM_UNIXTIME(f.timestamp)) = 7
             AND (
-                TIME(FROM_UNIXTIME(f.timestamp)) NOT BETWEEN '14:00:00' AND '15:00:00'  -- Exclude other leagues in this time
+                TIME(FROM_UNIXTIME(f.timestamp)) NOT BETWEEN '13:20:00' AND '14:10:00'  -- Exclude other leagues in this time
             )
         )
     )
