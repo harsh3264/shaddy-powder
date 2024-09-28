@@ -81,6 +81,8 @@ for league_data in data:
     league = league_data.get('league')
     country = league_data.get('country')
     seasons = league_data.get('seasons')
+    
+    # print(league)
 
     league_id = league.get('id')
     name = league.get('name', '')

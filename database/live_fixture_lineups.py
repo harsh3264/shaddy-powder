@@ -39,6 +39,7 @@ def insert_player_info(cur, fixture_id, team_id, player_id, player_number, playe
     cur.execute(sql, (fixture_id, team_id, player_id, player_number, player_pos, grid, is_substitute))
 
 def load_fixture_lineups(query):
+    # print(query)
     # Connect to MySQL database
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor()
@@ -57,6 +58,8 @@ def load_fixture_lineups(query):
     # Execute the query
     cursor.execute(query)
     fixtures = cursor.fetchall()
+    
+    print(fixtures)
 
     # Iterate over fixtures
     for fixture in fixtures:
@@ -69,6 +72,8 @@ def load_fixture_lineups(query):
         # Fetch lineup data
         response = requests.get(LINEUP_URL, headers={"X-RapidAPI-Key": rapid_api_key}, params=params)
         lineup_data = response.json()
+        
+        # print(lineup_data)
 
         try:
             lineup_data = lineup_data['response']

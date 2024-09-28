@@ -47,11 +47,26 @@ from database.live_fixture_player_stats import load_fixture_player_stats
 
 # Modify the query dynamically
 query = '''
-    SELECT DISTINCT f.fixture_id
-    FROM live_updates.live_fixtures f
-    WHERE
-        (DAYOFWEEK(CURRENT_DATE()) = 7 AND league_id NOT IN (41))
-        OR DAYOFWEEK(CURRENT_DATE()) != 7
+SELECT DISTINCT fixture_id
+FROM live_updates.live_fixtures f
+WHERE
+    (
+        DAYOFWEEK(FROM_UNIXTIME(f.timestamp)) = 7  -- Saturday
+        AND f.timestamp = 1727532000  -- 3 PM kickoff for PL matches
+        AND f.league_id = 39  -- Only focus on Premier League matches
+    )
+    OR
+    (
+        -- For other days, or if it is Saturday but outside the restricted time
+        DAYOFWEEK(FROM_UNIXTIME(f.timestamp)) != 7  -- For other days, no restrictions
+        OR
+        (
+            DAYOFWEEK(FROM_UNIXTIME(f.timestamp)) = 7
+            AND (
+                TIME(FROM_UNIXTIME(f.timestamp)) NOT BETWEEN '14:00:00' AND '15:00:00'  -- Exclude other leagues in this time
+            )
+        )
+    )
     ;
 '''
     

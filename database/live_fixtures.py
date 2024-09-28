@@ -131,6 +131,7 @@ query = '''
     # AND fixture_date = CURDATE()
     AND timestamp > UNIX_TIMESTAMP(NOW()  - INTERVAL 200 MINUTE)
     AND timestamp < UNIX_TIMESTAMP(NOW()  + INTERVAL 200 MINUTE)
+    # AND tl.league_id = 39
     ;
 '''
 cursor.execute(query)
@@ -140,7 +141,7 @@ league_season_data = cursor.fetchall()
 for league_id, season_year in league_season_data:
     params = {"season": season_year, "league": league_id}
     
-    print(params)
+    # print(params)
 
     # Fetch the API data
     headers = {
