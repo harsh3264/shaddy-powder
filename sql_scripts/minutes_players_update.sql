@@ -201,7 +201,7 @@ INNER JOIN live_updates.live_fixtures lf on thd.fixture_id = lf.fixture_id
 LEFT JOIN live_updates.live_fixture_player_stats lfps ON thd.fixture_id = lfps.fixture_id
     AND thd.player_id = lfps.player_id
 WHERE 1 = 1
-AND lf.status = '1H'
+AND lf.status IN ('1H', 'HT')
 ON DUPLICATE KEY UPDATE
     foul_ht = VALUES(foul_ht),
     shot_ht = VALUES(shot_ht),

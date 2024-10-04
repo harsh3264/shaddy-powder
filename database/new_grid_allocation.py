@@ -42,6 +42,8 @@ query = '''
 cursor.execute(query)
 league_season_data = cursor.fetchall()
 
+# print(league_season_data)
+
 def allocate_new_grid_and_insert_db(cursor, fixture_data):
     fixture_id, team_id, formation, player_id, player_pos, grid = fixture_data
 
@@ -51,6 +53,7 @@ def allocate_new_grid_and_insert_db(cursor, fixture_data):
     # Count players in each row (X) based on frm
     frm_list = [int(num) for num in formation.split('-')]
     frm_layers = len(frm_list)
+    
 
     old_x, old_y = map(int, grid.split(':'))
 
