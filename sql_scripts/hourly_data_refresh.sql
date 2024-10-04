@@ -38,6 +38,28 @@ CREATE TABLE temp.league_39_fixtures AS (
 );
 
 
+DROP TABLE IF EXISTS temp.exp_fyc_model;
+
+CREATE TABLE temp.exp_fyc_model AS
+SELECT
+fpsc.player_id,
+COUNT(DISTINCT fpsc.fixture_id) AS total_matches,
+COUNT(DISTINCT CASE WHEN fpsc.season_year = max_season THEN fpsc.fixture_id END) AS season_matches,
+COUNT(DISTINCT CASE WHEN IFNULL(cards_yellow,0) + IFNULL(cards_red,0) > 0 THEN fpsc.fixture_id END) AS yc_matches,
+COUNT(DISTINCT CASE WHEN IFNULL(cards_yellow,0) + IFNULL(cards_red,0) > 0 AND (LOWER(card_reason) NOT LIKE '%wasting%' AND LOWER(card_reason) NOT LIKE '%argu%') THEN fpsc.fixture_id END) AS yc_w_foul_matches,
+COUNT(DISTINCT CASE WHEN IFNULL(fouls_committed,0) > 0 THEN fpsc.fixture_id END) AS foul_matches,
+SUM(IFNULL(fouls_committed, 0)) AS fouls
+FROM analytics.fixture_player_stats_compile fpsc
+INNER JOIN (SELECT player_id, MAX(season_year) AS max_season FROM analytics.fixture_player_stats_compile GROUP BY 1) AS mx
+ON fpsc.player_id = mx.player_id
+WHERE 1 = 1
+AND is_substitute = 0
+# AND fpsc.player_id IN (SELECT player_id FROM master_players_view WHERE fixture_id IS NOT NULL AND fixture_id <> 0)
+# AND (tf.country_name = 'England' OR tf2.country_name = 'England')
+GROUP BY 1
+;
+
+
 DROP TABLE IF EXISTS today_fixture
 ;
 

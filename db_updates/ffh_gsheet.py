@@ -83,6 +83,9 @@ sql_statements = [
     ''',
     '''
     SELECT * FROM temp.player_q;
+    ''',
+    '''
+    SELECT * FROM temp.csv_upload;
     '''
 ]
 
@@ -100,7 +103,7 @@ cursor = db_conn.cursor()
 
 # Google Sheets
 for i, sql in enumerate(sql_statements):
-    sheet_name = ["raw_ffh", "raw_sfh", "raw_fld", "raw_tf", "raw_pq"][i]
+    sheet_name = ["raw_ffh", "raw_sfh", "raw_fld", "raw_tf", "raw_pq", "csv_format"][i]
     
     cursor.execute(sql)
     result = cursor.fetchall()
