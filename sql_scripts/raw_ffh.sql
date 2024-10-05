@@ -1,24 +1,3 @@
-DROP TABLE IF EXISTS temp.exp_fyc_model;
-
-CREATE TABLE temp.exp_fyc_model AS
-SELECT
-fpsc.player_id,
-COUNT(DISTINCT fpsc.fixture_id) AS total_matches,
-COUNT(DISTINCT CASE WHEN fpsc.season_year = max_season THEN fpsc.fixture_id END) AS season_matches,
-COUNT(DISTINCT CASE WHEN IFNULL(cards_yellow,0) + IFNULL(cards_red,0) > 0 THEN fpsc.fixture_id END) AS yc_matches,
-COUNT(DISTINCT CASE WHEN IFNULL(cards_yellow,0) + IFNULL(cards_red,0) > 0 AND (LOWER(card_reason) NOT LIKE '%wasting%' AND LOWER(card_reason) NOT LIKE '%argu%') THEN fpsc.fixture_id END) AS yc_w_foul_matches,
-COUNT(DISTINCT CASE WHEN IFNULL(fouls_committed,0) > 0 THEN fpsc.fixture_id END) AS foul_matches,
-SUM(IFNULL(fouls_committed, 0)) AS fouls
-FROM analytics.fixture_player_stats_compile fpsc
-INNER JOIN (SELECT player_id, MAX(season_year) AS max_season FROM analytics.fixture_player_stats_compile GROUP BY 1) AS mx
-ON fpsc.player_id = mx.player_id
-WHERE 1 = 1
-AND is_substitute = 0
-# AND fpsc.player_id IN (SELECT player_id FROM master_players_view WHERE fixture_id IS NOT NULL AND fixture_id <> 0)
-# AND (tf.country_name = 'England' OR tf2.country_name = 'England')
-GROUP BY 1
-;
-
 DROP TABLE IF EXISTS temp.foul_announce;
 
 # SELECT * FROM temp.foul_announce LIMIT 40;
@@ -254,7 +233,7 @@ LEFT JOIN temp.ffh_player fp on mpv.player_id = fp.player_id
 WHERE 1 = 1
 AND plsd.last_start > CURDATE() - INTERVAL 20 DAY
 AND COALESCE(i.type, 'A') <> 'Missing Fixture'
-AND tf.fixture_id NOT IN (SELECT fixture_id FROM temp.foul_announce)
+AND tf.fixture_id NOT IN (SELECT fixture_id FROM temp.foul_announce WHERE LENGTH(fixture_id) > 3)
 AND tf.timestamp BETWEEN UNIX_TIMESTAMP(NOW() - INTERVAL 10 MINUTE) AND UNIX_TIMESTAMP(NOW() + INTERVAL 1440 MINUTE)
 # AND COALESCE(player_pos, 'S') <> 'G'
 ;
