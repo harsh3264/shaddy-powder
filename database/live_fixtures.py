@@ -181,7 +181,7 @@ for league_id, season_year in league_season_data:
         timestamp = fixture['fixture']['timestamp']
         if (
             status in ('2H', '1H', 'HT', 'ET') or
-            (status == 'NS' and timestamp >= current_timestamp and timestamp <= current_timestamp + 3600)
+            (status == 'NS' and timestamp >= current_timestamp and timestamp <= current_timestamp + 4800)
         ):
             upsert_live_fixture(cursor, fixture)
 
