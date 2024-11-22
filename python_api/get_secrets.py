@@ -35,6 +35,9 @@ parameters = json.loads(json_parameters)
 
 rapid_api_key = parameters['Rapid Auth Token']
 
+foul_bot = parameters['Foul Bot Token']
+
+gold_channel = parameters['Group Id']
 
 
 def get_secret_db():
