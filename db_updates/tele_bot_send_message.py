@@ -97,6 +97,7 @@ MESSAGE_TEMPLATE = (
     "🚨 Alert! New player subbed in *{match}* for *{team}*.\n"
     "Here is their data:\n"
     " "
+    "- Player Name: `{player_name}`\n"
     "- Average fouls: `{avg_fouls}`\n"
     "- Total fouls in last 5 subs: `{fouls_last5}`\n"
     "- Yellow cards in last 5 subs: `{yellow_cards}`\n"
@@ -110,6 +111,7 @@ def send_message(data):
     # Determine the match situation
     score = data.get('score', 'N/A')
     team = data.get('name', 'N/A')
+    player_name = data.get('player_name', 'N/A')
     
     if ">" in score:
         situation = "winning"
