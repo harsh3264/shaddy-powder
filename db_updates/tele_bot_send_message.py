@@ -111,7 +111,6 @@ def send_message(data):
     # Determine the match situation
     score = data.get('score', 'N/A')
     team = data.get('name', 'N/A')
-    player_name = data.get('player_name', 'N/A')
     
     if ">" in score:
         situation = "winning"
@@ -127,12 +126,14 @@ def send_message(data):
     fouls_last5 = format_stats(data['last5_sub_foul'])
     yellow_cards = format_stats(data['last5_sub_yc'])
     avg_fouls = round(data['avg_fouls_total'], 2)
+    player_name = data.get('player_name', 'N/A')
 
     # Format the message
     message = MESSAGE_TEMPLATE.format(
         match=data.get('fixt', 'N/A'),
         team=team,
         score=score,
+        player_name=player_name,
         situation=situation,
         fouls_situation=fouls_situation,
         fouls_last5=fouls_last5,
