@@ -96,31 +96,58 @@ def format_stats(stats):
 MESSAGE_TEMPLATE = (
     "🚨 Alert! New player subbed in *{match}* for *{team}*.\n"
     "Here is their data:\n"
-    " "
+    "\n"
     "- Player Name: `{player_name}`\n"
     "- Average fouls: `{avg_fouls}`\n"
+    "\n"
     "- Total fouls in last 5 subs: `{fouls_last5}`\n"
     "- Yellow cards in last 5 subs: `{yellow_cards}`\n"
     "- Fouls in last 5 subs while {situation}: `{fouls_situation}`\n"
-    " "
+    "\n"
     "- Current situation: *{team}* is {situation} *{score}*."
 )
 
 # Function to format and send a message
 def send_message(data):
-    # Determine the match situation
+    # Determine the match situation based on the score
     score = data.get('score', 'N/A')
-    team = data.get('name', 'N/A')
+    team = data.get('name', 'N/A')  # Team of the player who came on
+    match = data.get('fixt', 'N/A')  # Match info, e.g., "Team A vs Team B"
     
-    if ">" in score:
-        situation = "winning"
-        fouls_situation = format_stats(data.get('last5_win_sub_foul', '00000'))
-    elif "=" in score:
-        situation = "drawing"
-        fouls_situation = format_stats(data.get('last5_draw_sub_foul', '00000'))
+    # Extract the opponent team and score components
+    try:
+        team_a, team_b = match.split(" vs ")
+        score_a, score_b = map(int, score.split("-"))  # Convert score to integers
+    except ValueError:
+        print(f"Error parsing match or score: {match}, {score}")
+        return  # Skip if match or score format is invalid
+
+    # Determine if the player's team is winning, drawing, or losing
+    if team == team_a:
+        # Player's team is Team A
+        if score_a > score_b:
+            situation = "winning"
+            fouls_situation = format_stats(data.get('last5_win_sub_foul', '00000'))
+        elif score_a == score_b:
+            situation = "drawing"
+            fouls_situation = format_stats(data.get('last5_draw_sub_foul', '00000'))
+        else:
+            situation = "losing"
+            fouls_situation = format_stats(data.get('last5_loss_sub_foul', '00000'))
+    elif team == team_b:
+        # Player's team is Team B
+        if score_b > score_a:
+            situation = "winning"
+            fouls_situation = format_stats(data.get('last5_win_sub_foul', '00000'))
+        elif score_b == score_a:
+            situation = "drawing"
+            fouls_situation = format_stats(data.get('last5_draw_sub_foul', '00000'))
+        else:
+            situation = "losing"
+            fouls_situation = format_stats(data.get('last5_loss_sub_foul', '00000'))
     else:
-        situation = "losing"
-        fouls_situation = format_stats(data.get('last5_loss_sub_foul', '00000'))
+        print(f"Error: Team {team} not found in match {match}")
+        return  # Skip if the team isn't part of the match
 
     # Format foul and yellow card stats
     fouls_last5 = format_stats(data['last5_sub_foul'])
