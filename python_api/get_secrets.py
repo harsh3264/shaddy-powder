@@ -39,6 +39,8 @@ foul_bot = parameters['Foul Bot Token']
 
 gold_channel = parameters['Group Id']
 
+gpt_key = parameters['GPT4 Key']
+
 
 def get_secret_db():
 
