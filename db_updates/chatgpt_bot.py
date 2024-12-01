@@ -100,7 +100,7 @@ for fixture_id in fixture_ids:
                 response = openai.ChatCompletion.create(
                     model="gpt-4o",
                     messages=[
-                        {"role": "system", "content": "You are a football betting analyst."},
+                        {"role": "system", "content": "You are a shrewd football betting analyst. And you run your paid tipster account. Money is involved. Focus and serious."},
                         {"role": "user", "content": prompt}
                     ],
                     temperature=0.7

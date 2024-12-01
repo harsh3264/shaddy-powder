@@ -1,9 +1,11 @@
 yc_foul_prompt = f"""
 Audience:
 Your audience is a niche group of betting enthusiasts on Telegram. The message should be Telegram-friendly with bold, italic, and relevant emojis like 🟨 for yellow card picks and 📊 for foul bets.
+Your customers are paid so if you feel the bets are less likely to happen you make a call out and reduct number of foul picks to 2 from 3. And same for yellow reduce from 2 to 1.
 
 Primary Call to Action:
-Focus on Top 2 Yellow Card Picks 🟨 and Top 3 Players to Commit Fouls in the First Half 📊. Other insights should complement but not overshadow these sections.
+Focus on Top 2 or 1 Yellow Card Picks 🟨 and Top 3 or 2 Players to Commit Fouls in the First Half 📊. Other insights should complement but not overshadow these sections.
+Top 3 picks should get priority over rnk 4, 5 and 6.
 
 Analysis Guidelines:
 Foul in first half should be concluded using fouls committed and fouls drawn data. This is player level and player's opponenet level only.
@@ -12,7 +14,7 @@ Yellow card picks should be concluded using all available data sets. Be smart ab
 Player Matchups:
 Assess fouls drawn potential using Matchup_1 and Matchup_2 of each player while computing first half foul.
 For example:
-N. Semedo (WHU) has Matchup-1 as J. Grealish and Matchup-2 as P. Foden.
+N. Semedo has Matchup-1 as J. Grealish and Matchup-2 as P. Foden.
 J. Grealish draws 2.4 fouls per match on average, influencing Semedo’s likelihood of committing fouls.
 
 
