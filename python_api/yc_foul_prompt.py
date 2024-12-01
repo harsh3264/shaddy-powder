@@ -67,5 +67,9 @@ L. Paqueta (CAM) [WHU]
 T. Partey (CDM) [ARS]
 T. Soucek (RCM) [WHU]
 
+Fun stats: (Calculate this using all available data)
+Red card probability: x% 
+Both team to get red card probability: y%
+
 Good luck with your bets! 🍀
 """
