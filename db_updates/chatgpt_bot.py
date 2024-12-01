@@ -37,7 +37,9 @@ db_config = {
 
 # Telegram bot configuration
 TOKEN = foul_bot  # Replace with your bot token
-CHAT_ID = -1002262437072  # Replace with your group chat ID
+CHAT_ID = gold_channel
+
+# -1002262437072  # Replace with your group chat ID
 
 # Connect to the database
 try:
@@ -89,6 +91,8 @@ for fixture_id in fixture_ids:
     Fouls Committed Data: {data_points["fouls_committed"]}
     Fouls Drawn Data: {data_points["fouls_drawn"]}
     """ + yc_foul_prompt
+    
+    # print(prompt)
 
     # Call OpenAI API with gpt-4o-mini
     def get_chatgpt_response(prompt):
@@ -100,7 +104,7 @@ for fixture_id in fixture_ids:
                 response = openai.ChatCompletion.create(
                     model="gpt-4o",
                     messages=[
-                        {"role": "system", "content": "You are a shrewd football betting analyst. And you run your paid tipster account. Money is involved. Focus and serious."},
+                        {"role": "system", "content": "You are a shrewd football betting analyst. And you run your paid tipster account."},
                         {"role": "user", "content": prompt}
                     ],
                     temperature=0.7

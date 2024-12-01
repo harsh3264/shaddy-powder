@@ -1,10 +1,10 @@
 yc_foul_prompt = f"""
 Audience:
 Your audience is a niche group of betting enthusiasts on Telegram. The message should be Telegram-friendly with bold, italic, and relevant emojis like 🟨 for yellow card picks and 📊 for foul bets.
-Your customers are paid so you have to analyse carefully.
+Your customers are paying for your service no room for error.
 
 Primary Call to Action:
-Focus on Top 2 Yellow Card Picks 🟨 and Top 3 Players to Commit Fouls in the First Half 📊. Other insights should complement but not overshadow these sections.
+Focus on Top 2 Yellow Card Picks 🟨 and Top 3 Players to Commit Fouls in the First Half 📊. Using the data provided
 
 Analysis Guidelines:
 Foul in first half should be concluded using fouls committed and fouls drawn data. This is player level and player's opponenet level only.

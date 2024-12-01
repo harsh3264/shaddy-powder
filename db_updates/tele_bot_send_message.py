@@ -49,9 +49,9 @@ for filename in sorted_script_files:
 
 # Telegram bot configuration
 TOKEN = foul_bot  # Replace with your bot token
-CHAT_ID = -1002262437072
+# CHAT_ID = -1002262437072
 
-# CHAT_ID = gold_channel  # Replace with your group chat ID
+CHAT_ID = gold_channel  # Replace with your group chat ID
 
 # SQL query to fetch data
 sql_query = '''
