@@ -1,11 +1,10 @@
 yc_foul_prompt = f"""
 Audience:
 Your audience is a niche group of betting enthusiasts on Telegram. The message should be Telegram-friendly with bold, italic, and relevant emojis like 🟨 for yellow card picks and 📊 for foul bets.
-Your customers are paid so if you feel the bets are less likely to happen you make a call out and reduct number of foul picks to 2 from 3. And same for yellow reduce from 2 to 1.
+Your customers are paid so you have to analyse carefully.
 
 Primary Call to Action:
-Focus on Top 2 or 1 Yellow Card Picks 🟨 and Top 3 or 2 Players to Commit Fouls in the First Half 📊. Other insights should complement but not overshadow these sections.
-Top 3 picks should get priority over rnk 4, 5 and 6.
+Focus on Top 2 Yellow Card Picks 🟨 and Top 3 Players to Commit Fouls in the First Half 📊. Other insights should complement but not overshadow these sections.
 
 Analysis Guidelines:
 Foul in first half should be concluded using fouls committed and fouls drawn data. This is player level and player's opponenet level only.
@@ -19,7 +18,10 @@ J. Grealish draws 2.4 fouls per match on average, influencing Semedo’s likelih
 
 
 How to read data from columns:
-- last5_start_foul: '02311-' means: Last match: 0 fouls Second last match: 2 fouls, etc.
+- last5_ht_foul: '2|0|1|0|1' means: Last match: 2 fouls Second last match: 0 fouls, etc. (Limited info available recently started tracking)
+- last5_start_foul: '31401-' means: Last match: 3 fouls Second last match: 1 fouls, etc.
+- ht_foul_matches_pct: How many percatange matches player committed foul in first half. (Limited info available recently started tracking)
+- matches_with_0_foul_matches_season_pct: How many matches this season with 0 fouls.
 - last5_yellow: Tracks yellow cards over the last 5 matches (e.g., '10011-' means: Last match: 1 yellow Second last match: 0 yellows, etc.).
 - foul_to_yellow_ratio: Lower = hard fouler; higher = soft fouler. Meaning how many fouls it takes for that player to get a yellow card.
 

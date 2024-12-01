@@ -322,6 +322,31 @@ ORDER BY timestamp, fixture_id, ffh desc, calc_ht_fls DESC)base
 ORDER BY fixt, rnk
 ;
 
+DROP TABLE IF EXISTS temp.ffh_data_analytics;
+
+CREATE TABLE temp.ffh_data_analytics AS
+SELECT
+rf.fixture_id,
+rf.fixt,
+rf.player_name,
+rf.team_name,
+rf.player_pos,
+rf.matchup_1,
+rf.matchup_2,
+last5_ht_foul,
+ht_foul_matches_pct,
+ht_foul_matches,
+last5_start_foul,
+ROUND(season_avg_fouls, 2) AS season_avg_fouls,
+ROUND(avg_fouls_total, 2) AS avg_fouls_total,
+zero_f_s AS matches_with_0_fouls_season_pct
+FROM temp.raw_ffh rf
+JOIN temp.ht_player_analytics hpa
+ON rf.player_id = hpa.player_id
+WHERE 1 = 1
+# AND rf.fixture_id = 1208147
+ORDER BY rnk;
+
 INSERT INTO analytics.total_ht_datapoint (
     fixture_id,
     player_id,

@@ -806,3 +806,37 @@ CREATE TABLE temp.exp_ht_shots
     FROM temp.player_ht_shots
     GROUP BY 1
 );
+
+
+-- Adding Actual Half Time Logic --
+DROP TABLE IF EXISTS temp.ht_base_analytics;
+
+CREATE TABLE temp.ht_base_analytics AS
+SELECT
+thd.player_id,
+thd.foul_ht,
+f.fixture_id,
+f.fixture_date,
+row_number() over (partition by thd.player_id order by f.fixture_date desc) AS rnk
+FROM analytics.total_ht_datapoint thd
+# JOIN players p on thd.player_id = p.player_id
+JOIN fixture_lineups fl on thd.player_id = fl.player_id AND thd.fixture_id = fl.fixture_id
+JOIN fixtures f on f.fixture_id = thd.fixture_id
+WHERE 1 = 1
+AND fl.is_substitute = 0
+# AND thd.player_id IN (SELECT player_id FROM live_updates.live_fixture_player_stats WHERE fixture_id = 1208147)
+ORDER BY 1, 5;
+
+DROP TABLE IF EXISTS temp.ht_player_analytics;
+
+CREATE TABLE temp.ht_player_analytics AS
+SELECT
+player_id,
+GROUP_CONCAT(CASE WHEN rnk <= 5 THEN IFNULL(foul_ht, 0) END ORDER BY fixture_date DESC SEPARATOR '|') AS last5_ht_foul,
+COUNT(DISTINCT CASE WHEN IFNULL(foul_ht, 0) > 0 THEN fixture_id END) AS ht_foul_matches,
+COUNT(DISTINCT fixture_id) AS ht_matches,
+ROUND(COUNT(DISTINCT CASE WHEN IFNULL(foul_ht, 0) > 0 THEN fixture_id END) / COUNT(DISTINCT fixture_id), 2) AS ht_foul_matches_pct
+FROM temp.ht_base_analytics
+WHERE 1 = 1
+GROUP BY player_id;
+

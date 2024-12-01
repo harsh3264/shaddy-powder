@@ -65,7 +65,7 @@ for fixture_id in fixture_ids:
         "referee": f"SELECT * FROM temp.referee_q WHERE fixture_id = {fixture_id};",
         "team": f"SELECT * FROM temp.team_q WHERE fixture_id = {fixture_id};",
         "player": f"SELECT * FROM temp.player_q WHERE fixture_id = {fixture_id}",
-        "fouls_committed": f"SELECT * FROM temp.raw_ffh WHERE fixture_id = {fixture_id};",
+        "fouls_committed": f"SELECT * FROM temp.ffh_data_analytics WHERE fixture_id = {fixture_id};",
         "fouls_drawn": f"SELECT * FROM temp.raw_fld WHERE fixture_id = {fixture_id};"
     }
 
