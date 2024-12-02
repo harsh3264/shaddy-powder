@@ -12,7 +12,7 @@ sys.path.append(parent_dir)
 # Import necessary modules from your project structure
 from sql_script_runner import sql_script_runner
 from python_api.get_secrets import db_parameters, foul_bot, gold_channel, gpt_key
-from python_api.yc_foul_prompt import yc_foul_prompt  # Import the pre-defined prompt
+from python_api.gpt_prompts import yc_foul_prompt  # Import the pre-defined prompt
 
 # OpenAI API setup
 openai.api_key = gpt_key
@@ -39,7 +39,7 @@ db_config = {
 TOKEN = foul_bot  # Replace with your bot token
 CHAT_ID = gold_channel
 
-# -1002262437072  # Replace with your group chat ID
+# CHAT_ID = -1002262437072  # Replace with your group chat ID
 
 # Connect to the database
 try:

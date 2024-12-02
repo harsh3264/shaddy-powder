@@ -26,10 +26,11 @@ How to read data from columns:
 - foul_to_yellow_ratio: Lower = hard fouler; higher = soft fouler. Meaning how many fouls it takes for that player to get a yellow card.
 
 Tactical Insights for yellow cards:
+- Yellow card picks should be STRICTLY from the dataset "Player Data". In that dataset rnk 1 is my top pick, 2 is second best and so on. While this is reference but it should get weightage.
 - Calc_Metric column is my in-house odds calculation of each player to get yellow. This is relevant for your analysis and important. But do not mention it in announcement output.
-- Focus on last 5 match yellow card trends, season yellow cards. Also, avg_yc_total vs season_avg_yc these are % of total matches and season matches. Important.
-- If a player is booked in last match that reduces some tendencies of another yellow, and if someone is booked in last 2 matches it reduces even more.
-- If a player is on 4 or 9 season cards that means they are on the verge of suspension and they will be cautious.
+- Focus on last 5 match yellow card trends, season yellow cards. Also, avg_yc_total vs season_avg_yc these are % of total matches and season matches.
+- INCLUDE: If a player is booked in last match that reduces some tendencies of another yellow, and if someone is booked in last 2 matches it reduces even more.
+- INCLUDE: If a player is on 4 or 9 season cards that means they are on the verge of suspension and they will be cautious.
 - Avg fouls committed, argument related yc percentage, time wasting percantage etc. Important.
 - Also map the player's position from fouls committed dataset to look where they play.
 - Midfielders or defenders are more prone to yellow over attackers or attacking wingers. [CM, CDM, LCM, RCM, CM, CB, LCB, RCB, RB, LB, LWB, RWB]
@@ -67,9 +68,43 @@ L. Paqueta (CAM) [WHU]
 T. Partey (CDM) [ARS]
 T. Soucek (RCM) [WHU]
 
-Fun stats: (Calculate this using all available data)
-Red card probability: x% 
-Both team to get red card probability: y%
+Fun stats: (If you find any 1 (JUST 1) particular stat to be watchout for which is very high. Use footballing brain.) 
+Few examples of fun stats
+1- Arsenal to have 4 or more offsides. 
+2- Tierney to draw 3 or more fouls.
+3- Westham to have 8 or more corners.
+4- More than 30% probability of a red card.
 
 Good luck with your bets! 🍀
 """
+
+# Daily Stats Prompt
+
+daily_stats_prompt = f"""
+    You are a professional football betting analyst providing insights for a paid service. Carefully analyze the team-level data and referee data provided to predict:
+    
+    - Expected Corners (Total and if you find any team's corner to be super high compared to other team)
+    - Expected Cards (Total and if you find any team's cards to be super high compared to other team)
+    - Expected Shots (Total and and if you find any team's shots to be super high compared to other team)
+    - Expected Offsides (Total and if you find any team's offsides to be super high compared to other team)
+    
+    **Key Guidelines for Analysis:**
+    1. Use the most **conservative approach**, always taking the LOWEST plausible prediction based on the data. Total = Team A + Team B always.
+    2. (USP) Look for one sided matches spot them and apply this additional logic, dominating team will not allow lesser team to take shots or corner and make them helpless. 
+    3. For each metric, consider all the provided stats:
+       - season_avg_corners, py_season_avg_corners, last5_corners, league_avg_corners, zero_corners_matches, zero_corners_matches_py, season_avg_against_corners, py_season_avg_against_corners, last5_corners_against, league_avg_against_corners, zero_against_corners_matches, zero_against_corners_matches_py
+       - Apply the same logic for Shots and Offsides using their corresponding columns.
+    4. For Yellow Cards predictions, include referee data and account for their tendencies. Be especially cautious with lenient referees.
+    5. The predictions will guide betting picks such as "Over X Corners" or "Over Y Cards." Accuracy is critical.
+    6. Max count: Corners: 10, Cards: 6, Shots: 32, Offsides: 5
+    7. Predicting more than 7 corners is a really difficult task, bookies market are so strict. So by default reduce the expected numbers by 20%.
+    
+    **Output Format**
+    🟤 West Ham vs Arsenal 🔴 - [MATCH_TIME] (The colour dot should be according to the team. i.e. blue for Chelsea, Atlanta. Yellow for Wolves, Watford etc)
+    🚩 Expected Corners: [Total_Corners] ([Home_Team_Corners] or [Away_Team_Corners] if any interesting) [i.e. Arsenal 4.9]
+    🟨 Expected Cards: [Total_Cards] ([Home_Team_Cards] or [Away_Team_Cards] if any interesting)
+    ⚽ Expected Shots: [Total_Shots] ([Home_Team_Shots] or [ Away_Team_Shots] if any interesting)
+    📐 Expected Offsides: [Total_Offsides] ([Home_Team_Offsides] or [Away_Team_Offsides] if any interesting)
+    
+    In your output just give me the output format section that too upto 1 decimal point in metrics.
+        """
