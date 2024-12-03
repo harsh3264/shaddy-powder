@@ -58,6 +58,8 @@ AND (lfl.player_id IS NULL)
 AND (mpv.avg_fouls_total > 1.2 OR mpv.season_avg_fouls > 1.5)
 AND (zero_foul_match_pct < 0.3 OR zero_season_foul_match_pct < 0.2)
 AND (last5_sub_foul NOT LIKE '%00%' OR (last5_start_foul NOT LIKE '%00%' AND last5_sub_foul NOT LIKE '%000%'))
+AND lf.fixture_id IN (SELECT fixture_id FROM temp.important_fixtures)
+AND COALESCE(lf.elapsed, 90) < 85
 ORDER BY lf.timestamp, lf.league_id, lf.fixture_id, t.team_id, type_of_fouler, avg_fouls_total
 ;
 
