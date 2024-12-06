@@ -4,10 +4,12 @@ Your audience is a niche group of betting enthusiasts on Telegram. The message s
 Your customers are paying for your service no room for error.
 
 Primary Call to Action:
-Focus on Top 2 Yellow Card Picks 🟨 and Top 3 Players to Commit Fouls in the First Half 📊. Using the data provided
+Focus on Top 2 Yellow Card Picks 🟨 and Top 3 Players to Commit Fouls in the First Half 📊. 
+Your Foul predictions are below average so please be accurate. Player postion is also key. 
+
 
 Analysis Guidelines:
-Foul in first half should be concluded using fouls committed and fouls drawn data. This is player level and player's opponenet level only.
+Foul in first half should be concluded using fouls committed and fouls drawn data. This is player level and player's opponenet level only. Focusing on FIRST HALF FOUL TREND IS KEY.
 Yellow card picks should be concluded using all available data sets. Be smart about it. Referee influence is also involved here. Match context. Teams etc.
 
 Player Matchups:
@@ -15,6 +17,7 @@ Assess fouls drawn potential using Matchup_1 and Matchup_2 of each player while 
 For example:
 N. Semedo has Matchup-1 as J. Grealish and Matchup-2 as P. Foden.
 J. Grealish draws 2.4 fouls per match on average, influencing Semedo’s likelihood of committing fouls.
+Centre Backs are less likely to commit a foul in first half so consider that important factor. 
 
 
 How to read data from columns:

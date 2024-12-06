@@ -66,10 +66,8 @@ sql_statements = [
     FROM temp.raw_ffh AS base1;
     ''',
     '''
-    SELECT 
-    CONCAT(fixt, rnk) AS vlk,
-    base2.*
-    FROM temp.raw_sfh AS base2;
+    SELECT *
+    FROM temp.ffh_data_analytics AS base2;
     ''',
     '''
     SELECT 

@@ -1,17 +1,19 @@
 -- Daily Important Fixtures
 
+-- TRUNCATE temp.important_fixtures;
+
 -- INSERT INTO temp.important_fixtures 
 -- SELECT fixture_id
 -- FROM today_fixture
 -- WHERE 1 = 1
 -- AND fixture_id IN (
--- 1208158,
--- 1208159,
--- 1180720,
--- 1314875,
--- 1208661,
--- 1309294,
--- 1308637 -- Update this on daily basis
+-- 1216059,
+-- 1213868,
+-- 1213865,
+-- 1224084,
+-- 1223739,
+-- 1223735,
+-- 1208631 -- Update this on daily basis
 -- )
 -- ;
 

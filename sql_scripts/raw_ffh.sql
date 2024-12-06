@@ -345,7 +345,7 @@ JOIN temp.ht_player_analytics hpa
 ON rf.player_id = hpa.player_id
 WHERE 1 = 1
 # AND rf.fixture_id = 1208147
-ORDER BY rnk;
+ORDER BY ht_foul_matches_pct DESC;
 
 INSERT INTO analytics.total_ht_datapoint (
     fixture_id,
