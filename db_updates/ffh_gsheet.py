@@ -66,8 +66,10 @@ sql_statements = [
     FROM temp.raw_ffh AS base1;
     ''',
     '''
-    SELECT *
-    FROM temp.ffh_data_analytics AS base2;
+    SELECT
+    CONCAT(fixt, rnk) AS vlk,
+    base2.*
+    FROM temp.raw_sfh AS base2;
     ''',
     '''
     SELECT 
@@ -84,6 +86,10 @@ sql_statements = [
     ''',
     '''
     SELECT * FROM temp.csv_upload;
+    ''',
+    '''
+    SELECT * FROM temp.ffh_data_analytics
+    ORDER BY fixture_id, ht_foul_matches_pct DESC;
     '''
 ]
 
@@ -101,7 +107,7 @@ cursor = db_conn.cursor()
 
 # Google Sheets
 for i, sql in enumerate(sql_statements):
-    sheet_name = ["raw_ffh", "raw_sfh", "raw_fld", "raw_tf", "raw_pq", "csv_format"][i]
+    sheet_name = ["raw_ffh", "raw_sfh", "raw_fld", "raw_tf", "raw_pq", "csv_format", "first_half"][i]
     
     cursor.execute(sql)
     result = cursor.fetchall()

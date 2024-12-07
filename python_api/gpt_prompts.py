@@ -5,8 +5,8 @@ Your customers are paying for your service no room for error.
 
 Primary Call to Action:
 Focus on Top 2 Yellow Card Picks 🟨 and Top 3 Players to Commit Fouls in the First Half 📊. 
-Your Foul predictions are below average so please be accurate. Player postion is also key. 
-
+Any player with matches_with_0_fouls_season_pct > 0.3 should be excluded from foul picks.
+Any player with avg_fouls_total < 1.2 should be excluded from foul picks.
 
 Analysis Guidelines:
 Foul in first half should be concluded using fouls committed and fouls drawn data. This is player level and player's opponenet level only. Focusing on FIRST HALF FOUL TREND IS KEY.
