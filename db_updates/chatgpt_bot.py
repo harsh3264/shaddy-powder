@@ -37,9 +37,9 @@ db_config = {
 
 # Telegram bot configuration
 TOKEN = foul_bot  # Replace with your bot token
-# CHAT_ID = gold_channel
+CHAT_ID = gold_channel
 
-CHAT_ID = -1002262437072  # Replace with your group chat ID
+# CHAT_ID = -1002262437072  # Replace with your group chat ID
 
 # Connect to the database
 try:
@@ -50,7 +50,7 @@ except mysql.connector.Error as err:
     sys.exit(1)
 
 # Fetch all fixture_ids
-fixture_ids_query = "SELECT fixture_id FROM temp.important_fixtures;"
+fixture_ids_query = "SELECT fixture_id FROM temp.new_tele_fixtures;"
 try:
     cursor.execute(fixture_ids_query)
     fixture_ids = [row["fixture_id"] for row in cursor.fetchall()]
