@@ -83,7 +83,10 @@ for fixture_id in fixture_ids:
 
     # Create the prompt by appending yc_foul_prompt
     prompt = f"""
-    You are a football betting analyst. Carefully analyze the following data points:
+    Predicting Fouls and Yellow card his hard. And predicting FOUL IN THE FIRST HALF is even more difficult. 
+    Only data will not be sufficient. You need to apply smart footballing brain. Which will be the X Factor. 
+    
+    Carefully analyze the following data points:
 
     Referee Data: {data_points["referee"]}
     Team Data: {data_points["team"]}
