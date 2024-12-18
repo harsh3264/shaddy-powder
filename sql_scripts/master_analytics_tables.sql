@@ -66,7 +66,7 @@ FROM base_data_apis.fixtures_stats fs
     LEFT JOIN base_data_apis.fixtures f on fs.fixture_id = f.fixture_id
     LEFT JOIN base_data_apis.fixture_coach fc on f.fixture_id = fc.fixture_id AND fs.team_id = fc.team_id
     LEFT JOIN base_data_apis.fixture_coach fc2 on f.fixture_id = fc2.fixture_id AND fs.against_team_id = fc2.team_id
-    LEFT JOIN base_data_apis.leagues l on f.league_id = l.league_id
+    LEFT JOIN base_data_apis.leagues l on f.league_id = l.league_id AND f.season_year = l.season_year
     LEFT JOIN base_data_apis.cleaned_referees cr ON f.referee = cr.original_referee_name
 WHERE 1 = 1
 ;

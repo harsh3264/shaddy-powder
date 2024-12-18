@@ -12,7 +12,8 @@ sys.path.append(parent_dir)
 # Import necessary modules from your project structure
 from sql_script_runner import sql_script_runner
 from python_api.get_secrets import db_parameters, foul_bot, gold_channel, gpt_key
-from python_api.gpt_prompts import daily_stats_prompt
+from python_api.gpt_prompts import train_prompt
+
 # OpenAI API setup
 openai.api_key = gpt_key
 
@@ -36,8 +37,7 @@ db_config = {
 
 # Telegram bot configuration
 TOKEN = foul_bot  # Replace with your bot token
-# CHAT_ID = gold_channel  # Replace with your group chat ID
-CHAT_ID = -1002262437072
+CHAT_ID = -1002262437072  # Replace with your group chat ID
 
 # Connect to the database
 try:
@@ -47,13 +47,35 @@ except mysql.connector.Error as err:
     print(f"Error: {err}")
     sys.exit(1)
 
-# Fetch all fixture_ids
-fixture_ids_query = "SELECT fixture_id FROM temp.important_fixtures;"
+# Fetch all fixture_ids for the current date
 try:
+    fixture_ids_query = "SELECT fixture_id FROM temp.new_tele_fixtures;"
     cursor.execute(fixture_ids_query)
     fixture_ids = [row["fixture_id"] for row in cursor.fetchall()]
+    if not fixture_ids:
+        print("No fixtures found for today.")
+        sys.exit(0)
 except mysql.connector.Error as err:
     print(f"SQL Error: {err}")
+    sys.exit(1)
+
+# Aggregate all team and referee data
+all_team_data = []
+all_referee_data = []
+
+try:
+    # Fetch team data for all fixtures
+    team_query = f"SELECT * FROM temp.team_q WHERE fixture_id IN ({','.join(map(str, fixture_ids))});"
+    cursor.execute(team_query)
+    # print(team_query)
+    all_team_data = cursor.fetchall()
+
+    # Fetch referee data for all fixtures
+    referee_query = f"SELECT * FROM temp.referee_q WHERE fixture_id IN ({','.join(map(str, fixture_ids))});"
+    cursor.execute(referee_query)
+    all_referee_data = cursor.fetchall()
+except mysql.connector.Error as err:
+    print(f"SQL Error during data aggregation: {err}")
     sys.exit(1)
 
 # Function to call OpenAI API
@@ -66,7 +88,7 @@ def get_chatgpt_response(prompt):
             response = openai.ChatCompletion.create(
                 model="gpt-4o",
                 messages=[
-                    {"role": "system", "content": "You are a shrewd football betting analyst. And you run your paid tipster account."},
+                    {"role": "system", "content": "You are a shrewd football betting analyst running a paid tipster account."},
                     {"role": "user", "content": prompt}
                 ],
                 temperature=0.7
@@ -89,49 +111,27 @@ def get_chatgpt_response(prompt):
     print("Failed to get a response after retries.")
     return None
 
-# Initialize a list to hold all fixture summaries
-final_output = [f"{time.strftime('%d-%b-%Y')} Fixture Stats Prediction:\n"]
+# Validate data availability
+if not all_team_data or not all_referee_data:
+    print("Insufficient data to generate a prediction.")
+    sys.exit(1)
 
-# Iterate over each fixture_id to gather predictions
-for fixture_id in fixture_ids:
-    print(f"Processing fixture_id: {fixture_id}")
-    
-    # Dynamic SQL queries for the current fixture_id
-    queries = {
-        "team": f"SELECT * FROM temp.team_q WHERE fixture_id = {fixture_id};",
-        "referee": f"SELECT * FROM temp.referee_q WHERE fixture_id = {fixture_id};"
-    }
+# Create a single prompt for ChatGPT
+prompt = f"""
+**Input Data for All Fixtures:**
+Team Data: {all_team_data if all_team_data else 'No team data available'}
+Referee Data: {all_referee_data if all_referee_data else 'No referee data available'}
 
-    # Fetch data for each query
-    data_points = {}
-    try:
-        for key, query in queries.items():
-            cursor.execute(query)
-            data_points[key] = cursor.fetchall()
-    except mysql.connector.Error as err:
-        print(f"SQL Error for fixture_id {fixture_id}: {err}")
-        continue  # Skip to the next fixture_id if there's an error
+You are tasked with analyzing this data and identifying ONE high-confidence betting opportunity for the day as part of a £10 to £500 challenge. Provide a concise and actionable betting tip.
+""" + train_prompt
 
-    # Create the prompt for ChatGPT
-    prompt = f"""
-    **Input Data:**
-    Team Data: {data_points["team"]}
-    Referee Data: {data_points["referee"]}
-        """ + daily_stats_prompt
+# Get the prediction using ChatGPT
+chatgpt_output = get_chatgpt_response(prompt)
 
-    # Get the prediction using ChatGPT
-    chatgpt_output = get_chatgpt_response(prompt)
-    
-    # print(chatgpt_output)
-
-    # Validate the output
-    if chatgpt_output:
-        final_output.append(chatgpt_output)
-    else:
-        print(f"Failed to get prediction for fixture_id {fixture_id}.")
-
-# Combine all predictions into a single message
-final_message = "\n\n".join(final_output)
+# Validate the output
+if not chatgpt_output:
+    print("Failed to generate betting prediction.")
+    sys.exit(1)
 
 # Telegram API URL
 url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
@@ -139,18 +139,18 @@ url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
 # Send the final message to Telegram
 payload = {
     "chat_id": CHAT_ID,
-    "text": final_message,
+    "text": f"{time.strftime('%d-%b-%Y')} £10 to £500 Challenge:\n\n{chatgpt_output}",
     "parse_mode": "Markdown"
 }
 
 try:
     response = requests.post(url, data=payload)
     if response.status_code == 200:
-        print("Final message sent successfully!")
+        print("Betting suggestion sent successfully!")
     else:
-        print(f"Failed to send the final message. Response: {response.json()}")
+        print(f"Failed to send the message. Response: {response.json()}")
 except Exception as e:
-    print(f"Error sending final message to Telegram: {e}")
+    print(f"Error sending the message to Telegram: {e}")
 
 # Close the database connection
 cursor.close()

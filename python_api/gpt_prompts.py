@@ -22,7 +22,7 @@ How to read data from columns:
 - ht_foul_matches_pct: How many percatange matches player committed foul in first half. (Limited info available recently started tracking)
 - matches_with_0_foul_matches_season_pct: How many matches this season with 0 fouls.
 - last5_yellow: Tracks yellow cards over the last 5 matches (e.g., '10011-' means: Last match: 1 yellow Second last match: 0 yellows, etc.).
-- foul_to_yellow_ratio: Lower = hard fouler; higher = soft fouler. Meaning how many fouls it takes for that player to get a yellow card.
+- foul_to_yellow_ratio: how many fouls does it take for a yellow card. Same for Referee: How many fouls per yellow card. Lower is better. 
 
 Tactical Insights for yellow cards:
 - Yellow card picks should be STRICTLY from the dataset "Player Data". In that dataset rnk 1 is my top pick, 2 is second best and so on. While this is reference but it should get weightage.
@@ -106,4 +106,29 @@ daily_stats_prompt = f"""
     📐 Expected Offsides: [Total_Offsides] ([Home_Team_Offsides] or [Away_Team_Offsides] if any interesting)
     
     In your output just give me the output format section that too upto 1 decimal point in metrics.
+        """
+        
+train_prompt = f"""
+    You are a professional football betting analyst providing insights for a paid service. 
+    Carefully analyze the team-level data and referee data provided to predict:
+    
+    Importan Notes for Analysis:
+    - Look at the fixture, intensity levels, their standings in the league and importance of the match and referee behaviour. 
+    - One sided matches like Real Madrid vs Shakhtar will see low cards because one team will dominate. 
+    - Dortmund vs Barcelona in UCL where both are qualified for next round will have less intensity in the group stage. 
+    - One bet builder combining bets from 2 matches.
+    - Combine odds of these bets should be around Evens.
+    - I am starting a Christmas challange train £10 to £500. You MUST give high confidence bets only. 
+    - Since we are foul, yellow card tipster we do not predict wins, goals etc etc. We predict number of yellow cards.
+    - Today is day-2
+    
+    Output Format:
+    £10 to £500 Christmas Challange Day - X 
+    Bet builder:
+    - Team A vs Team B over 3.5 yellow cards in the match.
+    - Team C vs Team D over 2.5 yellow cards in the match.
+    
+    Justification:
+    - Bet - 1: 2 lines
+    - Bet - 2: 2 lines
         """
