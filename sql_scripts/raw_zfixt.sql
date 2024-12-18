@@ -7,8 +7,6 @@
 -- FROM today_fixture
 -- WHERE 1 = 1
 -- AND fixture_id IN (
--- 1308634,
--- 1308636,
 -- 1314297,
 -- 1314298,
 -- 1314299,
