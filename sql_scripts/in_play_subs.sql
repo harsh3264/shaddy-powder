@@ -53,7 +53,7 @@ AND LOWER(lfe2.detail) LIKE '%substitution%'
 WHERE 1 = 1
 AND lf.fixture_id IS NOT NULL
 AND mpv.player_id NOT IN (SELECT player_id FROM temp.in_play_subs_foul)
-AND (lfe.player_id IS NOT NULL)
+AND (lfe.player_id IS NOT NULL OR lfe2.assist_id IS NOT NULL)
 AND (lfl.player_id IS NULL)
 AND (mpv.avg_fouls_total > 1.2 OR mpv.season_avg_fouls > 1.5)
 AND (zero_foul_match_pct < 0.3 OR zero_season_foul_match_pct < 0.2)
@@ -115,7 +115,7 @@ ON mpv.player_id = lfe2.assist_id
 AND LOWER(lfe2.detail) LIKE '%substitution%'
 WHERE 1 = 1
 AND lf.fixture_id IS NOT NULL
-AND (lfe.player_id IS NOT NULL)
+AND (lfe.player_id IS NOT NULL OR lfe2.assist_id IS NOT NULL)
 AND (lfl.player_id IS NULL)
 AND (zero_foul_match_pct < 0.3 OR zero_season_foul_match_pct < 0.2)
 AND (last5_sub_foul NOT LIKE '%000%' OR (last5_start_foul NOT LIKE '%000%' AND last5_sub_foul NOT LIKE '%0000%'))
