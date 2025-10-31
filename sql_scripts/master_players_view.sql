@@ -26,7 +26,7 @@ CREATE TABLE country_code AS
 SELECT
 team_id AS country_id, team_name AS country
 FROM analytics.fixture_player_stats_compile fpsc
-WHERE team_name = nationality
+WHERE COALESCE(team_name, 'a') = COALESCE(nationality, 'a')
 GROUP BY 1
 ;
 
@@ -39,7 +39,7 @@ SELECT *,
 (SELECT player_id, nationality AS country, team_id AS country_id, season_year,
    ROW_NUMBER() over (partition by player_id ORDER BY fixture_date DESC) AS r
 FROM analytics.fixture_player_stats_compile fpsc
-WHERE team_name = nationality
+WHERE COALESCE(team_name, 'a') = COALESCE(nationality, 'a')
 )A
 WHERE 1 = 1
 AND r = 1
@@ -72,7 +72,8 @@ SELECT * FROM
 (SELECT player_id, team_name, team_id, season_year,
    ROW_NUMBER() over (partition by player_id ORDER BY fixture_date DESC) AS r
 FROM analytics.fixture_player_stats_compile
-WHERE team_name <> nationality
+WHERE 1 = 1 
+AND COALESCE(team_name, 'a') <> COALESCE(nationality, 'a')
 )A
 WHERE 1 = 1
 AND r = 1

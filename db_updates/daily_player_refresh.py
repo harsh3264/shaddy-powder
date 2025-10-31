@@ -17,8 +17,8 @@ query1 = '''
     SELECT
     fps.player_id AS player_id,
     MAX(IFNULL(tf1.season_year, tf2.season_year)) AS season_year
-    FROM fixture_player_stats fps
-    INNER JOIN base_data_apis.player_latest_club plc
+    FROM analytics.fixture_player_stats_compile fps
+    INNER JOIN base_data_apis.players_latest_club plc
     ON fps.player_id = plc.player_id
     LEFT JOIN today_fixture tf1
     ON plc.team_id = tf1.home_team_id
@@ -50,5 +50,5 @@ query1 = '''
 
 load_player_info(query1)
 
-fetch_and_insert_injuries()
+# fetch_and_insert_injuries()
     
