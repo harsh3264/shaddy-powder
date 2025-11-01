@@ -13,7 +13,8 @@ CREATE TABLE temp.raw_fld AS
        avg_fouls_drawn_total,
        zero_season_foul_drawn_match_pct,
        zero_foul_drawn_match_pct,
-       fixture_id
+       fixture_id,
+       photo
 FROM
 (SELECT
     tf.fixt,
@@ -34,7 +35,8 @@ FROM
     mpv.season_avg_fouls_drawn,
     mpv.avg_fouls_drawn_total,
     mpv.zero_season_foul_drawn_match_pct,
-    mpv.zero_foul_drawn_match_pct
+    mpv.zero_foul_drawn_match_pct,
+    p.photo
 FROM
     master_players_view mpv
     LEFT JOIN today_fixture tf ON mpv.fixture_id = tf.fixture_id
@@ -65,7 +67,8 @@ INSERT INTO temp.raw_fld
        avg_fouls_drawn_total,
        zero_season_foul_drawn_match_pct,
        zero_foul_drawn_match_pct,
-       fixture_id
+       fixture_id,
+       photo
 FROM
 (SELECT
     tf.fixt,
@@ -86,7 +89,8 @@ FROM
     mpv.season_avg_fouls_drawn,
     mpv.avg_fouls_drawn_total,
     mpv.zero_season_foul_drawn_match_pct,
-    mpv.zero_foul_drawn_match_pct
+    mpv.zero_foul_drawn_match_pct,
+    p.photo
 FROM
     master_players_view mpv
     LEFT JOIN today_fixture tf ON mpv.fixture_id = tf.fixture_id

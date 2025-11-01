@@ -5,9 +5,9 @@ SET pbpq.starting_xi = CASE WHEN lfl.player_id IS NOT NULL THEN 1 ELSE 0 END,
     pbpq.is_match_live = CASE WHEN lfl.fixture_id IS NOT NULL THEN 1 ELSE 0 END;
 
 
-TRUNCATE temp.base_player_q;
+DROP TABLE IF EXISTS temp.base_player_q;
 
-INSERT INTO temp.base_player_q
+CREATE TABLE temp.base_player_q
 SELECT pbpq.*,
        row_number() over (partition by fixture_id, starting_xi order by calc_metric DESC) AS rnk
 FROM temp.pre_base_player_q pbpq
@@ -51,7 +51,8 @@ starting_xi,
 fixture_id,
 player_id,
 league_id,
-rnk
+rnk,
+photo
 FROM temp.base_player_q
 WHERE 1 = 1
 AND fixt IS NOT NULL
@@ -91,7 +92,8 @@ starting_xi,
 fixture_id,
 player_id,
 league_id,
-rnk
+rnk,
+photo
 FROM temp.base_player_q
 WHERE 1 = 1
 AND fixt IS NOT NULL

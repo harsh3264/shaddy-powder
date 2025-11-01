@@ -16,7 +16,7 @@ AND ((team_id IN (SELECT home_team_id
                  WHERE league_id IN (1))
     )
          OR
-     league_id IN (4, 6, 40, 41, 71, 188, 253, 547, 556))
+     league_id IN (4, 6, 40, 41, 71, 188, 253, 547, 556, 179))
 AND season_year >= 2020
 AND league_id NOT IN (10, 667)
 GROUP BY 1
@@ -80,7 +80,11 @@ SELECT
     t2.name AS away_team,
     f.referee,
     cr.cleaned_referee_name,
-    CONCAT(t1.name, ' vs ', t2.name) AS fixt
+    CONCAT(t1.name, ' vs ', t2.name) AS fixt,
+    l.logo AS league_photo,
+    l.country_flag,
+    t1.logo AS home_team_photo,
+    t2.logo AS away_team_photo
 FROM fixtures f
 JOIN leagues l ON f.league_id = l.league_id
 JOIN teams t1 ON f.home_team_id = t1.team_id
@@ -90,12 +94,12 @@ LEFT JOIN cleaned_referees cr ON f.referee = cr.original_referee_name
 WHERE
     tl.teams > 3
     AND timestamp BETWEEN UNIX_TIMESTAMP(NOW() - INTERVAL 2 HOUR) AND UNIX_TIMESTAMP(NOW() + INTERVAL 48 HOUR)
-    AND NOT (
-        (l.league_id IN (40, 41) AND
-         DAYOFWEEK(FROM_UNIXTIME(f.timestamp)) = 7 AND
-         HOUR(CONVERT_TZ(FROM_UNIXTIME(f.timestamp), 'UTC', 'Europe/London')) = 15)
-        AND EXISTS (SELECT 1 FROM temp.league_39_fixtures)
-    )
+    -- AND NOT (
+    --     (l.league_id IN (40, 41) AND
+    --      DAYOFWEEK(FROM_UNIXTIME(f.timestamp)) = 7 AND
+    --      HOUR(CONVERT_TZ(FROM_UNIXTIME(f.timestamp), 'UTC', 'Europe/London')) = 15)
+    --     AND EXISTS (SELECT 1 FROM temp.league_39_fixtures)
+    -- )
 GROUP BY f.fixture_id
 ORDER BY f.timestamp;
 
@@ -428,7 +432,8 @@ last5_mins,
 CASE WHEN plsd.last_start = tlsd.last_start THEN 1 ELSE 0 END AS played_last_game,
 plsd.last_start,
 i.type,
-CASE WHEN LEFT(last5_start_yc, 1) = '1' OR LEFT(last5_yc, 1) = '1' THEN 1 ELSE 0 END AS is_last_yellow
+CASE WHEN LEFT(last5_start_yc, 1) = '1' OR LEFT(last5_yc, 1) = '1' THEN 1 ELSE 0 END AS is_last_yellow,
+p.photo
 FROM master_players_view mpv
 LEFT JOIN today_fixture tf on mpv.fixture_id = tf.fixture_id
 JOIN teams t on mpv.team_id = t.team_id
@@ -507,7 +512,8 @@ CASE WHEN tf.league_id IN (848, 3, 2) AND season_league_cards = 2 THEN ROUND(((a
         ROUND(((avg_yc_total)
             + ((avg_fouls_total) / (efm.fouls / efm.yc_matches))
             + (CASE WHEN is_last_yellow = 0 THEN ((avg_yc_total) / (efm.fouls / efm.yc_matches)) ELSE 0 END)) * (1- zero_foul_match_pct) / 3, 2)
-     END AS calc_metric
+     END AS calc_metric,
+pfv.photo
 FROM temp.player_rnk_view pfv
 LEFT JOIN today_fixture tf on pfv.fixture_id = tf.fixture_id
 LEFT JOIN temp.top_high_voltage thv on pfv.fixture_id = thv.fixture_id

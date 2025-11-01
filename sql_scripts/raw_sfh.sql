@@ -13,7 +13,8 @@ SELECT fixt,
        zero_season_shot_match_pct,
        zero_shot_match_pct,
        fixture_id,
-       player_id
+       player_id,
+       photo
 FROM
 (SELECT
     fixt,
@@ -34,7 +35,8 @@ FROM
     mpv.avg_shots_total,
     mpv.zero_season_shot_match_pct,
     mpv.zero_shot_match_pct,
-    nps.new_pos
+    nps.new_pos,
+    p.photo
 FROM
     master_players_view mpv
     LEFT JOIN today_fixture tf ON mpv.fixture_id = tf.fixture_id
@@ -65,7 +67,8 @@ SELECT fixt,
        zero_season_shot_match_pct,
        zero_shot_match_pct,
        fixture_id,
-       player_id
+       player_id,
+       photo
 FROM
 (SELECT
     fixt,
@@ -85,7 +88,8 @@ FROM
     mpv.season_avg_shots,
     mpv.avg_shots_total,
     mpv.zero_season_shot_match_pct,
-    mpv.zero_shot_match_pct
+    mpv.zero_shot_match_pct,
+    p.photo
 FROM
     master_players_view mpv
     LEFT JOIN today_fixture tf ON mpv.fixture_id = tf.fixture_id

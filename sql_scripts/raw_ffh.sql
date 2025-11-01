@@ -1,7 +1,5 @@
 DROP TABLE IF EXISTS temp.foul_announce;
 
-# SELECT * FROM temp.foul_announce LIMIT 40;
-
 CREATE TABLE temp.foul_announce AS
 (SELECT
 DISTINCT
@@ -89,7 +87,8 @@ tf.timestamp,
 tf.fixture_date,
 tf.name AS league_name,
 ROUND(ROUND(efm.fouls / efm.yc_w_foul_matches, 2) * fp.fhc / fp.matches, 2) AS ratio_f,
-ROUND(ROUND(efm.fouls / efm.yc_w_foul_matches, 2) * fp.fhc * (1 - mpv.zero_foul_match_pct) / fp.matches, 2) AS ratio_f2
+ROUND(ROUND(efm.fouls / efm.yc_w_foul_matches, 2) * fp.fhc * (1 - mpv.zero_foul_match_pct) / fp.matches, 2) AS ratio_f2,
+p.photo
 FROM
 master_players_view mpv
 LEFT JOIN players p ON mpv.player_id = p.player_id
@@ -206,7 +205,8 @@ tf.timestamp,
 tf.fixture_date,
 tf.name AS league_name,
 ROUND(ROUND(efm.fouls / efm.yc_w_foul_matches, 2) * fp.fhc / fp.matches, 2) AS ratio_f,
-ROUND(ROUND(efm.fouls / efm.yc_w_foul_matches, 2) * fp.fhc * (1 - mpv.zero_foul_match_pct) / fp.matches, 2) AS ratio_f2
+ROUND(ROUND(efm.fouls / efm.yc_w_foul_matches, 2) * fp.fhc * (1 - mpv.zero_foul_match_pct) / fp.matches, 2) AS ratio_f2,
+p.photo
 FROM
 master_players_view mpv
 LEFT JOIN players p ON mpv.player_id = p.player_id
@@ -263,7 +263,8 @@ SELECT fixt,
         ROUND(GREATEST(pro_calc_ht_fls, calc_ht_fls), 2) AS c_data,
         fixture_date,
         league_name,
-        player_id
+        player_id,
+        photo
 FROM
 (SELECT
 fixt,
@@ -311,7 +312,8 @@ r_d_fls,
 pro_calc_ht_fls,
 spro_calc_ht_fls,
 fixture_date,
-league_name
+league_name,
+photo
 FROM temp.foul_announce
 WHERE 1 = 1
 AND COALESCE(fixt, 'A') <> 'A'
