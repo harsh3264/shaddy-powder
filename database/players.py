@@ -24,7 +24,15 @@ def insert_player_info(cur, player_id, name, first_name, last_name, nationality,
     sql = """
         INSERT INTO players (player_id, name, first_name, last_name, nationality, age, height, weight, photo)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-        ON DUPLICATE KEY UPDATE player_id=player_id
+        ON DUPLICATE KEY UPDATE
+            name = VALUES(name),
+            first_name = VALUES(first_name),
+            last_name = VALUES(last_name),
+            nationality = VALUES(nationality),
+            age = VALUES(age),
+            height = VALUES(height),
+            weight = VALUES(weight),
+            photo = VALUES(photo);
     """
     cur.execute(sql, (player_id, name, first_name, last_name, nationality, age, height, weight, photo))
 
