@@ -40,6 +40,13 @@ SELECT fixture_id
 FROM live_updates.live_fixtures
 WHERE 1 = 1
   AND status = 'NS'
+  AND (
+        -- Either referee data exists
+        LENGTH(COALESCE(referee, '')) > 3
+
+        -- OR match starts within next 33 minutes (1980 seconds)
+        OR (timestamp <= UNIX_TIMESTAMP() + (33 * 60))
+      )
   AND fixture_id IN (SELECT fixture_id FROM temp.raw_ffh WHERE player_pos IS NOT NULL)
 GROUP BY 1
 ;
