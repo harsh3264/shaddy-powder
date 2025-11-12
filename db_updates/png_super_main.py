@@ -5,7 +5,21 @@ import mysql.connector
 import requests
 import time
 
-# Add the parent directory to the system path
+# Detect environment
+if "C9_PORT" in os.environ:
+    environment_name = "Cloud9"
+    user_home = os.path.expanduser("~")
+    project_directory = "environment/shaddypowder"
+else:
+    environment_name = "EC2"
+    user_home = os.path.expanduser("~")
+    project_directory = "shaddy-powder"
+
+# Set up absolute project path
+project_root = os.path.abspath(os.path.join(user_home, project_directory))
+sys.path.append(project_root)
+
+# Optional: also add parent directory (your existing line)
 parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(parent_dir)
 

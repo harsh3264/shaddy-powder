@@ -33,7 +33,7 @@ def _session():
     retries = Retry(
         total=4, backoff_factor=0.4,
         status_forcelist=(429,500,502,503,504),
-        allowed_methods=frozenset(["GET"])
+        method_whitelist=frozenset(["GET"])   # old name
     )
     s.mount("https://", HTTPAdapter(max_retries=retries))
     s.headers.update({
