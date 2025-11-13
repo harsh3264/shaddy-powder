@@ -25,6 +25,35 @@ ASSETS_DIR = os.path.join(parent_dir, "assets")
 HTML_TEMPLATE = "stat_card.html"
 CSS_FILE = "stat_card.css"
 
+def format_last5(val):
+    """
+    Converts values like:
+        '01234'     → '0-1-2-3-4'
+        '00101'     → '0-0-1-0-1'
+        '0-1-2-3-4' → '0-1-2-3-4'  (already formatted)
+        None        → ''
+    """
+    if val is None:
+        return ""
+
+    # Convert to string
+    s = str(val).strip()
+
+    # Remove any spaces
+    s = s.replace(" ", "")
+
+    # Already formatted
+    if "-" in s:
+        return s
+
+    # Must be digits only
+    if not s.isdigit():
+        return s
+
+    # Join digits with hyphens
+    return "-".join(list(s))
+
+
 
 def render_html_to_png(html_output, output_path):
     """Render HTML string to PNG using Playwright Chromium."""
