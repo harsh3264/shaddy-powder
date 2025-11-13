@@ -76,6 +76,26 @@ def get_top_foulers(cursor, fixture_id, limit=5):
     )
     return cursor.fetchall() or []
 
+def get_top_foul_drawers(cursor, fixture_id, limit=5):
+    cursor.execute(
+        f"""
+        SELECT
+            player_name  AS name,
+            position     AS pos,
+            team_name    AS team_name,
+            last5_start_fouls_drawn AS metric,
+            player_id,
+            rnk
+        FROM temp.raw_fld
+        WHERE fixture_id = %s
+        ORDER BY rnk
+        LIMIT {int(limit)};
+        """,
+        (fixture_id,),
+    )
+    return cursor.fetchall() or []
+
+
 def get_top_shooters(cursor, fixture_id, limit=5):
     cursor.execute(
         f"""

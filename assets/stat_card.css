@@ -193,3 +193,20 @@ body {
     border-radius: 8px;
     display: inline-block;
 }
+
+/* NEW COLOR FOR FOUL DRAWERS */
+.blue-bg {
+    background: #4A90E2;
+    color: #ffffff;
+}
+
+/* THREE COLUMN LAYOUT */
+.three-col-section {
+    display: flex;
+    gap: 28px;
+    margin-top: 22px;
+}
+
+.three-col-section .section {
+    flex: 1;
+}

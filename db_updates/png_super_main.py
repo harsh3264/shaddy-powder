@@ -12,7 +12,7 @@ sys.path.append(parent_dir)
 # Data access
 from png_data_access import (
     get_db, pick_fixture, get_ref_info, get_fix_assets,
-    get_top_foulers, get_top_shooters, get_top_yellows
+    get_top_foulers, get_top_foul_drawers, get_top_shooters, get_top_yellows
 )
 
 # Secrets
@@ -62,15 +62,18 @@ def main():
             ref = get_ref_info(cur, fixture_id)
             fix = get_fix_assets(cur, fixture_id)
 
-            fouls = get_top_foulers(cur, fixture_id, limit=5)
+            foulers = get_top_foulers(cur, fixture_id, limit=5)
+            drawers = get_top_foul_drawers(cur, fixture_id, limit=5)
             shots = get_top_shooters(cur, fixture_id, limit=5)
             yellows = get_top_yellows(cur, fixture_id, limit=3)
 
             # Add photo URLs + format metrics
-            for p in fouls + shots + yellows:
+            for p in foulers + drawers + shots + yellows:
                 pid = p.get("player_id")
                 if pid:
                     p["photo"] = f"https://media.api-sports.io/football/players/{pid}.png"
+                p["metric"] = format_last5(p.get("metric"))
+
 
             # Prepare fixture names
             fixt = fix.get("fixt") or ""
@@ -90,7 +93,8 @@ def main():
                     "last5": ref.get("last5_yc"),
                 },
                 "panels": {
-                    "fouls": fouls,
+                    "fouls": foulers,
+                    "drawers": drawers,      # NEW
                     "shots": shots,
                     "yellows": yellows
                 }
