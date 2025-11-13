@@ -5,7 +5,7 @@
     box-sizing: border-box;
 }
 
-/* BROWSER BACKGROUND (only for preview) */
+/* BROWSER PREVIEW BACKGROUND */
 body {
     background: #1a1d24;
     display: flex;
@@ -14,32 +14,25 @@ body {
     font-family: Arial, sans-serif;
 }
 
-/* FIXED 1080x1080 CANVAS */
+/* FIXED CANVAS */
 .canvas {
     width: 1080px;
     height: 1080px;
     background: #0B101C;
     color: #F2F6FC;
     position: relative;
-    padding: 36px 40px 140px 40px; /* <-- added */
+    padding: 36px 40px 40px 40px;
     border-radius: 12px;
     overflow: hidden;
 }
 
 /******************************************
- HEADER (Smaller + compact)
+ HEADER
 ******************************************/
 .header {
     display: flex;
     gap: 20px;
     align-items: center;
-}
-
-.brand-logo {
-    width: 80px;
-    height: 80px;
-    object-fit: contain;
-    margin-left: auto;
 }
 
 .league-logo {
@@ -78,11 +71,19 @@ body {
     color: #B8C2D0;
 }
 
+/* Brand Logo */
+.brand-logo {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    margin-left: auto;
+}
+
 /******************************************
  SECTION TITLES
 ******************************************/
 .section {
-    margin-top: 28px;
+    margin-top: 22px;   /* tightened from 28px */
 }
 
 .section-title {
@@ -103,7 +104,7 @@ body {
 }
 
 /******************************************
- TOP YELLOW BETS - 3 cards compact
+ TOP YELLOW BETS (3 cards)
 ******************************************/
 .three-grid {
     display: flex;
@@ -154,24 +155,20 @@ body {
 .two-col {
     display: flex;
     gap: 32px;
-    margin-top: 28px;
-}
-
-.section {
-    flex: 1;
+    margin-top: 22px;   /* tightened */
 }
 
 .row-player {
     display: flex;
     align-items: center;
     gap: 14px;
-    padding: 10px 0;
+    padding: 6px 0;     /* was 10px → reduced */
     border-bottom: 1px solid #243150;
 }
 
 .player-photo-small {
-    width: 52px;
-    height: 52px;
+    width: 46px;        /* was 52px */
+    height: 46px;
     border-radius: 50%;
     object-fit: cover;
 }
@@ -184,37 +181,15 @@ body {
 .pmetric {
     font-size: 18px;
     color: #B8C2D0;
-    margin-top: 2px;
+    margin-top: 0px;    /* was 2px */
 }
 
 .team-tag-small {
-    margin-top: 4px;
-    padding: 3px 8px;
+    margin-top: 2px;
+    padding: 2px 7px;   /* was 3px 8px */
     background: #E8EEFF;
     color: #161A20;
-    font-size: 15px;
+    font-size: 14px;    /* was 15px */
     border-radius: 8px;
     display: inline-block;
 }
-
-/******************************************
- FOOTER
-******************************************/
-/*!* FOOTER (back to fixed bottom) *!*/
-/*.footer {*/
-/*    position: absolute;*/
-/*    bottom: 24px;*/
-/*    width: 100%;*/
-/*    text-align: center;*/
-/*}*/
-
-/*.dp-logo {*/
-/*    height: 70px;*/
-/*    object-fit: contain;*/
-/*}*/
-
-/*.footer-text {*/
-/*    margin-top: 8px;*/
-/*    font-size: 20px;*/
-/*    color: #AFC0D0;*/
-/*}*/
