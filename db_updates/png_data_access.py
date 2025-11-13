@@ -102,7 +102,7 @@ def get_top_yellows(cursor, fixture_id, limit=3):
         SELECT
             player_name            AS name,
             team_name              AS team_name,
-            last5_start_yc         AS metric,
+            SUBSTRING(last5_start_yc, 1, LENGTH(last5_start_yc) - 1)         AS metric,
             season_league_cards    AS season_league_cards,
             ROUND(avg_fouls_total, 1)        AS avg_fouls_total,
             player_id,

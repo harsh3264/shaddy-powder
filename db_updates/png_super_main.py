@@ -86,7 +86,7 @@ def main():
                 "away_team": {"name": away_name, "logo": fix.get("away_team_photo")},
                 "referee": {
                     "name": ref.get("cleaned_referee_name"),
-                    "avg_yellows": ref.get("avg_yc_total"),
+                    "avg_yellows": round(float(ref.get("avg_yc_total") or 0), 1),
                     "last5": ref.get("last5_yc"),
                 },
                 "panels": {
