@@ -1,45 +1,46 @@
-# main.py
-import sys
 import os
+import sys
 import mysql.connector
 import requests
-import time
+from jinja2 import Environment, FileSystemLoader
+from playwright.sync_api import sync_playwright
 
-# Detect environment
-if "C9_PORT" in os.environ:
-    environment_name = "Cloud9"
-    user_home = os.path.expanduser("~")
-    project_directory = "environment/shaddypowder"
-else:
-    environment_name = "EC2"
-    user_home = os.path.expanduser("~")
-    project_directory = "shaddy-powder"
-
-# Set up absolute project path
-project_root = os.path.abspath(os.path.join(user_home, project_directory))
-sys.path.append(project_root)
-
-# Optional: also add parent directory (your existing line)
+# Add parent dir
 parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(parent_dir)
 
-# project path already fine if files are colocated
+# Data access
 from png_data_access import (
     get_db, pick_fixture, get_ref_info, get_fix_assets,
     get_top_foulers, get_top_shooters, get_top_yellows
 )
-from png_render_card import render_stat_pack, format_last5
 
-# Secrets (bot token / channels) from your module
+# Secrets
 from python_api.get_secrets import foul_bot, gold_channel
 
 TOKEN = foul_bot
-# CHAT_ID = gold_channel
-CHAT_ID = -5025317081
+CHAT_ID = -5025317081  # your group
+
+ASSETS_DIR = os.path.join(parent_dir, "assets")
+HTML_TEMPLATE = "stat_card.html"
+CSS_FILE = "stat_card.css"
+
+
+def render_html_to_png(html_output, output_path):
+    """Render HTML string to PNG using Playwright Chromium."""
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+        page = browser.new_page(viewport={"width": 1080, "height": 1080})
+        
+        # Load HTML directly as content
+        page.set_content(html_output, wait_until="networkidle")
+        
+        page.screenshot(path=output_path)
+        browser.close()
+
 
 def main():
-    project_directory = "environment/shaddypowder" if "C9_PORT" in os.environ else "shaddy-powder"
-
+    # Prepare DB
     try:
         db = get_db()
         cur = db.cursor(dictionary=True)
@@ -47,10 +48,16 @@ def main():
         print(f"DB Error: {e}")
         sys.exit(1)
 
-    fixtures = pick_fixture(cur)  # change to 39 for EPL
+    # Load Jinja
+    env = Environment(loader=FileSystemLoader(ASSETS_DIR))
+    template = env.get_template(HTML_TEMPLATE)
+
+    fixtures = pick_fixture(cur)
+
     for row in fixtures:
         fixture_id = row["fixture_id"]
         print(f"Processing fixture_id: {fixture_id}")
+
         try:
             ref = get_ref_info(cur, fixture_id)
             fix = get_fix_assets(cur, fixture_id)
@@ -59,24 +66,20 @@ def main():
             shots = get_top_shooters(cur, fixture_id, limit=5)
             yellows = get_top_yellows(cur, fixture_id, limit=3)
 
-            # photos + last-5 formatting
+            # Add photo URLs + format metrics
             for p in fouls + shots + yellows:
                 pid = p.get("player_id")
-                if pid is not None and str(pid).strip() != "":
+                if pid:
                     p["photo"] = f"https://media.api-sports.io/football/players/{pid}.png"
 
-            for p in fouls:   p["metric"] = format_last5(p.get("metric"))
-            for p in shots:   p["metric"] = format_last5(p.get("metric"))
-            for p in yellows:
-                raw = str(p.get("metric") or "").rstrip("-")
-                p["metric"] = format_last5(raw)
-
-            fixt = str(fix.get("fixt") or "").strip()
+            # Prepare fixture names
+            fixt = fix.get("fixt") or ""
             if " vs " in fixt:
                 home_name, away_name = [s.strip() for s in fixt.split(" vs ", 1)]
             else:
-                home_name, away_name = (fixt or "Home"), "Away"
+                home_name, away_name = fixt, ""
 
+            # Data object for template
             data = {
                 "league_logo": fix.get("league_photo"),
                 "home_team": {"name": home_name, "logo": fix.get("home_team_photo")},
@@ -86,23 +89,36 @@ def main():
                     "avg_yellows": ref.get("avg_yc_total"),
                     "last5": ref.get("last5_yc"),
                 },
-                "panels": {"fouls": fouls, "shots": shots, "yellows": yellows}
+                "panels": {
+                    "fouls": fouls,
+                    "shots": shots,
+                    "yellows": yellows
+                }
             }
 
-            out_dir = f"/home/ec2-user/{project_directory}/generated_cards"
-            os.makedirs(out_dir, exist_ok=True)
-            out_path = os.path.join(out_dir, f"{fixture_id}.png")
+            # Render HTML
+            html_output = template.render(**data)
 
-            render_stat_pack(data, out_path)
-            print(f"Generated {out_path}")
+            # Output path
+            output_path = os.path.join(ASSETS_DIR, f"{fixture_id}.png")
 
-            with open(out_path, "rb") as photo_file:
+            # Convert to PNG
+            render_html_to_png(html_output, output_path)
+            print(f"PNG generated: {output_path}")
+
+            # Send to Telegram
+            with open(output_path, "rb") as f:
                 url = f"https://api.telegram.org/bot{TOKEN}/sendPhoto"
-                resp = requests.post(url, data={"chat_id": CHAT_ID}, files={"photo": photo_file})
-                if resp.status_code == 200:
-                    print(f"Posted to Telegram for fixture_id {fixture_id}")
-                else:
-                    print(f"Telegram error for {fixture_id}: {resp.text}")
+                resp = requests.post(
+                    url,
+                    data={"chat_id": CHAT_ID},
+                    files={"photo": f}
+                )
+
+            if resp.status_code == 200:
+                print("Posted to Telegram")
+            else:
+                print(f"Telegram error: {resp.text}")
 
         except Exception as e:
             print(f"Error processing fixture {fixture_id}: {e}")
@@ -110,6 +126,7 @@ def main():
 
     cur.close()
     db.close()
+
 
 if __name__ == "__main__":
     main()

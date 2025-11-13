@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ home_team.name }} vs {{ away_team.name }}</title>
+    <link rel="stylesheet" href="stat_card.css">
+</head>
+
+<body>
+<div class="canvas">
+
+    <!-- HEADER -->
+    <div class="header">
+
+        <!-- League Logo -->
+        <img class="league-logo" src="{{ league_logo }}">
+
+        <!-- Fixture Title + Ref Info -->
+        <div class="fixture-block">
+            <div class="fixture-row">
+                <img class="team-logo" src="{{ home_team.logo }}">
+                <div class="fixture-title">{{ home_team.name }} vs {{ away_team.name }}</div>
+                <img class="team-logo" src="{{ away_team.logo }}">
+            </div>
+
+            <div class="ref-row">
+                Ref: {{ referee.name }} • Avg YC {{ referee.avg_yellows }} • Last 5 YC:
+                {{ referee.last5 }}
+            </div>
+        </div>
+
+        <!-- BRAND LOGO -->
+        <img class="brand-logo"
+             src="https://datapitch-assets.s3.eu-north-1.amazonaws.com/DataPitch.png">
+    </div>
+
+
+
+    <!-- TOP YELLOW BETS -->
+    <div class="section yellow-section">
+        <div class="section-title yellow-bg">TOP YELLOW BETS</div>
+
+        <div class="three-grid">
+            {% for p in panels.yellows %}
+            <div class="player-card">
+
+                <img class="player-photo" src="{{ p.photo }}">
+
+                <div class="player-name">{{ p.name }}</div>
+
+                <div class="team-tag">{{ p.team_name }}</div>
+
+                <div class="meta">Season YC: {{ p.season_league_cards }}</div>
+                <div class="meta">Avg Fouls: {{ p.avg_fouls_total }}</div>
+                <div class="meta">Last 5 YC: {{ p.metric }}</div>
+
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+
+
+    <!-- FOULERS + SHOOTERS SECTION -->
+    <div class="two-col">
+
+        <!-- FOULERS -->
+        <div class="section">
+            <div class="section-title red-bg">TOP FOULERS</div>
+            <div class="subtext">Last 5 starts</div>
+
+            {% for p in panels.fouls %}
+            <div class="row-player">
+                <img class="player-photo-small" src="{{ p.photo }}">
+                <div class="row-info">
+                    <div class="pname">{{ p.name }}</div>
+                    <div class="pmetric">{{ p.metric }}</div>
+                    <div class="team-tag-small">{{ p.team_name }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+
+        <!-- SHOOTERS -->
+        <div class="section">
+            <div class="section-title green-bg">TOP SHOOTERS</div>
+            <div class="subtext">Last 5 starts</div>
+
+            {% for p in panels.shots %}
+            <div class="row-player">
+                <img class="player-photo-small" src="{{ p.photo }}">
+                <div class="row-info">
+                    <div class="pname">{{ p.name }}</div>
+                    <div class="pmetric">{{ p.metric }}</div>
+                    <div class="team-tag-small">{{ p.team_name }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+    </div>
+
+</div>
+</body>
+</html>
