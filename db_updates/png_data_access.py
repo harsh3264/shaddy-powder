@@ -24,10 +24,12 @@ def pick_fixture(cursor):
         SELECT fixture_id, fixt
         FROM today_fixture
         WHERE 1 = 1
-        AND league_id = 71
+        AND league_id <> 71
+        # AND fixture_id IN (SELECT fixture_id FROM temp.new_tele_fixtures)
         GROUP BY 1, 2
         ORDER BY fixture_id DESC
-        LIMIT 1;
+        LIMIT 5
+        ;
         """
     )
     return cursor.fetchall()
