@@ -1,0 +1,485 @@
+
+/* GLOBAL RESET & MODERN DEFAULTS */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* CUSTOM PROPERTIES - Design System */
+:root {
+    /* Color Palette - Elevated */
+    --bg-primary: #0A0E1A;
+    --bg-secondary: #141824;
+    --bg-card: #1A1F2E;
+    --bg-card-hover: #1F2535;
+    
+    /* Accent Colors - Vibrant with depth */
+    --yellow-primary: #FFD93D;
+    --yellow-secondary: #FFC107;
+    --yellow-dark: #F57F17;
+    
+    --red-primary: #FF5252;
+    --red-secondary: #F44336;
+    --red-dark: #C62828;
+    
+    --blue-primary: #42A5F5;
+    --blue-secondary: #2196F3;
+    --blue-dark: #1565C0;
+    
+    --green-primary: #66BB6A;
+    --green-secondary: #4CAF50;
+    --green-dark: #2E7D32;
+    
+    /* Text Colors */
+    --text-primary: #FFFFFF;
+    --text-secondary: #B8C5D6;
+    --text-muted: #7A8699;
+    --text-dark: #1A1C24;
+    
+    /* Spacing System */
+    --space-xs: 8px;
+    --space-sm: 12px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 32px;
+    --space-2xl: 40px;
+    
+    /* Typography */
+    --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    
+    /* Shadows */
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.15);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.25);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.35);
+    --shadow-glow: 0 0 20px rgba(255, 217, 61, 0.3);
+    
+    /* Border Radius */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-full: 9999px;
+}
+
+/* BODY */
+body {
+    background: linear-gradient(135deg, #0A0E1A 0%, #1A1D2E 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: var(--space-2xl);
+    font-family: var(--font-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* CANVAS */
+.canvas {
+    width: 1080px;
+    min-height: 1080px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    position: relative;
+    padding: var(--space-2xl);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+}
+
+.canvas::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 300px;
+    background: radial-gradient(ellipse at top, rgba(66, 165, 245, 0.1) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+/******************************************
+ HEADER
+******************************************/
+.header {
+    display: flex;
+    gap: var(--space-lg);
+    align-items: center;
+    margin-bottom: var(--space-xl);
+    position: relative;
+    z-index: 1;
+}
+
+.league-logo {
+    width: 96px;
+    height: 96px;
+    object-fit: contain;
+    filter: drop-shadow(var(--shadow-sm));
+}
+
+.fixture-block {
+    flex: 1;
+}
+
+.fixture-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    margin-bottom: var(--space-sm);
+}
+
+.team-logo {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+    filter: drop-shadow(var(--shadow-sm));
+    transition: transform 0.3s ease;
+}
+
+.team-logo:hover {
+    transform: scale(1.1);
+}
+
+.fixture-title {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm);
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+
+.team-name {
+    color: var(--text-primary);
+}
+
+.vs-text {
+    color: var(--text-muted);
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.ref-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: 18px;
+    color: var(--text-secondary);
+    flex-wrap: wrap;
+}
+
+.ref-label {
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.ref-name {
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.ref-stat {
+    padding: 4px var(--space-sm);
+    background: var(--bg-card);
+    border-radius: var(--radius-sm);
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.brand-logo {
+    width: 88px;
+    height: 88px;
+    object-fit: contain;
+    opacity: 0.9;
+}
+
+/******************************************
+ SECTION STRUCTURE
+******************************************/
+.section {
+    margin-top: var(--space-lg);
+}
+
+.section-header {
+    margin-bottom: var(--space-md);
+}
+
+.section-title {
+    font-size: 24px;
+    font-weight: 800;
+    padding: var(--space-md) var(--space-lg);
+    border-radius: var(--radius-md);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    box-shadow: var(--shadow-md);
+    position: relative;
+    overflow: hidden;
+}
+
+.section-title::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.5s ease;
+}
+
+.section-title:hover::before {
+    left: 100%;
+}
+
+.title-icon {
+    font-size: 20px;
+}
+
+.yellow-gradient {
+    background: linear-gradient(135deg, var(--yellow-primary) 0%, var(--yellow-secondary) 100%);
+    color: var(--text-dark);
+}
+
+.red-gradient {
+    background: linear-gradient(135deg, var(--red-primary) 0%, var(--red-secondary) 100%);
+    color: var(--text-primary);
+}
+
+.blue-gradient {
+    background: linear-gradient(135deg, var(--blue-primary) 0%, var(--blue-secondary) 100%);
+    color: var(--text-primary);
+}
+
+.green-gradient {
+    background: linear-gradient(135deg, var(--green-primary) 0%, var(--green-secondary) 100%);
+    color: var(--text-primary);
+}
+
+.subtext {
+    margin-top: var(--space-xs);
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-muted);
+    letter-spacing: 0.3px;
+}
+
+/******************************************
+ TOP YELLOW PICKS
+******************************************/
+.three-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-lg);
+}
+
+.player-card {
+    background: var(--bg-card);
+    padding: var(--space-lg);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.player-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg), var(--shadow-glow);
+    border-color: var(--yellow-primary);
+}
+
+.featured-card {
+    background: linear-gradient(135deg, var(--bg-card) 0%, rgba(255, 217, 61, 0.05) 100%);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--space-md);
+}
+
+.player-photo {
+    width: 80px;
+    height: 80px;
+    border-radius: var(--radius-full);
+    object-fit: cover;
+    border: 3px solid var(--yellow-primary);
+    box-shadow: 0 4px 12px rgba(255, 217, 61, 0.3);
+}
+
+.risk-badge {
+    padding: 4px var(--space-sm);
+    background: linear-gradient(135deg, var(--red-primary), var(--red-secondary));
+    color: var(--text-primary);
+    border-radius: var(--radius-sm);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.player-info {
+    margin-bottom: var(--space-md);
+}
+
+.player-name {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--space-xs);
+    line-height: 1.2;
+}
+
+.team-tag {
+    display: inline-block;
+    padding: 4px var(--space-sm);
+    background: linear-gradient(135deg, var(--yellow-primary), var(--yellow-secondary));
+    color: var(--text-dark);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-sm);
+}
+
+.stat-item {
+    text-align: center;
+    padding: var(--space-sm);
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.stat-item.highlight {
+    background: rgba(255, 217, 61, 0.1);
+    border-color: var(--yellow-primary);
+}
+
+.stat-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.stat-value {
+    display: block;
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+/******************************************
+ THREE COLUMN LISTS
+******************************************/
+.three-col-section {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-lg);
+    margin-top: var(--space-lg);
+}
+
+.list-block {
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    box-shadow: var(--shadow-md);
+}
+
+.row-player {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.2s ease;
+}
+
+.row-player:last-child {
+    border-bottom: none;
+}
+
+.row-player:hover {
+    background: var(--bg-card-hover);
+    border-radius: var(--radius-sm);
+}
+
+.player-rank {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+    border-radius: var(--radius-full);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    flex-shrink: 0;
+}
+
+.player-photo-small {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-full);
+    object-fit: cover;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
+}
+
+.row-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.pname {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.team-tag-small {
+    display: inline-block;
+    padding: 2px var(--space-xs);
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 4px;
+    letter-spacing: 0.2px;
+}
+
+.pmetric {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text-primary);
+    flex-shrink: 0;
+    min-width: 40px;
+    text-align: right;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+    .canvas {
+        width: 100%;
+        max-width: 1080px;
+    }
+}
+

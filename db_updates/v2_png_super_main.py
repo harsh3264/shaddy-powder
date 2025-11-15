@@ -10,7 +10,7 @@ parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(parent_dir)
 
 # Data access
-from png_data_access import (
+from v2_png_data_access import (
     get_db, pick_fixture, get_ref_info, get_fix_assets,
     get_top_foulers, get_top_foul_drawers, get_top_shooters, get_top_yellows
 )
@@ -19,12 +19,11 @@ from png_data_access import (
 from python_api.get_secrets import foul_bot, gold_channel
 
 TOKEN = foul_bot
-# CHAT_ID = -5025317081  # your group
-CHAT_ID = gold_channel
+CHAT_ID = -5025317081  # your group
 
 ASSETS_DIR = os.path.join(parent_dir, "assets")
-HTML_TEMPLATE = "stat_card.html"
-CSS_FILE = "stat_card.css"
+HTML_TEMPLATE = "stat_card_v2.html"
+CSS_FILE = "stat_card_v2.css"
 
 def format_last5(val):
     """
