@@ -15,23 +15,24 @@
     <!-- HEADER -->
     <div class="header">
 
+        <!-- League logo -->
         <img class="league-logo" src="{{ league_logo }}">
 
-        <div class="header-center">
-            <div class="fixture-title">
-                {{ home_team.name }} <span class="vs-text">vs</span> {{ away_team.name }}
+        <!-- Fixture block with BOTH team logos -->
+        <div class="fixture-block">
+            <div class="fixture-row">
+                <img class="team-logo" src="{{ home_team.logo }}">
+                <div class="fixture-title">
+                    {{ home_team.name }} <span class="vs-text">vs</span> {{ away_team.name }}
+                </div>
+                <img class="team-logo" src="{{ away_team.logo }}">
             </div>
-
-            <div class="league-name">{{ referee.league_name }}</div>
 
             <div class="ref-summary">
-                Avg Yellows: {{ referee.avg_yellows }}
-                &nbsp;&nbsp;&nbsp; Last 5:
-                {{ referee.last5 }}
+                Ref: {{ referee.name }} • Avg Yellows: {{ referee.avg_yellows }}
+                • Last 5 YC: {{ referee.last5 }}
             </div>
         </div>
-
-        <img class="team-logo-right" src="{{ away_team.logo }}">
     </div>
 
 
@@ -123,7 +124,11 @@
 
     </div>
 
-    <div class="brand">DataPitch</div>
+    <!-- BRAND / LOGO ROW -->
+    <div class="brand-row">
+        <img class="brand-logo"
+             src="https://datapitch-assets.s3.eu-north-1.amazonaws.com/DataPitch.png">
+    </div>
 
 </div>
 </body>
