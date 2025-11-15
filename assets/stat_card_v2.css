@@ -5,21 +5,14 @@
     box-sizing: border-box;
 }
 
-body {
-    background: #11141A;
-    display: flex;
-    justify-content: center;
-    padding: 40px 0;
-    font-family: Arial, sans-serif;
-}
-
 /* CANVAS */
 .canvas {
     width: 1080px;
-    background: #0C101A;
-    color: #F2F6FC;
-    padding: 36px 40px;
-    border-radius: 12px;
+    min-height: 1350px;
+    background: #0f2a27;
+    color: #ffffff;
+    padding: 40px;
+    font-family: Arial, sans-serif;
 }
 
 /******************************************
@@ -27,178 +20,198 @@ body {
 ******************************************/
 .header {
     display: flex;
-    gap: 20px;
+    justify-content: space-between;
     align-items: center;
 }
 
 .league-logo {
-    width: 88px;
-    height: 88px;
+    width: 110px;
+    height: 110px;
     object-fit: contain;
 }
 
-.fixture-block {
+.header-center {
+    text-align: center;
     flex: 1;
 }
 
-.fixture-row {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-}
-
-.team-logo {
-    width: 60px;
-    height: 60px;
-    object-fit: contain;
-}
-
 .fixture-title {
-    font-size: 36px;
+    font-size: 46px;
     font-weight: 700;
 }
 
 .vs-text {
-    color: #A0A8B5;
-    font-weight: 600;
+    color: #d3d5d6;
+    padding: 0 6px;
 }
 
-.ref-row {
-    margin-top: 6px;
+.league-name {
+    font-size: 22px;
+    margin-top: 8px;
+    color: #d6e6e3;
+}
+
+.ref-summary {
+    margin-top: 8px;
     font-size: 20px;
-    color: #B8C2D0;
+    color: #e5f5f2;
 }
 
-.brand-logo {
-    width: 80px;
-    height: 80px;
+.team-logo-right {
+    width: 110px;
+    height: 110px;
     object-fit: contain;
 }
 
+
 /******************************************
- SECTION TITLES
+ YELLOW PICKS HEADER
 ******************************************/
-.section {
-    margin-top: 28px;
-}
-
-.section-title {
-    font-size: 26px;
+.yellow-header {
+    margin-top: 40px;
+    background: #f3c637;
+    color: #1a1d20;
     font-weight: 700;
-    padding: 10px 18px;
-    border-radius: 8px;
+    font-size: 28px;
+    padding: 14px 20px;
+    border-radius: 10px;
 }
 
-.yellow-bg { background: #FAD53F; color: #1A1C20; }
-.red-bg    { background: #E24C4C; }
-.blue-bg   { background: #4A90E2; }
-.green-bg  { background: #3CB871; }
-
-.subtext {
-    margin-top: 6px;
-    font-size: 18px;
-    color: #A9B4C5;
-}
 
 /******************************************
- TOP YELLOW PICKS
+ TOP PLAYER CARDS
 ******************************************/
 .three-grid {
+    margin-top: 24px;
     display: flex;
     justify-content: space-between;
-    margin-top: 14px;
 }
 
-.player-card {
-    width: 32%;
-    background: #162238;
-    padding: 16px;
-    border-radius: 12px;
+.card {
+    width: 31%;
+    background: rgba(255,255,255,0.04);
+    padding: 22px;
+    border-radius: 14px;
 }
 
-.player-header {
-    display: flex;
-    justify-content: center;
+.card-photo-wrap {
+    text-align: center;
 }
 
-.player-photo {
-    width: 74px;
-    height: 74px;
+.card-photo {
+    width: 105px;
+    height: 105px;
     border-radius: 50%;
     object-fit: cover;
 }
 
-.player-name {
-    margin-top: 10px;
-    font-size: 22px;
-    font-weight: 600;
-}
-
-.team-tag {
-    display: inline-block;
-    margin-top: 6px;
-    padding: 4px 10px;
-    background: #EBF0FF;
-    color: #1C1F26;
-    border-radius: 10px;
-    font-size: 15px;
+.card-name {
+    margin-top: 14px;
+    font-size: 24px;
     font-weight: 700;
 }
 
-.meta {
+.card-team {
+    margin-top: 2px;
     font-size: 18px;
-    color: #BAC2D0;
-    margin-top: 6px;
+    color: #c8d8d4;
 }
+
+.card-stat {
+    margin-top: 10px;
+    font-size: 18px;
+    color: #d9e8e5;
+}
+
 
 /******************************************
- THREE COLUMNS
+ LOWER 3 COLUMNS
 ******************************************/
-.three-col-section {
+.lower-grid {
+    margin-top: 40px;
     display: flex;
-    gap: 24px;
-    margin-top: 22px;
+    justify-content: space-between;
 }
 
-.row-player {
+.pill {
+    display: inline-block;
+    padding: 8px 16px;
+    font-size: 20px;
+    font-weight: 700;
+    border-radius: 8px;
+    color: #ffffff;
+}
+
+.pill-red { background: #d9534f; }
+.pill-blue { background: #4a90e2; }
+.pill-green { background: #5cb85c; }
+
+.sub-label {
+    margin-top: 6px;
+    margin-bottom: 14px;
+    font-size: 16px;
+    color: #c8d8d4;
+}
+
+.row {
     display: flex;
     align-items: center;
-    gap: 14px;
-    padding: 8px 0;
-    border-bottom: 1px solid #243150;
+    margin-bottom: 14px;
 }
 
-.row-player:last-child {
-    border-bottom: none;
-}
-
-.player-photo-small {
-    width: 46px;
-    height: 46px;
+.row-photo {
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
+    overflow: hidden;
+    margin-right: 12px;
+}
+
+.row-photo img {
+    width: 100%;
+    height: 100%;
     object-fit: cover;
+}
+
+/* RINGS */
+.red-ring {
+    border: 3px solid #d9534f;
+}
+.blue-ring {
+    border: 3px solid #4a90e2;
+}
+.green-ring {
+    border: 3px solid #5cb85c;
 }
 
 .row-info {
     flex: 1;
 }
 
-.pname {
+.row-name {
     font-size: 18px;
-    font-weight: 600;
-}
-
-.team-tag-small {
-    margin-top: 2px;
-    padding: 2px 7px;
-    background: #E8EEFF;
-    color: #161A20;
-    font-size: 13px;
-    border-radius: 6px;
-    display: inline-block;
-}
-
-.pmetric {
-    font-size: 20px;
     font-weight: 700;
+}
+
+.row-team {
+    font-size: 15px;
+    color: #b5c5c2;
+}
+
+.row-metric {
+    font-size: 18px;
+    font-weight: 700;
+    text-align: right;
+}
+
+
+/******************************************
+ BRAND
+******************************************/
+.brand {
+    margin-top: 40px;
+    text-align: right;
+    font-size: 30px;
+    font-weight: 700;
+    color: #ff6d47;
 }
