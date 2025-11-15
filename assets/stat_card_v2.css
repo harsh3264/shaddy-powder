@@ -8,10 +8,9 @@
 /* CANVAS */
 .canvas {
     width: 1080px;
-    min-height: 1350px;
     background: #0f2a27;
     color: #ffffff;
-    padding: 40px;
+    padding: 40px 40px 20px 40px; /* reduced bottom padding */
     font-family: Arial, sans-serif;
 }
 
@@ -204,7 +203,8 @@
  BRAND FOOTER
 ******************************************/
 .brand-row {
-    margin-top: 40px;
+    margin-top: 20px;      /* was 40px */
+    padding-bottom: 10px;  /* ensures it sits nicely at bottom */
     display: flex;
     align-items: center;
     justify-content: flex-end;
