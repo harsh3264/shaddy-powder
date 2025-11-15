@@ -200,35 +200,36 @@
 }
 
 /******************************************
- BRAND FOOTER
+ BRAND FOOTER (ONE LINE)
 ******************************************/
 .brand-row {
-    margin-top: 20px;      /* was 40px */
-    padding-bottom: 10px;  /* ensures it sits nicely at bottom */
+    margin-top: 20px;
     display: flex;
     align-items: center;
-    justify-content: flex-end;
-    gap: 14px;
+    justify-content: center; /* centers entire footer */
+    gap: 12px;
+    padding-bottom: 10px;
 }
 
 .brand-logo {
-    height: 48px;
+    height: 36px;
     object-fit: contain;
 }
 
-.brand-text {
-    text-align: right;
-    line-height: 1.2;
+.brand-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #ff6d47; /* DataPitch orange */
 }
 
-.brand-title {
-    font-size: 30px;
+.brand-sep {
+    font-size: 22px;
     font-weight: 700;
-    color: #ff6d47;  /* DataPitch orange */
+    color: #d5e2df;
 }
 
 .brand-sub {
-    font-size: 16px;
+    font-size: 18px;
+    font-weight: 500;
     color: #d0dedb;
-    margin-top: 2px;
 }
