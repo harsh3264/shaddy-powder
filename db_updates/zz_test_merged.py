@@ -139,15 +139,21 @@ League: {league}
 Output MUST follow this 3-line format:
 1. The fixture exactly.
 2. ONE fun stat only.
-3. Hashtags: #DataPitch + team hashtags + league hashtag.
+3. Join us on Telegram. (Link in bio)
+4. Hashtags: #DataPitch + team hashtags + league hashtag + relevant catchy hashtags.
 
 Rules:
 - Max 160 chars total.
-- No emojis.
+- Hashtags must be short, correct, impression generating & relevant.
+- Add catchy emojis.
 - No markdown.
 - No unnecessary text.
-- Fun stat must be 1 short line, based on generic footballing logic.
-- Hashtags must be short, correct & relevant.
+- Fun stat must be 1 short line, and something cool from the data I shared. Not generic.
+- Few examples of fun stats
+1- Arsenal to have 4 or more offsides. 
+2- Tierney to draw 3 or more fouls.
+3- Westham to have 8 or more corners.
+4- More than 30% probability of a red card.
 
 Return ONLY the final tweet text.
 """
