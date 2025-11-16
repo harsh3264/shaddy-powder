@@ -78,3 +78,43 @@ db_parameters = json.loads(db_json_parameters)
 
 # print(rapid_api_key)
 
+def get_secret_x_app():
+
+    secret_name = "x_auto_post"
+    region_name = "eu-north-1"
+
+    # Create a Secrets Manager client
+    session = boto3.session.Session()
+    client = session.client(
+        service_name='secretsmanager',
+        region_name=region_name
+    )
+
+    try:
+        get_secret_value_response = client.get_secret_value(
+            SecretId=secret_name
+        )
+    except ClientError as e:
+        # For a list of exceptions thrown, see
+        # https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
+        raise e
+
+    secret = get_secret_value_response['SecretString']
+    
+    return secret
+
+x_app_credentials = get_secret_x_app()
+
+x_app_json_parameters = x_app_credentials.replace("'", "\"")
+
+x_app_parameters = json.loads(x_app_json_parameters)
+
+x_app_access_token = x_app_parameters['access_token']
+
+x_app_access_token_secret = x_app_parameters['access_token_secret']
+
+x_app_api_key = x_app_parameters['API_key']
+
+x_app_api_key_secret = x_app_parameters['API_key_secret']
+
+x_app_bearer_token = x_app_parameters['bearer_token']
