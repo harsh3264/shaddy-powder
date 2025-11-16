@@ -1,29 +1,17 @@
-/* GLOBAL RESET */
+/* RESET */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-/* BROWSER PREVIEW BACKGROUND */
-body {
-    background: #1a1d24;
-    display: flex;
-    justify-content: center;
-    padding: 40px 0;
-    font-family: Arial, sans-serif;
-}
-
-/* FIXED CANVAS */
+/* CANVAS */
 .canvas {
     width: 1080px;
-    height: 1080px;
-    background: #0B101C;
-    color: #F2F6FC;
-    position: relative;
-    padding: 36px 40px 40px 40px;
-    border-radius: 12px;
-    overflow: hidden;
+    background: #0f2a27;
+    color: #ffffff;
+    padding: 40px 40px 20px 40px; /* reduced bottom padding */
+    font-family: Arial, sans-serif;
 }
 
 /******************************************
@@ -31,13 +19,13 @@ body {
 ******************************************/
 .header {
     display: flex;
-    gap: 20px;
     align-items: center;
+    gap: 20px;
 }
 
 .league-logo {
-    width: 88px;
-    height: 88px;
+    width: 110px;
+    height: 110px;
     object-fit: contain;
 }
 
@@ -52,161 +40,196 @@ body {
 }
 
 .team-logo {
-    width: 60px;
-    height: 60px;
+    width: 70px;
+    height: 70px;
     object-fit: contain;
 }
 
 .fixture-title {
-    font-size: 38px;
+    font-size: 46px;
     font-weight: 700;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
-.ref-row {
-    margin-top: 6px;
-    font-size: 22px;
-    color: #B8C2D0;
+.vs-text {
+    color: #d3d5d6;
+    padding: 0 6px;
 }
 
-/* Brand Logo */
-.brand-logo {
-    width: 80px;
-    height: 80px;
-    object-fit: contain;
-    margin-left: auto;
+.ref-summary {
+    margin-top: 10px;
+    font-size: 20px;
+    color: #e5f5f2;
 }
 
 /******************************************
- SECTION TITLES
+ YELLOW PICKS HEADER
 ******************************************/
-.section {
-    margin-top: 22px;   /* tightened from 28px */
-}
-
-.section-title {
-    font-size: 28px;
+.yellow-header {
+    margin-top: 36px;
+    background: #f3c637;
+    color: #1a1d20;
     font-weight: 700;
-    padding: 12px 20px;
+    font-size: 28px;
+    padding: 14px 20px;
     border-radius: 10px;
 }
 
-.yellow-bg { background: #FAD53F; color: #1A1C20; }
-.red-bg    { background: #E24C4C; }
-.green-bg  { background: #3CB871; }
-
-.subtext {
-    margin-top: 6px;
-    font-size: 20px;
-    color: #A9B4C5;
-}
-
 /******************************************
- TOP YELLOW BETS (3 cards)
+ TOP PLAYER CARDS
 ******************************************/
 .three-grid {
+    margin-top: 24px;
     display: flex;
     justify-content: space-between;
-    margin-top: 14px;
 }
 
-.player-card {
-    width: 32%;
-    background: #162238;
-    padding: 16px;
+.card {
+    width: 31%;
+    background: rgba(0, 0, 0, 0.25);
+    padding: 22px;
     border-radius: 14px;
 }
 
-.player-photo {
-    width: 70px;
-    height: 70px;
+.card-photo-wrap {
+    text-align: center;
+}
+
+.card-photo {
+    width: 100px;
+    height: 100px;
     border-radius: 50%;
     object-fit: cover;
 }
 
-.player-name {
-    margin-top: 10px;
-    font-size: 22px;
-    font-weight: 600;
-}
-
-.team-tag {
-    display: inline-block;
-    margin-top: 6px;
-    padding: 5px 10px;
-    background: #EBF0FF;
-    color: #1C1F26;
-    border-radius: 10px;
-    font-size: 16px;
+.card-name {
+    margin-top: 14px;
+    font-size: 24px;
     font-weight: 700;
 }
 
-.meta {
+.card-team {
+    margin-top: 2px;
     font-size: 18px;
-    color: #BAC2D0;
-    margin-top: 6px;
+    color: #c8d8d4;
+}
+
+.card-stat {
+    margin-top: 10px;
+    font-size: 18px;
+    color: #d9e8e5;
 }
 
 /******************************************
- TOP FOULERS + SHOOTERS (5 rows each)
+ LOWER 3 COLUMNS
 ******************************************/
-.two-col {
+.lower-grid {
+    margin-top: 40px;
     display: flex;
-    gap: 32px;
-    margin-top: 22px;   /* tightened */
+    justify-content: space-between;
 }
 
-.row-player {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 6px 0;     /* was 10px → reduced */
-    border-bottom: 1px solid #243150;
-}
-
-.player-photo-small {
-    width: 46px;        /* was 52px */
-    height: 46px;
-    border-radius: 50%;
-    object-fit: cover;
-}
-
-.pname {
-    font-size: 20px;
-    font-weight: 600;
-}
-
-.pmetric {
-    font-size: 18px;
-    color: #B8C2D0;
-    margin-top: 0px;    /* was 2px */
-}
-
-.team-tag-small {
-    margin-top: 2px;
-    padding: 2px 7px;   /* was 3px 8px */
-    background: #E8EEFF;
-    color: #161A20;
-    font-size: 14px;    /* was 15px */
-    border-radius: 8px;
+.pill {
     display: inline-block;
-}
-
-/* NEW COLOR FOR FOUL DRAWERS */
-.blue-bg {
-    background: #4A90E2;
+    padding: 8px 16px;
+    font-size: 20px;
+    font-weight: 700;
+    border-radius: 8px;
     color: #ffffff;
 }
 
-/* THREE COLUMN LAYOUT */
-.three-col-section {
-    display: flex;
-    gap: 28px;
-    margin-top: 22px;
+.pill-red   { background: #d9534f; }
+.pill-blue  { background: #4a90e2; }
+.pill-green { background: #5cb85c; }
+
+.sub-label {
+    margin-top: 6px;
+    margin-bottom: 14px;
+    font-size: 16px;
+    color: #c8d8d4;
 }
 
-.three-col-section .section {
+.row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 14px;
+}
+
+.row-photo {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-right: 12px;
+}
+
+.row-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* RINGS */
+.red-ring {
+    border: 3px solid #d9534f;
+}
+.blue-ring {
+    border: 3px solid #4a90e2;
+}
+.green-ring {
+    border: 3px solid #5cb85c;
+}
+
+.row-info {
     flex: 1;
+}
+
+.row-name {
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.row-team {
+    font-size: 15px;
+    color: #b5c5c2;
+}
+
+.row-metric {
+    font-size: 18px;
+    font-weight: 700;
+    text-align: right;
+}
+
+/******************************************
+ BRAND FOOTER (ONE LINE)
+******************************************/
+.brand-row {
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center; /* centers entire footer */
+    gap: 12px;
+    padding-bottom: 10px;
+}
+
+.brand-logo {
+    height: 36px;
+    object-fit: contain;
+}
+
+.brand-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #ff6d47; /* DataPitch orange */
+}
+
+.brand-sep {
+    font-size: 22px;
+    font-weight: 700;
+    color: #d5e2df;
+}
+
+.brand-sub {
+    font-size: 18px;
+    font-weight: 500;
+    color: #d0dedb;
 }
