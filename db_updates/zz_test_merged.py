@@ -8,9 +8,9 @@ from playwright.sync_api import sync_playwright
 import tweepy
 import openai
 
-# ================================
-#  PATHS & ENV SETUP
-# ================================
+# ====================================================
+#  PATH & ENV SETUP
+# ====================================================
 parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(parent_dir)
 
@@ -18,12 +18,13 @@ ASSETS_DIR = os.path.join(parent_dir, "assets")
 HTML_TEMPLATE = "stat_card.html"
 CSS_FILE = "stat_card.css"
 
-# ================================
-#   IMPORT PROJECT HELPERS
-# ================================
+# ====================================================
+#  IMPORT PROJECT HELPERS AND SECRETS
+# ====================================================
 from v2_png_data_access import (
     get_db, pick_fixture, get_ref_info, get_fix_assets,
-    get_top_foulers, get_top_foul_drawers, get_top_shooters, get_top_yellows
+    get_top_foulers, get_top_foul_drawers,
+    get_top_shooters, get_top_yellows
 )
 
 from python_api.get_secrets import (
@@ -32,21 +33,14 @@ from python_api.get_secrets import (
     x_app_access_token, x_app_access_token_secret
 )
 
-from python_api.gpt_prompts import yc_foul_prompt
-
 gold_channel = -5025317081
-
-# ================================
-#   CONSTANTS
-# ================================
+openai.api_key = gpt_key
 TELEGRAM_TOKEN = foul_bot
 TELEGRAM_CHANNELS = [gold_channel]
-openai.api_key = gpt_key
 
-
-# ================================
+# ====================================================
 #  UTILS
-# ================================
+# ====================================================
 def format_last5(val):
     if val is None:
         return ""
@@ -58,9 +52,9 @@ def format_last5(val):
     return "-".join(list(s))
 
 
-# ================================
+# ====================================================
 #  HTML → PNG RENDER
-# ================================
+# ====================================================
 def render_html_to_png(html_output, output_path):
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
@@ -70,9 +64,9 @@ def render_html_to_png(html_output, output_path):
         browser.close()
 
 
-# ================================
-#   TELEGRAM POSTER
-# ================================
+# ====================================================
+#  TELEGRAM SENDER
+# ====================================================
 def send_png_to_telegram(image_path, channels):
     for ch in channels:
         with open(image_path, "rb") as f:
@@ -88,9 +82,9 @@ def send_png_to_telegram(image_path, channels):
             print(f"Telegram error: {resp.text}")
 
 
-# ================================
-#   TWITTER CLIENTS
-# ================================
+# ====================================================
+#  TWITTER CLIENTS
+# ====================================================
 def create_media_api():
     auth = tweepy.OAuth1UserHandler(
         x_app_api_key,
@@ -109,101 +103,132 @@ def create_v2_client():
     )
 
 
-# ================================
-#   POST TWEET WITH IMAGE
-# ================================
+# ====================================================
+#  POST TO X/TWITTER
+# ====================================================
 def post_to_x(image_path, tweet_text):
     media_api = create_media_api()
     media = media_api.media_upload(image_path)
     media_id = media.media_id_string
 
     client = create_v2_client()
-    client.create_tweet(
-        text=tweet_text,
-        media_ids=[media_id]
-    )
+    client.create_tweet(text=tweet_text, media_ids=[media_id])
     print("Tweet posted successfully.")
 
 
-# ================================
-#  LLM TWEET GENERATOR
-# ================================
-def generate_llm_tweet(fixture_string, teamA, teamB, league):
+# ====================================================
+#  GENAI TWEET GENERATOR (UPDATED)
+# ====================================================
+def generate_llm_tweet(fixture_string, teamA, teamB, league, yc_data, fun_stat):
     prompt = f"""
-You are generating a Twitter/X post (<160 chars) for a football stat sheet.
+You are generating a football analytics tweet for a match stat sheet.
 
+Inputs:
 Fixture: {fixture_string}
-Teams: {teamA}, {teamB}
+Team A: {teamA}
+Team B: {teamB}
 League: {league}
 
-Output MUST follow this 3-line format:
-1. The fixture exactly.
-2. ONE fun stat only.
-3. Join us on Telegram. (Link in bio)
-4. Hashtags: #DataPitch + team hashtags + league hashtag + relevant catchy hashtags.
+Top YC Player Raw Data:
+Player Name: {yc_data.get("player_name")}
+Team: {yc_data.get("team_name")}
+Position: {yc_data.get("position")}
+Last 5 YC Metric: {yc_data.get("metric")}
+Season League Cards: {yc_data.get("season_league_cards")}
+Avg Fouls Per Match: {yc_data.get("avg_fouls_total")}
+Argument-related YC %: {yc_data.get("argument_related_yc")}
+Time-wasting YC %: {yc_data.get("time_wasting_related_yc")}
+
+Fun stat: {fun_stat}
+
+OUTPUT FORMAT (STRICT):
+
+🔵 {teamA.upper()} vs {teamB.upper()} 🔴
+
+Top Yellow Pick 🟨:
+Write an insightful 1–2 sentence commentary based entirely on the YC raw data. Make it sound like an expert analyst.
+
+{yc_data.get("player_name")} - Write a 12–18 word numeric summary using only the raw data above.
+
+Fun stat:
+{fun_stat}
+
+Hashtags:
+Generate 6–10 smart hashtags:
+- Short team tags (#CHE, #ARS, etc.)
+- Combined fixture tag
+- League tag
+- 3–5 trending match-relevant tags
 
 Rules:
-- Max 160 chars total.
-- Hashtags must be short, correct, impression generating & relevant.
-- Add catchy emojis.
+- Return ONLY the final tweet text.
 - No markdown.
-- No unnecessary text.
-- Fun stat must be 1 short line, and something cool from the data I shared. Not generic.
-- Few examples of fun stats
-1- Arsenal to have 4 or more offsides. 
-2- Tierney to draw 3 or more fouls.
-3- Westham to have 8 or more corners.
-4- More than 30% probability of a red card.
-
-Return ONLY the final tweet text.
+- Keep under 700 chars.
 """
 
     response = openai.ChatCompletion.create(
         model="gpt-4o",
         messages=[
-            {"role": "system", "content": "You are a precise football analyst that crafts short tweets."},
+            {"role": "system", "content": "You write expert-level football analytics tweets."},
             {"role": "user", "content": prompt}
         ],
-        temperature=0.5
+        temperature=0.7
     )
 
-    tweet = response["choices"][0]["message"]["content"].strip()
-    return tweet
+    return response["choices"][0]["message"]["content"].strip()
 
 
-# ================================
-#  MAIN WORKFLOW
-# ================================
+# ====================================================
+#  MAIN FIXTURE PROCESSOR
+# ====================================================
 def process_fixture(fixture_id, db_cursor):
 
     print(f"\n=== Processing Fixture {fixture_id} ===")
 
-    # ========================
-    # Fetch all stats
-    # ========================
+    # Fetch data
     ref = get_ref_info(db_cursor, fixture_id)
     fix = get_fix_assets(db_cursor, fixture_id)
-
     foulers = get_top_foulers(db_cursor, fixture_id, limit=5)
     drawers = get_top_foul_drawers(db_cursor, fixture_id, limit=5)
     shots = get_top_shooters(db_cursor, fixture_id, limit=5)
     yellows = get_top_yellows(db_cursor, fixture_id, limit=3)
 
+    # Player images + metrics
     for p in foulers + drawers + shots + yellows:
         pid = p.get("player_id")
         if pid:
             p["photo"] = f"https://media.api-sports.io/football/players/{pid}.png"
         p["metric"] = format_last5(p.get("metric"))
 
+    # Team names
     fixt = fix.get("fixt") or ""
     if " vs " in fixt:
         home_name, away_name = [s.strip() for s in fixt.split(" vs ", 1)]
     else:
         home_name, away_name = fixt, ""
 
-    # ========================
-    # Prepare template data
-    # ========================
+    # Prepare YC data
+    if yellows and len(yellows) > 0:
+        yc = yellows[0]
+    else:
+        yc = {}
+
+    yc_data = {
+        "player_name": yc.get("player_name", ""),
+        "team_name": yc.get("team_name", ""),
+        "metric": yc.get("metric", ""),
+        "season_league_cards": yc.get("season_league_cards", ""),
+        "avg_fouls_total": yc.get("avg_fouls_total", ""),
+        "argument_related_yc": yc.get("argument_related_yc", ""),
+        "time_wasting_related_yc": yc.get("time_wasting_related_yc", ""),
+        "position": yc.get("pos", ""),
+        "player_id": yc.get("player_id", "")
+    }
+
+    # Fun stat (keep simple for now)
+    fun_stat = "Team to have 4 or more offsides."
+
+    # Jinja2 template
     env = Environment(loader=FileSystemLoader(ASSETS_DIR))
     template = env.get_template(HTML_TEMPLATE)
 
@@ -224,40 +249,35 @@ def process_fixture(fixture_id, db_cursor):
         }
     }
 
-    # ========================
-    # Render → PNG
-    # ========================
+    # HTML → PNG
     html_output = template.render(**data)
     png_path = os.path.join(ASSETS_DIR, f"{fixture_id}.png")
     render_html_to_png(html_output, png_path)
     print(f"PNG generated: {png_path}")
 
-    # ========================
     # Send to Telegram
-    # ========================
     send_png_to_telegram(png_path, TELEGRAM_CHANNELS)
 
-    # ========================
-    # Generate Tweet (LLM)
-    # ========================
+    # Generate tweet
     tweet_text = generate_llm_tweet(
         fixture_string=fixt,
         teamA=home_name,
         teamB=away_name,
-        league=fix.get("league_name", "")
+        league=fix.get("league_name", ""),
+        yc_data=yc_data,
+        fun_stat=fun_stat
     )
 
-    print("Generated Tweet:", tweet_text)
+    print("Generated Tweet:")
+    print(tweet_text)
 
-    # ========================
-    # Post to X/Twitter
-    # ========================
+    # Post tweet
     post_to_x(png_path, tweet_text)
 
 
-# ================================
+# ====================================================
 #  ENTRY POINT
-# ================================
+# ====================================================
 def main():
 
     try:
