@@ -21,7 +21,7 @@ CSS_FILE = "stat_card.css"
 # ====================================================
 #  IMPORT PROJECT HELPERS AND SECRETS
 # ====================================================
-from v2_png_data_access import (
+from png_data_access import (
     get_db, pick_fixture, get_ref_info, get_fix_assets,
     get_top_foulers, get_top_foul_drawers,
     get_top_shooters, get_top_yellows
@@ -33,7 +33,7 @@ from python_api.get_secrets import (
     x_app_access_token, x_app_access_token_secret
 )
 
-gold_channel = -5025317081
+# gold_channel = -5025317081
 openai.api_key = gpt_key
 TELEGRAM_TOKEN = foul_bot
 TELEGRAM_CHANNELS = [gold_channel]
@@ -270,11 +270,11 @@ def process_fixture(fixture_id, db_cursor):
         fun_stat=fun_stat
     )
 
-    print("Generated Tweet:")
-    print(tweet_text)
+    # print("Generated Tweet:")
+    # print(tweet_text)
 
     # Post tweet
-    # post_to_x(png_path, tweet_text)
+    post_to_x(png_path, tweet_text)
 
 
 # ====================================================
