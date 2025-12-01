@@ -131,7 +131,7 @@ Team B: {teamB}
 League: {league}
 
 Yellow Card Player Data (use EXACTLY these facts):
-Player Name: {yc_data.get("player_name")}
+Player Name: {yc_data.get("name")}
 Team: {yc_data.get("team_name")}
 Position: {yc_data.get("position")}
 Last 5 YC Metric: {yc_data.get("metric")}
@@ -149,10 +149,10 @@ STRICT FORMAT (no deviation):
 Top Yellow Pick 🟨:
 Start this sentence with the player’s full name. Explain, in 1–2 sentences, why this player is a strong yellow-card candidate, using the data provided.
 
-{yc_data.get("player_name")} – Create a 12–18 word numeric summary about his YC risk. MUST include one number.
+{yc_data.get("name")} – Create a 12–18 word numeric summary about his YC risk. MUST include one number.
 
-Fun stat:
-{fun_stat}
+Some additional 1 liner stating that we as a DataPitch just produce stats based on our models. Usage of this is on your own. 
+Follow us on Telegram for more. It's a free channel
 
 Hashtags:
 Generate EXACTLY 6 hashtags:
@@ -165,7 +165,8 @@ Do NOT use generic analytics hashtags.
 
 RULES:
 - Output ONLY the tweet.
-- MUST include player name twice.
+- Colour next to team names should be according to jerseys Blue and Red are for sample.
+- MUST include player name.
 - No markdown.
 - No listing of raw metric patterns.
 """
