@@ -151,8 +151,7 @@ Start this sentence with the player’s full name. Explain, in 1–2 sentences, 
 
 {yc_data.get("player_name")} – Create a 12–18 word numeric summary about his YC risk. MUST include one number.
 
-Some additional 1 liner stating that we as a DataPitch just produce stats based on our models. Usage of this is on your own. 
-Follow us on Telegram for more. It's a free channel
+Note: DataPitch delivers analytics, you decide how to use it. Join our FREE Telegram for more insights including in-plays.
 
 Hashtags:
 Generate EXACTLY 6 hashtags:
@@ -165,7 +164,8 @@ Do NOT use generic analytics hashtags.
 
 RULES:
 - Output ONLY the tweet.
-- Colour next to team names should be according to jerseys Blue and Red are for sample.
+- Note should be as it is.
+- The coloured circles beside team names must match their real-world home kit colours (e.g., Chelsea 🔵, Liverpool 🔴, Juventus ⚪⚫). Do not use generic blue/red.
 - MUST include player name.
 - No markdown.
 - No listing of raw metric patterns.
