@@ -119,6 +119,7 @@ def post_to_x(image_path, tweet_text):
 # ====================================================
 #  GENAI TWEET GENERATOR (UPDATED)
 # ====================================================
+
 def generate_llm_tweet(fixture_string, teamA, teamB, league, yc_data, fun_stat):
     prompt = f"""
 You are generating a football analytics tweet for a match stat sheet.
@@ -129,7 +130,7 @@ Team A: {teamA}
 Team B: {teamB}
 League: {league}
 
-Top YC Player Raw Data:
+Top YC Player Raw Data (use these facts):
 Player Name: {yc_data.get("player_name")}
 Team: {yc_data.get("team_name")}
 Position: {yc_data.get("position")}
@@ -141,42 +142,43 @@ Time-wasting YC %: {yc_data.get("time_wasting_related_yc")}
 
 Fun stat: {fun_stat}
 
-OUTPUT FORMAT (STRICT):
+STRICT OUTPUT FORMAT:
 
 🔵 {teamA.upper()} vs {teamB.upper()} 🔴
 
 Top Yellow Pick 🟨:
-Write an insightful 1–2 sentence commentary based entirely on the YC raw data. Make it sound like an expert analyst.
+Write 1–2 sentences explaining why this player is a strong yellow-card candidate, based on the real data. No generic language.
 
-{yc_data.get("player_name")} - Write a 12–18 word numeric summary using only the raw data above.
+{yc_data.get("player_name")} – Create a 12–18 word summary highlighting *key numerical indicators* (fouls per match, recent YC pattern, positional risk). No raw metric lists.
 
 Fun stat:
 {fun_stat}
 
-Hashtags:
-Generate 6–10 smart hashtags:
-- Short team tags (#CHE, #ARS, etc.)
-- Combined fixture tag
+Generate 6–8 hashtags (ONLY the hashtags, nothing else):
+- Short team tags (#CHE, #ARS)
+- Combined fixture tag (#CHEARS)
 - League tag
-- 3–5 trending match-relevant tags
+- 2–4 match-relevant tags
+No generic tags. No analytics buzzwords.
 
-Rules:
-- Return ONLY the final tweet text.
+RULES:
+- Output only the tweet text.
 - No markdown.
-- Keep under 700 chars.
+- No headings like "Hashtags:".
+- No leading dashes.
+- No listing raw metric strings (e.g., 0-1-1-1-0).
 """
 
     response = openai.ChatCompletion.create(
         model="gpt-4o",
         messages=[
-            {"role": "system", "content": "You write expert-level football analytics tweets."},
+            {"role": "system", "content": "You write elite football betting/analytics tweets with sharp insights."},
             {"role": "user", "content": prompt}
         ],
-        temperature=0.7
+        temperature=0.6
     )
 
     return response["choices"][0]["message"]["content"].strip()
-
 
 # ====================================================
 #  MAIN FIXTURE PROCESSOR
@@ -272,7 +274,7 @@ def process_fixture(fixture_id, db_cursor):
     print(tweet_text)
 
     # Post tweet
-    post_to_x(png_path, tweet_text)
+    # post_to_x(png_path, tweet_text)
 
 
 # ====================================================
