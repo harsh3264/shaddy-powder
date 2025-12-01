@@ -144,12 +144,10 @@ Fun stat: {fun_stat}
 
 STRICT FORMAT (no deviation except the dots next to team names in the header):
 
-{teamA.upper()} vs {teamB.upper()}
+⚪ {teamA.upper()} vs {teamB.upper()} ⚪
 
 Top Yellow Pick 🟨:
-Start this sentence with the player’s full name. Explain, in 1–2 sentences, why this player is a strong yellow-card candidate, using the data provided.
-
-{yc_data.get("player_name")} – Create a 12–18 word numeric summary about his YC risk. MUST include one number.
+{yc_data.get("player_name")} – Create a 12–18 word numeric summary about his YC risk. Using the available information.
 
 Note: DataPitch delivers analytics, you decide how to use it. Join our FREE Telegram for more insights including in-plays.
 
@@ -164,6 +162,7 @@ Do NOT use generic analytics hashtags.
 
 RULES:
 - Output ONLY the tweet.
+- Explain, in 1–2 sentences, why this player is a strong yellow-card candidate, using the data provided.
 - Note should be as it is.
 - The coloured circles beside team names must match their real-world home kit colours (e.g., Chelsea 🔵, Liverpool 🔴, Juventus ⚪⚫). Do not use generic blue/red.
 - MUST include player name.
