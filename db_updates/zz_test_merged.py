@@ -122,7 +122,7 @@ def post_to_x(image_path, tweet_text):
 
 def generate_llm_tweet(fixture_string, teamA, teamB, league, yc_data, fun_stat):
     prompt = f"""
-You are generating a football analytics tweet for a match stat sheet.
+You create football analytics tweets. Follow the exact required format.
 
 Inputs:
 Fixture: {fixture_string}
@@ -130,52 +130,52 @@ Team A: {teamA}
 Team B: {teamB}
 League: {league}
 
-Top YC Player Raw Data (use these facts):
+Yellow Card Player Data (use EXACTLY these facts):
 Player Name: {yc_data.get("player_name")}
 Team: {yc_data.get("team_name")}
 Position: {yc_data.get("position")}
 Last 5 YC Metric: {yc_data.get("metric")}
 Season League Cards: {yc_data.get("season_league_cards")}
 Avg Fouls Per Match: {yc_data.get("avg_fouls_total")}
-Argument-related YC %: {yc_data.get("argument_related_yc")}
-Time-wasting YC %: {yc_data.get("time_wasting_related_yc")}
+Argument YC %: {yc_data.get("argument_related_yc")}
+Time-Wasting YC %: {yc_data.get("time_wasting_related_yc")}
 
 Fun stat: {fun_stat}
 
-STRICT OUTPUT FORMAT:
+STRICT FORMAT (no deviation):
 
 🔵 {teamA.upper()} vs {teamB.upper()} 🔴
 
 Top Yellow Pick 🟨:
-Write 1–2 sentences explaining why this player is a strong yellow-card candidate, based on the real data. No generic language.
+Start this sentence with the player’s full name. Explain, in 1–2 sentences, why this player is a strong yellow-card candidate, using the data provided.
 
-{yc_data.get("player_name")} – Create a 12–18 word summary highlighting *key numerical indicators* (fouls per match, recent YC pattern, positional risk). No raw metric lists.
+{yc_data.get("player_name")} – Create a 12–18 word numeric summary about his YC risk. MUST include one number.
 
 Fun stat:
 {fun_stat}
 
-Generate 6–8 hashtags (ONLY the hashtags, nothing else):
-- Short team tags (#CHE, #ARS)
-- Combined fixture tag (#CHEARS)
-- League tag
-- 2–4 match-relevant tags
-No generic tags. No analytics buzzwords.
+Hashtags:
+Generate EXACTLY 6 hashtags:
+1. Short tag for team A
+2. Short tag for team B
+3. Combined fixture tag
+4. League tag
+5–6. Two match-specific football hashtags  
+Do NOT use generic analytics hashtags.
 
 RULES:
-- Output only the tweet text.
+- Output ONLY the tweet.
+- MUST include player name twice.
 - No markdown.
-- No headings like "Hashtags:".
-- No leading dashes.
-- No listing raw metric strings (e.g., 0-1-1-1-0).
+- No listing of raw metric patterns.
 """
-
     response = openai.ChatCompletion.create(
         model="gpt-4o",
         messages=[
-            {"role": "system", "content": "You write elite football betting/analytics tweets with sharp insights."},
+            {"role": "system", "content": "You write elite-level football betting and analytics tweets."},
             {"role": "user", "content": prompt}
         ],
-        temperature=0.6
+        temperature=0.45
     )
 
     return response["choices"][0]["message"]["content"].strip()
