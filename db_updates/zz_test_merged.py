@@ -142,9 +142,9 @@ Time-Wasting YC %: {yc_data.get("time_wasting_related_yc")}
 
 Fun stat: {fun_stat}
 
-STRICT FORMAT (no deviation):
+STRICT FORMAT (no deviation except the dots next to team names in the header):
 
-🔵 {teamA.upper()} vs {teamB.upper()} 🔴
+{teamA.upper()} vs {teamB.upper()}
 
 Top Yellow Pick 🟨:
 Start this sentence with the player’s full name. Explain, in 1–2 sentences, why this player is a strong yellow-card candidate, using the data provided.
