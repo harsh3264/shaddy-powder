@@ -157,7 +157,7 @@ Generate EXACTLY 6 hashtags:
 2. Short tag for team B
 3. Combined fixture tag
 4. League tag
-5–6. Two match-specific football hashtags  
+5–6. Team, match or League specific attractive hashtags. (#HalaMadrid, #COYG, #ElClassico, #NorthLondonDerby etc)
 Do NOT use generic analytics hashtags.
 
 RULES:
