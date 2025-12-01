@@ -21,7 +21,7 @@ CSS_FILE = "stat_card.css"
 # ================================
 #   IMPORT PROJECT HELPERS
 # ================================
-from png_data_access import (
+from v2_png_data_access import (
     get_db, pick_fixture, get_ref_info, get_fix_assets,
     get_top_foulers, get_top_foul_drawers, get_top_shooters, get_top_yellows
 )
@@ -34,7 +34,7 @@ from python_api.get_secrets import (
 
 from python_api.gpt_prompts import yc_foul_prompt
 
-# gold_channel = -5025317081
+gold_channel = -5025317081
 
 # ================================
 #   CONSTANTS
@@ -240,19 +240,19 @@ def process_fixture(fixture_id, db_cursor):
     # ========================
     # Generate Tweet (LLM)
     # ========================
-    # tweet_text = generate_llm_tweet(
-    #     fixture_string=fixt,
-    #     teamA=home_name,
-    #     teamB=away_name,
-    #     league=fix.get("league_name", "")
-    # )
+    tweet_text = generate_llm_tweet(
+        fixture_string=fixt,
+        teamA=home_name,
+        teamB=away_name,
+        league=fix.get("league_name", "")
+    )
 
-    # print("Generated Tweet:", tweet_text)
+    print("Generated Tweet:", tweet_text)
 
     # ========================
     # Post to X/Twitter
     # ========================
-    # post_to_x(png_path, tweet_text)
+    post_to_x(png_path, tweet_text)
 
 
 # ================================
