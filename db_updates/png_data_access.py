@@ -125,9 +125,14 @@ def get_top_yellows(cursor, fixture_id, limit=3):
             SUBSTRING(last5_start_yc, 1, LENGTH(last5_start_yc) - 1)         AS metric,
             season_league_cards    AS season_league_cards,
             ROUND(avg_fouls_total, 1)        AS avg_fouls_total,
-            player_id,
+            ROUND(argue_yc_pct, 1)        AS argument_related_yc,
+            ROUND(tw_yc_pct, 1)        AS time_wasting_related_yc,
+            a.player_id,
+            b.position AS pos,
             rnk
-        FROM temp.player_q
+        FROM temp.player_q a
+        LEFT JOIN (SELECT player_id, position FROM temp.raw_sfh) b 
+        ON a.player_id = b.player_id
         WHERE fixture_id = %s
         ORDER BY rnk
         LIMIT {int(limit)};
