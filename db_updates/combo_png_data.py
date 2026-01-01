@@ -1,4 +1,12 @@
+import os
+import sys
 import mysql.connector
+import requests
+
+# Add parent dir
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(parent_dir)
+
 from python_api.get_secrets import db_parameters
 
 def get_db():
