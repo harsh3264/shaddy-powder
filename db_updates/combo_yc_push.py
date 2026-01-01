@@ -1,14 +1,19 @@
 import os
 import sys
+import mysql.connector
+import requests
 from jinja2 import Environment, FileSystemLoader
 from playwright.sync_api import sync_playwright
-import requests
+
+# Add parent dir
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(parent_dir)
 
 from combo_png_data import get_db, pick_fixtures, get_fix_assets, get_top_yellow
 from python_api.get_secrets import foul_bot, gold_channel
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-ASSETS_DIR = os.path.join(BASE_DIR, "assets")
+# BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+ASSETS_DIR = os.path.join(parent_dir, "assets")
 
 TEMPLATE = "combo_work.html"
 TELEGRAM_TOKEN = foul_bot
