@@ -46,6 +46,7 @@ def get_top_yellow(cursor, fixture_id):
             player_id
         FROM temp.player_q
         WHERE fixture_id = %s
+        AND rnk = 2
         ORDER BY rnk
         LIMIT 1;
     """, (fixture_id,))
