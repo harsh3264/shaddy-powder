@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Top Yellow Card Picks</title>
+
+    <style>
+        {% include 'combo_work.css' %}
+    </style>
+</head>
+
+<body>
+<div class="canvas">
+
+    <!-- HEADER -->
+    <div class="combo-header">
+        <div class="combo-title">TOP YELLOW CARD PICKS</div>
+        <div class="combo-sub">
+            EFL Championship • All 3:00 PM Kick-offs
+        </div>
+    </div>
+
+    <!-- GRID -->
+    <div class="yc-grid">
+        {% for game in games %}
+        <div class="yc-card">
+
+            <!-- FIXTURE ROW -->
+            <div class="fixture-mini">
+                <img src="{{ game.home_logo }}" class="team-mini">
+                <span class="vs-text">vs</span>
+                <img src="{{ game.away_logo }}" class="team-mini">
+            </div>
+
+            <!-- PLAYER -->
+            <div class="player-wrap">
+                <img src="{{ game.player.photo }}" class="player-photo">
+                <div class="player-name">{{ game.player.name }}</div>
+                <div class="player-team">{{ game.player.team }}</div>
+            </div>
+
+            <!-- STATS -->
+            <div class="stat-row">Season YC: {{ game.player.season_yc }}</div>
+            <div class="stat-row">Avg Fouls: {{ game.player.avg_fouls }}</div>
+            <div class="stat-row">Last 5 YC: {{ game.player.last5 }}</div>
+
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- BRAND -->
+    <div class="brand-row">
+        <img class="brand-logo"
+             src="https://datapitch-assets.s3.eu-north-1.amazonaws.com/DataPitch.png">
+        <span class="brand-title">DataPitch</span>
+        <span class="brand-sep">•</span>
+        <span class="brand-sub">Stats-driven football insights</span>
+    </div>
+
+</div>
+</body>
+</html>

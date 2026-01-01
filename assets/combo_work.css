@@ -1,0 +1,119 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.canvas {
+    width: 1080px;
+    background: #0f2a27;
+    color: #ffffff;
+    padding: 40px;
+    font-family: Arial, sans-serif;
+}
+
+/* HEADER */
+.combo-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.combo-title {
+    font-size: 42px;
+    font-weight: 800;
+    color: #f3c637;
+}
+
+.combo-sub {
+    margin-top: 6px;
+    font-size: 20px;
+    color: #d0dedb;
+}
+
+/* GRID */
+.yc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+}
+
+/* CARD */
+.yc-card {
+    background: rgba(0, 0, 0, 0.28);
+    padding: 22px;
+    border-radius: 14px;
+    text-align: center;
+}
+
+/* FIXTURE */
+.fixture-mini {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.team-mini {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+}
+
+.vs-text {
+    color: #c8d8d4;
+}
+
+/* PLAYER */
+.player-photo {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.player-name {
+    margin-top: 10px;
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.player-team {
+    font-size: 17px;
+    color: #c8d8d4;
+}
+
+/* STATS */
+.stat-row {
+    margin-top: 8px;
+    font-size: 17px;
+    color: #d9e8e5;
+}
+
+/* BRAND */
+.brand-row {
+    margin-top: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.brand-logo {
+    height: 34px;
+}
+
+.brand-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #ff6d47;
+}
+
+.brand-sep {
+    color: #d5e2df;
+}
+
+.brand-sub {
+    font-size: 16px;
+    color: #d0dedb;
+}
