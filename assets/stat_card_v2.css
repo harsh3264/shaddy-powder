@@ -8,11 +8,12 @@
 /* CANVAS */
 .canvas {
     width: 1080px;
-    min-height: 1350px;          /* ✅ FIX: lock vertical space */
+    min-height: 1550px;
     background: #0f2a27;
     color: #ffffff;
-    padding: 40px;               /* ✅ restore full padding */
+    padding: 40px;
     font-family: Arial, sans-serif;
+    overflow: visible;   /* 🔑 prevents clipping */
 }
 
 /******************************************
