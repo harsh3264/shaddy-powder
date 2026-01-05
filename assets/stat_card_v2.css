@@ -8,9 +8,10 @@
 /* CANVAS */
 .canvas {
     width: 1080px;
+    min-height: 1350px;          /* ✅ FIX: lock vertical space */
     background: #0f2a27;
     color: #ffffff;
-    padding: 40px 40px 20px 40px; /* reduced bottom padding */
+    padding: 40px;               /* ✅ restore full padding */
     font-family: Arial, sans-serif;
 }
 
@@ -204,11 +205,11 @@
 ******************************************/
 .brand-row {
     margin-top: 20px;
+    padding-bottom: 20px;        /* ✅ prevents collapse */
     display: flex;
     align-items: center;
-    justify-content: center; /* centers entire footer */
+    justify-content: center;
     gap: 12px;
-    padding-bottom: 10px;
 }
 
 .brand-logo {

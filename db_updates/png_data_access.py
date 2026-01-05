@@ -24,7 +24,8 @@ def pick_fixture(cursor):
         SELECT fixture_id, fixt
         FROM today_fixture
         WHERE 1 = 1
-        AND fixture_id IN (SELECT fixture_id FROM temp.new_tele_fixtures)
+        AND fixture_id = 1501838
+        # AND fixture_id IN (SELECT fixture_id FROM temp.new_tele_fixtures)
         GROUP BY 1, 2
         ORDER BY fixture_id DESC
         ;
