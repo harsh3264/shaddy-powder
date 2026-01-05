@@ -60,7 +60,11 @@ def render_html_to_png(html_output, output_path):
         browser = p.chromium.launch(headless=True)
         page = browser.new_page(viewport={"width": 1080, "height": 1080})
         page.set_content(html_output, wait_until="networkidle")
-        page.screenshot(path=output_path)
+
+        canvas = page.locator(".canvas")
+        canvas.wait_for(state="visible")
+        canvas.screenshot(path=output_path)
+
         browser.close()
 
 
