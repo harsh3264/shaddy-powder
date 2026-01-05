@@ -33,7 +33,7 @@ from python_api.get_secrets import (
     x_app_access_token, x_app_access_token_secret
 )
 
-gold_channel = -5025317081
+# gold_channel = -5025317081
 openai.api_key = gpt_key
 TELEGRAM_TOKEN = foul_bot
 TELEGRAM_CHANNELS = [gold_channel]
