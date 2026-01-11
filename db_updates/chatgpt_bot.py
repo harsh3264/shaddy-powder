@@ -30,7 +30,8 @@ db_config = {
 
 # Telegram
 TOKEN = foul_bot
-CHAT_ID = -1002262437072
+CHAT_ID = gold_channel
+# CHAT_ID = -1002262437072
 
 
 # ---------- GPT FUNCTION ----------
