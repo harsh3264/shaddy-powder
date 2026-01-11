@@ -99,7 +99,7 @@ except Exception as err:
 
 
 # Fetch fixture_id
-cursor.execute("SELECT fixture_id FROM temp.tele_fixtures WHERE fixture_id = 1490806 GROUP BY 1;")
+cursor.execute("SELECT fixture_id FROM temp.new_tele_fixtures GROUP BY 1;")
 fixture_ids = [row["fixture_id"] for row in cursor.fetchall()]
 
 
