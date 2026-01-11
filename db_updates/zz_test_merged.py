@@ -6,7 +6,8 @@ import mysql.connector
 from jinja2 import Environment, FileSystemLoader
 from playwright.sync_api import sync_playwright
 import tweepy
-import openai
+import html
+from openai import OpenAI  # NEW API CLIENT
 
 # ====================================================
 #  PATH & ENV SETUP
@@ -33,10 +34,12 @@ from python_api.get_secrets import (
     x_app_access_token, x_app_access_token_secret
 )
 
-# gold_channel = -5025317081
-openai.api_key = gpt_key
+# OpenAI Client Init (NEW VERSION)
+client = OpenAI(api_key=gpt_key)
+
 TELEGRAM_TOKEN = foul_bot
 TELEGRAM_CHANNELS = [gold_channel]
+
 
 # ====================================================
 #  UTILS
@@ -115,74 +118,55 @@ def post_to_x(image_path, tweet_text):
     media = media_api.media_upload(image_path)
     media_id = media.media_id_string
 
-    client = create_v2_client()
-    client.create_tweet(text=tweet_text, media_ids=[media_id])
+    client_v2 = create_v2_client()
+    client_v2.create_tweet(text=tweet_text, media_ids=[media_id])
     print("Tweet posted successfully.")
 
 
 # ====================================================
-#  GENAI TWEET GENERATOR (UPDATED)
+#  GENAI TWEET GENERATOR (UPDATED FOR NEW OPENAI API)
 # ====================================================
-
 def generate_llm_tweet(fixture_string, teamA, teamB, league, yc_data, fun_stat):
+
     prompt = f"""
 You create football analytics tweets. Follow the exact required format.
 
-Inputs:
 Fixture: {fixture_string}
 Team A: {teamA}
 Team B: {teamB}
 League: {league}
 
-Yellow Card Player Data (use EXACTLY these facts):
-Player Name: {yc_data.get("player_name")}
+Player Data:
+Name: {yc_data.get("player_name")}
 Team: {yc_data.get("team_name")}
 Position: {yc_data.get("position")}
-Last 5 YC Metric: {yc_data.get("metric")}
-Season League Cards: {yc_data.get("season_league_cards")}
-Avg Fouls Per Match: {yc_data.get("avg_fouls_total")}
+Last 5 Metric: {yc_data.get("metric")}
+Season YC: {yc_data.get("season_league_cards")}
+Avg Fouls/Game: {yc_data.get("avg_fouls_total")}
 Argument YC %: {yc_data.get("argument_related_yc")}
 Time-Wasting YC %: {yc_data.get("time_wasting_related_yc")}
 
-Fun stat: {fun_stat}
+Fun Stat: {fun_stat}
 
-STRICT FORMAT (no deviation except the dots next to team names in the header):
-
-⚪ {teamA.upper()} vs {teamB.upper()} ⚪
-
-Top Yellow Pick 🟨:
-{yc_data.get("player_name")} – Create a 12–18 word numeric summary about his YC risk. Using the available information.
-
-Note: DataPitch delivers analytics, you decide how to use it. Join our FREE Telegram for more insights including in-plays.
-
-Hashtags:
-Generate EXACTLY 6 hashtags:
-1. Short tag for team A
-2. Short tag for team B
-3. Combined fixture tag
-4. League tag
-5–6. Team, match or League specific attractive hashtags. (#HalaMadrid, #COYG, #ElClassico, #NorthLondonDerby etc)
-Do NOT use generic analytics hashtags.
-
-RULES:
-- Output ONLY the tweet.
-- Explain, in 1–2 sentences, why this player is a strong yellow-card candidate, using the data provided.
-- Note should be as it is.
-- The coloured circles beside team names must match their real-world home kit colours (e.g., Chelsea 🔵, Liverpool 🔴, Juventus ⚪⚫). Do not use generic blue/red.
-- MUST include player name.
-- No markdown.
-- No listing of raw metric patterns.
+STRICT REQUIREMENTS:
+- Output ONLY the tweet text.
+- MUST include team-specific colored circle emojis based on real kits.
+- MAX 2 sentences before hashtags.
+- EXACTLY 6 hashtags.
+- No markdown formatting.
 """
-    response = openai.ChatCompletion.create(
-        model="gpt-4o",
+
+    response = client.chat.completions.create(
+        model="gpt-5.1",  # NEW MODEL
         messages=[
-            {"role": "system", "content": "You write elite-level football betting and analytics tweets."},
+            {"role": "system", "content": "You write sharp, clean football betting tweets."},
             {"role": "user", "content": prompt}
         ],
         temperature=0.45
     )
 
-    return response["choices"][0]["message"]["content"].strip()
+    return response.choices[0].message.content.strip()
+
 
 # ====================================================
 #  MAIN FIXTURE PROCESSOR
@@ -199,25 +183,24 @@ def process_fixture(fixture_id, db_cursor):
     shots = get_top_shooters(db_cursor, fixture_id, limit=5)
     yellows = get_top_yellows(db_cursor, fixture_id, limit=3)
 
-    # Player images + metrics
+    # Add photo URLs + formatted metrics
     for p in foulers + drawers + shots + yellows:
         pid = p.get("player_id")
         if pid:
             p["photo"] = f"https://media.api-sports.io/football/players/{pid}.png"
         p["metric"] = format_last5(p.get("metric"))
 
-    # Team names
+
+    # Fixture names
     fixt = fix.get("fixt") or ""
     if " vs " in fixt:
         home_name, away_name = [s.strip() for s in fixt.split(" vs ", 1)]
     else:
         home_name, away_name = fixt, ""
 
+
     # Prepare YC data
-    if yellows and len(yellows) > 0:
-        yc = yellows[0]
-    else:
-        yc = {}
+    yc = yellows[0] if yellows else {}
 
     yc_data = {
         "player_name": yc.get("name", ""),
@@ -231,10 +214,11 @@ def process_fixture(fixture_id, db_cursor):
         "player_id": yc.get("player_id", "")
     }
 
-    # Fun stat (keep simple for now)
+    # Fun stat
     fun_stat = "Team to have 4 or more offsides."
 
-    # Jinja2 template
+
+    # Render PNG card
     env = Environment(loader=FileSystemLoader(ASSETS_DIR))
     template = env.get_template(HTML_TEMPLATE)
 
@@ -255,7 +239,6 @@ def process_fixture(fixture_id, db_cursor):
         }
     }
 
-    # HTML → PNG
     html_output = template.render(**data)
     png_path = os.path.join(ASSETS_DIR, f"{fixture_id}.png")
     render_html_to_png(html_output, png_path)
@@ -264,7 +247,7 @@ def process_fixture(fixture_id, db_cursor):
     # Send to Telegram
     send_png_to_telegram(png_path, TELEGRAM_CHANNELS)
 
-    # Generate tweet
+    # Generate tweet text using GPT
     tweet_text = generate_llm_tweet(
         fixture_string=fixt,
         teamA=home_name,
@@ -274,10 +257,7 @@ def process_fixture(fixture_id, db_cursor):
         fun_stat=fun_stat
     )
 
-    # print("Generated Tweet:")
-    # print(tweet_text)
-
-    # Post tweet
+    # Post to Twitter
     post_to_x(png_path, tweet_text)
 
 
