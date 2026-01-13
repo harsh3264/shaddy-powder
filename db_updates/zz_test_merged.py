@@ -126,7 +126,7 @@ def post_to_x(image_path, tweet_text):
 # ====================================================
 #  GENAI TWEET GENERATOR (same FORMAT, new API)
 # ====================================================
-def generate_llm_tweet(fixture_string, teamA, teamB, league, yc_data, fun_stat):
+def generate_llm_tweet(fixture_string, teamA, teamB, league, yc_data):
     prompt = f"""
 You create football analytics tweets. Follow the exact required format.
 
@@ -145,8 +145,6 @@ Season League Cards: {yc_data.get("season_league_cards")}
 Avg Fouls Per Match: {yc_data.get("avg_fouls_total")}
 Argument YC %: {yc_data.get("argument_related_yc")}
 Time-Wasting YC %: {yc_data.get("time_wasting_related_yc")}
-
-Fun stat: {fun_stat}
 
 STRICT FORMAT (no deviation except the dots next to team names in the header):
 
@@ -235,7 +233,7 @@ def process_fixture(fixture_id, db_cursor):
     }
 
     # Fun stat (keep simple for now)
-    fun_stat = "Team to have 4 or more offsides."
+    # fun_stat = "Team to have 4 or more offsides."
 
     # Jinja2 template
     env = Environment(loader=FileSystemLoader(ASSETS_DIR))
@@ -274,7 +272,7 @@ def process_fixture(fixture_id, db_cursor):
         teamB=away_name,
         league=fix.get("league_name", ""),
         yc_data=yc_data,
-        fun_stat=fun_stat
+        # fun_stat=fun_stat
     )
 
     # Post tweet
