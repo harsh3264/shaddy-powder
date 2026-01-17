@@ -46,7 +46,8 @@ def get_top_yellow(cursor, fixture_id):
             player_id
         FROM temp.player_q
         WHERE fixture_id = %s
-        AND rnk = 1
+        AND played_last_game = 1
+        AND last5_start_yc NOT LIKE '1%'
         ORDER BY rnk
         LIMIT 1;
     """, (fixture_id,))
